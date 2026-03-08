@@ -54,13 +54,13 @@ const AdminCurriculum = () => {
     else { toast({ title: "Saved!" }); setDialog(null); setForm({ name: "", slug: "" }); fetchAll(); }
   };
 
-  const toggleActive = async (table: string, id: string, current: boolean) => {
-    await supabase.from(table).update({ is_active: !current }).eq("id", id);
+  const toggleActive = async (table: "curriculums" | "grades" | "subjects", id: string, current: boolean) => {
+    await (supabase.from(table) as any).update({ is_active: !current }).eq("id", id);
     fetchAll();
   };
 
-  const handleDelete = async (table: string, id: string) => {
-    await supabase.from(table).delete().eq("id", id);
+  const handleDelete = async (table: "curriculums" | "grades" | "subjects", id: string) => {
+    await (supabase.from(table) as any).delete().eq("id", id);
     toast({ title: "Deleted" });
     fetchAll();
   };
