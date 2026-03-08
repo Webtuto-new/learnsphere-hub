@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 const TutorApplicationPage = () => {
   const [agreed, setAgreed] = useState({ payment: false, fee: false });
