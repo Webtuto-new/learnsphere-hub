@@ -233,9 +233,9 @@ const AdminRecordings = () => {
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>{editingRec ? "Edit" : "New"} Recording</DialogTitle></DialogHeader>
             <div className="space-y-4">
+              <ThumbnailUpload value={recForm.thumbnail_url || null} onChange={(url) => setRecForm(f => ({ ...f, thumbnail_url: url || "" }))} title={recForm.title} folder="recordings" />
               <div className="space-y-2"><Label>Title</Label><Input value={recForm.title} onChange={(e) => setRecForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Physics Grade 11 - Complete Course" /></div>
               <div className="space-y-2"><Label>Description</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={3} value={recForm.description} onChange={(e) => setRecForm(f => ({ ...f, description: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Thumbnail URL</Label><Input value={recForm.thumbnail_url} onChange={(e) => setRecForm(f => ({ ...f, thumbnail_url: e.target.value }))} /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={recForm.price} onChange={(e) => setRecForm(f => ({ ...f, price: e.target.value }))} /></div>
                 <div className="space-y-2"><Label>Access (days)</Label><Input type="number" value={recForm.access_duration_days} onChange={(e) => setRecForm(f => ({ ...f, access_duration_days: e.target.value }))} /></div>
