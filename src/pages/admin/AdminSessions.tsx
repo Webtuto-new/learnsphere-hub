@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, FileText, Upload, ArrowLeft } from "lucide-react";
-import FileUpload from "@/components/FileUpload";
+import FileOrLinkInput from "@/components/FileOrLinkInput";
 
 const AdminSessions = () => {
   const [classes, setClasses] = useState<any[]>([]);
