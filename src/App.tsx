@@ -75,6 +75,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <CartProvider>
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
