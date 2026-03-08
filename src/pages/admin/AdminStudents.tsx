@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Copy, UserPlus, BookOpen, Clock, Check } from "lucide-react";
+import { Plus, Copy, UserPlus, BookOpen, Clock, Pencil, Eye, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { format, addDays } from "date-fns";
 
 const AdminStudents = () => {
@@ -21,14 +21,27 @@ const AdminStudents = () => {
   const [createForm, setCreateForm] = useState({ full_name: "", email: "", password: "", phone: "", address: "" });
   const [createdInfo, setCreatedInfo] = useState<{ email: string; password: string; full_name: string; admission_number: string } | null>(null);
 
+  // Edit student
+  const [editOpen, setEditOpen] = useState(false);
+  const [editStudent, setEditStudent] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ full_name: "", phone: "", address: "", avatar_url: "" });
+
+  // View student profile/progress
+  const [viewStudent, setViewStudent] = useState<any>(null);
+  const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
+  const [studentPayments, setStudentPayments] = useState<any[]>([]);
+  const [studentAttendance, setStudentAttendance] = useState<any[]>([]);
+  const [studentCertificates, setStudentCertificates] = useState<any[]>([]);
+
   // Enroll student
   const [enrollOpen, setEnrollOpen] = useState(false);
   const [enrollStudent, setEnrollStudent] = useState<any>(null);
   const [enrollType, setEnrollType] = useState<"class" | "recording">("class");
   const [enrollItemId, setEnrollItemId] = useState("");
   const [enrollDays, setEnrollDays] = useState("30");
-  const [enrollments, setEnrollments] = useState<any[]>([]);
-  const [showEnrollments, setShowEnrollments] = useState(false);
+
+  // Search
+  const [search, setSearch] = useState("");
 
   const fetchStudents = async () => {
     const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
@@ -45,20 +58,21 @@ const AdminStudents = () => {
     setRecordings(data || []);
   };
 
-  const fetchEnrollments = async (userId: string) => {
-    const { data } = await supabase
-      .from("enrollments")
-      .select("*, classes(title), recordings(title)")
-      .eq("user_id", userId)
-      .order("enrolled_at", { ascending: false });
-    setEnrollments(data || []);
-  };
-
   useEffect(() => {
     fetchStudents();
     fetchClasses();
     fetchRecordings();
   }, []);
+
+  // Filtered students
+  const filtered = students.filter(s => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (s.full_name || "").toLowerCase().includes(q) ||
+      (s.email || "").toLowerCase().includes(q) ||
+      (s.admission_number || "").toLowerCase().includes(q) ||
+      (s.phone || "").toLowerCase().includes(q);
+  });
 
   // Create student account
   const handleCreate = async () => {
@@ -68,18 +82,10 @@ const AdminStudents = () => {
     }
     setCreating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-student", {
-        body: createForm,
-      });
+      const { data, error } = await supabase.functions.invoke("create-student", { body: createForm });
       if (error) throw error;
       if (data.error) throw new Error(data.error);
-
-      setCreatedInfo({
-        email: createForm.email,
-        password: createForm.password,
-        full_name: createForm.full_name,
-        admission_number: data.admission_number,
-      });
+      setCreatedInfo({ email: createForm.email, password: createForm.password, full_name: createForm.full_name, admission_number: data.admission_number });
       fetchStudents();
       toast({ title: "Student account created!" });
     } catch (err: any) {
@@ -101,7 +107,57 @@ const AdminStudents = () => {
     setCreatedInfo(null);
   };
 
-  // Enroll student
+  const generatePassword = () => {
+    const chars = "abcdefghijkmnpqrstuvwxyz23456789";
+    let pass = "";
+    for (let i = 0; i < 8; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+    setCreateForm(f => ({ ...f, password: pass }));
+  };
+
+  // Edit student
+  const openEdit = (s: any) => {
+    setEditStudent(s);
+    setEditForm({ full_name: s.full_name || "", phone: s.phone || "", address: s.address || "", avatar_url: s.avatar_url || "" });
+    setEditOpen(true);
+  };
+
+  const handleEdit = async () => {
+    if (!editStudent) return;
+    const { error } = await supabase.from("profiles").update({
+      full_name: editForm.full_name,
+      phone: editForm.phone || null,
+      address: editForm.address || null,
+      avatar_url: editForm.avatar_url || null,
+    }).eq("id", editStudent.id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Student updated!" });
+      setEditOpen(false);
+      fetchStudents();
+      // Update view if viewing same student
+      if (viewStudent?.id === editStudent.id) {
+        setViewStudent({ ...viewStudent, ...editForm });
+      }
+    }
+  };
+
+  // View student progress
+  const openStudentView = async (student: any) => {
+    setViewStudent(student);
+    // Fetch all progress data in parallel
+    const [enrollRes, payRes, attendRes, certRes] = await Promise.all([
+      supabase.from("enrollments").select("*, classes(title, class_type), recordings(title)").eq("user_id", student.id).order("enrolled_at", { ascending: false }),
+      supabase.from("payments").select("*").eq("user_id", student.id).order("created_at", { ascending: false }),
+      supabase.from("attendance").select("*, class_sessions(title, session_date, classes(title))").eq("user_id", student.id).order("joined_at", { ascending: false }),
+      supabase.from("certificates").select("*, classes(title)").eq("user_id", student.id).order("issued_at", { ascending: false }),
+    ]);
+    setStudentEnrollments(enrollRes.data || []);
+    setStudentPayments(payRes.data || []);
+    setStudentAttendance(attendRes.data || []);
+    setStudentCertificates(certRes.data || []);
+  };
+
+  // Enroll
   const openEnroll = (student: any) => {
     setEnrollStudent(student);
     setEnrollItemId("");
@@ -116,39 +172,27 @@ const AdminStudents = () => {
       return;
     }
     const expiresAt = addDays(new Date(), parseInt(enrollDays) || 30).toISOString();
-    const payload: any = {
-      user_id: enrollStudent.id,
-      status: "active",
-      expires_at: expiresAt,
-    };
+    const payload: any = { user_id: enrollStudent.id, status: "active", expires_at: expiresAt };
     if (enrollType === "class") payload.class_id = enrollItemId;
     else payload.recording_id = enrollItemId;
-
     const { error } = await supabase.from("enrollments").insert(payload);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
       toast({ title: "Student enrolled!" });
       setEnrollOpen(false);
+      if (viewStudent?.id === enrollStudent.id) openStudentView(enrollStudent);
     }
   };
 
-  // View & manage enrollments
-  const openStudentEnrollments = async (student: any) => {
-    setEnrollStudent(student);
-    await fetchEnrollments(student.id);
-    setShowEnrollments(true);
-  };
-
   const extendExpiry = async (enrollmentId: string, days: number) => {
-    const enrollment = enrollments.find(e => e.id === enrollmentId);
+    const enrollment = studentEnrollments.find(e => e.id === enrollmentId);
     const baseDate = enrollment?.expires_at ? new Date(enrollment.expires_at) : new Date();
     const newExpiry = addDays(baseDate, days).toISOString();
     const { error } = await supabase.from("enrollments").update({ expires_at: newExpiry, status: "active" }).eq("id", enrollmentId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else {
       toast({ title: `Extended by ${days} days` });
-      fetchEnrollments(enrollStudent.id);
+      if (viewStudent) openStudentView(viewStudent);
     }
   };
 
@@ -157,17 +201,164 @@ const AdminStudents = () => {
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else {
       toast({ title: "Enrollment expired" });
-      fetchEnrollments(enrollStudent.id);
+      if (viewStudent) openStudentView(viewStudent);
     }
   };
 
-  const generatePassword = () => {
-    const chars = "abcdefghijkmnpqrstuvwxyz23456789";
-    let pass = "";
-    for (let i = 0; i < 8; i++) pass += chars[Math.floor(Math.random() * chars.length)];
-    setCreateForm(f => ({ ...f, password: pass }));
-  };
+  // ======================== STUDENT DETAIL VIEW ========================
+  if (viewStudent) {
+    const activeEnrollments = studentEnrollments.filter(e => e.status === "active" && (!e.expires_at || new Date(e.expires_at) > new Date()));
+    const expiredEnrollments = studentEnrollments.filter(e => e.status === "expired" || (e.expires_at && new Date(e.expires_at) <= new Date()));
+    const totalPaid = studentPayments.filter(p => p.payment_status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
 
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setViewStudent(null)}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="font-display text-2xl font-bold text-foreground">{viewStudent.full_name}</h1>
+            <p className="text-sm text-muted-foreground">{viewStudent.email} · {viewStudent.admission_number}</p>
+          </div>
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => openEdit(viewStudent)}>
+            <Pencil className="w-3 h-3" /> Edit
+          </Button>
+          <Button size="sm" className="gap-1" onClick={() => openEnroll(viewStudent)}>
+            <BookOpen className="w-3 h-3" /> Enroll
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Card><CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">{activeEnrollments.length}</p>
+            <p className="text-xs text-muted-foreground">Active Enrollments</p>
+          </CardContent></Card>
+          <Card><CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">{studentAttendance.length}</p>
+            <p className="text-xs text-muted-foreground">Sessions Attended</p>
+          </CardContent></Card>
+          <Card><CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">{studentCertificates.length}</p>
+            <p className="text-xs text-muted-foreground">Certificates</p>
+          </CardContent></Card>
+          <Card><CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">LKR {totalPaid.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Total Paid</p>
+          </CardContent></Card>
+        </div>
+
+        {/* Student Details */}
+        <Card>
+          <CardContent className="p-4 space-y-2 text-sm">
+            <h3 className="font-semibold text-foreground">Details</h3>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-muted-foreground">
+              <p>Phone: <span className="text-foreground">{viewStudent.phone || "—"}</span></p>
+              <p>Address: <span className="text-foreground">{viewStudent.address || "—"}</span></p>
+              <p>Joined: <span className="text-foreground">{format(new Date(viewStudent.created_at), "PPP")}</span></p>
+              <p>Admission #: <span className="text-foreground font-mono">{viewStudent.admission_number || "—"}</span></p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Enrollments */}
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <h3 className="font-semibold text-foreground">Enrollments ({studentEnrollments.length})</h3>
+            {studentEnrollments.length === 0 && <p className="text-sm text-muted-foreground">No enrollments.</p>}
+            {studentEnrollments.map((e) => {
+              const isExpired = e.status === "expired" || (e.expires_at && new Date(e.expires_at) <= new Date());
+              const itemName = e.classes?.title || e.recordings?.title || "Unknown";
+              return (
+                <div key={e.id} className={`rounded-lg border p-3 space-y-2 ${isExpired ? "border-destructive/30 bg-destructive/5" : "border-border"}`}>
+                  <div className="flex items-center gap-2">
+                    {isExpired ? <XCircle className="w-4 h-4 text-destructive shrink-0" /> : <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-foreground truncate">{itemName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {e.class_id ? e.classes?.class_type || "Class" : "Recording"} · {isExpired ? "Expired" : "Active"}
+                        {e.expires_at && ` · Expires: ${format(new Date(e.expires_at), "PP")}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 7)}>+7d</Button>
+                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 30)}>+30d</Button>
+                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 90)}>+90d</Button>
+                    {!isExpired && (
+                      <Button size="sm" variant="destructive" className="text-xs h-7 ml-auto" onClick={() => expireEnrollment(e.id)}>Expire</Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        {/* Attendance */}
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <h3 className="font-semibold text-foreground">Attendance ({studentAttendance.length})</h3>
+            {studentAttendance.length === 0 && <p className="text-sm text-muted-foreground">No attendance records.</p>}
+            <div className="space-y-1">
+              {studentAttendance.slice(0, 20).map((a: any) => (
+                <div key={a.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
+                  <div>
+                    <span className="text-foreground">{a.class_sessions?.title || "Session"}</span>
+                    <span className="text-muted-foreground ml-2 text-xs">({a.class_sessions?.classes?.title})</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{a.class_sessions?.session_date ? format(new Date(a.class_sessions.session_date), "PP") : "—"}</span>
+                </div>
+              ))}
+              {studentAttendance.length > 20 && <p className="text-xs text-muted-foreground text-center pt-2">+ {studentAttendance.length - 20} more</p>}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payments */}
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <h3 className="font-semibold text-foreground">Payments ({studentPayments.length})</h3>
+            {studentPayments.length === 0 && <p className="text-sm text-muted-foreground">No payments.</p>}
+            <div className="space-y-1">
+              {studentPayments.map((p: any) => (
+                <div key={p.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
+                  <div>
+                    <span className="text-foreground">LKR {p.amount?.toLocaleString()}</span>
+                    <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${p.payment_status === "completed" ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"}`}>{p.payment_status}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{format(new Date(p.created_at), "PP")}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Certificates */}
+        {studentCertificates.length > 0 && (
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold text-foreground">Certificates ({studentCertificates.length})</h3>
+              <div className="space-y-1">
+                {studentCertificates.map((c: any) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
+                    <div>
+                      <span className="text-foreground">{c.title}</span>
+                      <span className="text-muted-foreground ml-2 text-xs">#{c.certificate_number}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{format(new Date(c.issued_at), "PP")}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // ======================== LIST VIEW ========================
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -180,36 +371,21 @@ const AdminStudents = () => {
             <DialogHeader><DialogTitle>Create Student Account</DialogTitle></DialogHeader>
             {!createdInfo ? (
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input value={createForm.full_name} onChange={(e) => setCreateForm(f => ({ ...f, full_name: e.target.value }))} placeholder="John Doe" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input type="email" value={createForm.email} onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))} placeholder="student@example.com" />
-                </div>
+                <div className="space-y-2"><Label>Full Name</Label><Input value={createForm.full_name} onChange={(e) => setCreateForm(f => ({ ...f, full_name: e.target.value }))} placeholder="John Doe" /></div>
+                <div className="space-y-2"><Label>Email</Label><Input type="email" value={createForm.email} onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))} placeholder="student@example.com" /></div>
                 <div className="space-y-2">
                   <Label>Password</Label>
                   <div className="flex gap-2">
                     <Input value={createForm.password} onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))} placeholder="min 6 characters" />
-                    <Button type="button" variant="outline" size="sm" onClick={generatePassword} className="shrink-0 text-xs">
-                      Generate
-                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={generatePassword} className="shrink-0 text-xs">Generate</Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Phone</Label>
-                    <Input value={createForm.phone} onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value }))} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Address</Label>
-                    <Input value={createForm.address} onChange={(e) => setCreateForm(f => ({ ...f, address: e.target.value }))} />
-                  </div>
+                  <div className="space-y-2"><Label>Phone</Label><Input value={createForm.phone} onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value }))} /></div>
+                  <div className="space-y-2"><Label>Address</Label><Input value={createForm.address} onChange={(e) => setCreateForm(f => ({ ...f, address: e.target.value }))} /></div>
                 </div>
                 <Button onClick={handleCreate} disabled={creating} className="w-full gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  {creating ? "Creating..." : "Create Account"}
+                  <UserPlus className="w-4 h-4" /> {creating ? "Creating..." : "Create Account"}
                 </Button>
               </div>
             ) : (
@@ -223,17 +399,29 @@ const AdminStudents = () => {
                     <p>🆔 Admission #: <span className="text-foreground">{createdInfo.admission_number}</span></p>
                   </div>
                 </div>
-                <Button onClick={copyCredentials} className="w-full gap-2">
-                  <Copy className="w-4 h-4" /> Copy Message to Share with Student
-                </Button>
-                <Button variant="outline" onClick={() => { resetCreateForm(); }} className="w-full">
-                  Create Another Student
-                </Button>
+                <Button onClick={copyCredentials} className="w-full gap-2"><Copy className="w-4 h-4" /> Copy Message to Share</Button>
+                <Button variant="outline" onClick={resetCreateForm} className="w-full">Create Another</Button>
               </div>
             )}
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Search */}
+      <Input placeholder="Search by name, email, phone or admission #..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Student</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2"><Label>Full Name</Label><Input value={editForm.full_name} onChange={(e) => setEditForm(f => ({ ...f, full_name: e.target.value }))} /></div>
+            <div className="space-y-2"><Label>Phone</Label><Input value={editForm.phone} onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))} /></div>
+            <div className="space-y-2"><Label>Address</Label><Input value={editForm.address} onChange={(e) => setEditForm(f => ({ ...f, address: e.target.value }))} /></div>
+            <Button onClick={handleEdit} className="w-full">Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Enroll Dialog */}
       <Dialog open={enrollOpen} onOpenChange={setEnrollOpen}>
@@ -249,71 +437,15 @@ const AdminStudents = () => {
             </div>
             <div className="space-y-2">
               <Label>{enrollType === "class" ? "Select Class" : "Select Recording"}</Label>
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={enrollItemId}
-                onChange={(e) => setEnrollItemId(e.target.value)}
-              >
+              <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={enrollItemId} onChange={(e) => setEnrollItemId(e.target.value)}>
                 <option value="">Choose...</option>
                 {(enrollType === "class" ? classes : recordings).map((item) => (
                   <option key={item.id} value={item.id}>{item.title}</option>
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
-              <Label>Access Duration (days)</Label>
-              <Input type="number" value={enrollDays} onChange={(e) => setEnrollDays(e.target.value)} />
-            </div>
-            <Button onClick={handleEnroll} className="w-full gap-2">
-              <BookOpen className="w-4 h-4" /> Enroll Student
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* View Enrollments Dialog */}
-      <Dialog open={showEnrollments} onOpenChange={setShowEnrollments}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Enrollments - {enrollStudent?.full_name}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            {enrollments.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No enrollments yet.</p>}
-            {enrollments.map((e) => {
-              const isExpired = e.status === "expired" || (e.expires_at && new Date(e.expires_at) < new Date());
-              const itemName = e.classes?.title || e.recordings?.title || "Unknown";
-              return (
-                <div key={e.id} className={`rounded-lg border p-3 space-y-2 ${isExpired ? "border-destructive/30 bg-destructive/5" : "border-border"}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-medium text-sm text-foreground">{itemName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {e.class_id ? "Class" : "Recording"} · Status: <span className={isExpired ? "text-destructive" : "text-secondary"}>{isExpired ? "Expired" : e.status}</span>
-                      </p>
-                      {e.expires_at && (
-                        <p className="text-xs text-muted-foreground">
-                          Expires: {format(new Date(e.expires_at), "PPP")}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 7)}>
-                      <Clock className="w-3 h-3" /> +7 days
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 30)}>
-                      <Clock className="w-3 h-3" /> +30 days
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-xs gap-1 h-7" onClick={() => extendExpiry(e.id, 90)}>
-                      <Clock className="w-3 h-3" /> +90 days
-                    </Button>
-                    {!isExpired && (
-                      <Button size="sm" variant="destructive" className="text-xs h-7" onClick={() => expireEnrollment(e.id)}>
-                        Expire Now
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="space-y-2"><Label>Access Duration (days)</Label><Input type="number" value={enrollDays} onChange={(e) => setEnrollDays(e.target.value)} /></div>
+            <Button onClick={handleEnroll} className="w-full gap-2"><BookOpen className="w-4 h-4" /> Enroll Student</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -332,26 +464,29 @@ const AdminStudents = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody>
-                {students.map((s) => (
-                  <tr key={s.id} className="border-b border-border last:border-0">
+                {filtered.map((s) => (
+                  <tr key={s.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer" onClick={() => openStudentView(s)}>
                     <td className="p-4 font-medium text-foreground font-mono text-xs">{s.admission_number || "—"}</td>
                     <td className="p-4 text-foreground">{s.full_name}</td>
                     <td className="p-4 text-muted-foreground">{s.email}</td>
                     <td className="p-4 text-muted-foreground">{s.phone || "—"}</td>
                     <td className="p-4 text-muted-foreground">{format(new Date(s.created_at), "PP")}</td>
                     <td className="p-4">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openStudentView(s)}>
+                          <Eye className="w-3 h-3" /> View
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openEdit(s)}>
+                          <Pencil className="w-3 h-3" /> Edit
+                        </Button>
                         <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openEnroll(s)}>
                           <BookOpen className="w-3 h-3" /> Enroll
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openStudentEnrollments(s)}>
-                          <Clock className="w-3 h-3" /> Manage
                         </Button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {students.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No students yet.</td></tr>}
+                {filtered.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{search ? "No students match your search." : "No students yet."}</td></tr>}
               </tbody>
             </table>
           </div>
