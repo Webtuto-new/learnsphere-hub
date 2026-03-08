@@ -49,12 +49,12 @@ const AdminStudents = () => {
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("classes").select("id, title, is_active").order("title");
     setClasses(data || []);
   };
 
   const fetchRecordings = async () => {
-    const { data } = await supabase.from("recordings").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("recordings").select("id, title, is_active").order("title");
     setRecordings(data || []);
   };
 
@@ -464,8 +464,8 @@ const AdminStudents = () => {
               <Label>{enrollType === "class" ? "Select Class" : "Select Recording"}</Label>
               <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={enrollItemId} onChange={(e) => setEnrollItemId(e.target.value)}>
                 <option value="">Choose...</option>
-                {(enrollType === "class" ? classes : recordings).map((item) => (
-                  <option key={item.id} value={item.id}>{item.title}</option>
+                {(enrollType === "class" ? classes : recordings).map((item: any) => (
+                  <option key={item.id} value={item.id}>{item.title}{!item.is_active ? " (Hidden)" : ""}</option>
                 ))}
               </select>
             </div>
