@@ -1,10 +1,11 @@
+import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen, GraduationCap, Play, Users, ArrowRight, Star, Zap } from "lucide-react";
 import ClassCard from "@/components/ClassCard";
-import { sampleClasses, curriculumData } from "@/data/sampleData";
+import { supabase } from "@/integrations/supabase/client";
 
 const stats = [
   { icon: Users, label: "Active Students", value: "5,000+" },
@@ -14,6 +15,26 @@ const stats = [
 ];
 
 const Index = () => {
+  const [classes, setClasses] = useState<any[]>([]);
+  const [curriculums, setCurriculums] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from("classes").select("*, teachers(name), curriculums(name), grades(name), subjects(name)")
+      .eq("is_active", true).eq("is_featured", true).order("created_at", { ascending: false }).limit(6)
+      .then(({ data }) => {
+        if (!data?.length) {
+          // If no featured, get any active classes
+          supabase.from("classes").select("*, teachers(name), curriculums(name), grades(name), subjects(name)")
+            .eq("is_active", true).order("created_at", { ascending: false }).limit(6)
+            .then(({ data: all }) => setClasses(all || []));
+        } else {
+          setClasses(data);
+        }
+      });
+    supabase.from("curriculums").select("*").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setCurriculums(data || []));
+  }, []);
+
   return (
     <Layout>
       <SEOHead title="Webtuto" description="Sri Lanka's #1 online learning platform. Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses." path="/" />
@@ -69,60 +90,78 @@ const Index = () => {
       </section>
 
       {/* Curriculum Preview */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Choose Your Curriculum
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              We support multiple syllabuses to match your academic path
-            </p>
+      {curriculums.length > 0 && (
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+                Choose Your Curriculum
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                We support multiple syllabuses to match your academic path
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {curriculums.map((cur) => (
+                <Link
+                  key={cur.id}
+                  to={`/curriculum?tab=${cur.slug}`}
+                  className="bg-card rounded-xl p-6 card-elevated text-center group"
+                >
+                  <div className="w-14 h-14 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/12 transition-colors">
+                    <GraduationCap className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="font-display font-semibold text-lg text-foreground mb-2">{cur.name}</h3>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {Object.entries(curriculumData).map(([key, cur]) => (
-              <Link
-                key={key}
-                to={`/curriculum?tab=${key}`}
-                className="bg-card rounded-xl p-6 card-elevated text-center group"
-              >
-                <div className="w-14 h-14 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/12 transition-colors">
-                  <GraduationCap className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-2">{cur.name}</h3>
-                <p className="text-sm text-muted-foreground">{cur.grades.length} grade levels</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Featured Classes */}
-      <section className="py-20 bg-muted/40">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Featured Classes
-              </h2>
-              <p className="text-muted-foreground">Handpicked courses to kickstart your learning</p>
+      {classes.length > 0 && (
+        <section className="py-20 bg-muted/40">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+                  Featured Classes
+                </h2>
+                <p className="text-muted-foreground">Handpicked courses to kickstart your learning</p>
+              </div>
+              <Link to="/classes" className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+                View all <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-            <Link to="/classes" className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              View all <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {classes.map((c) => (
+                <ClassCard
+                  key={c.id}
+                  id={c.id}
+                  title={c.title}
+                  curriculum={c.curriculums?.name || "—"}
+                  grade={c.grades?.name || "—"}
+                  subject={c.subjects?.name || "—"}
+                  teacherName={c.teachers?.name || "Tutor"}
+                  classType={c.class_type}
+                  price={Number(c.price)}
+                  originalPrice={c.original_price ? Number(c.original_price) : undefined}
+                  duration={c.duration_minutes ? `${c.duration_minutes} min` : undefined}
+                  isLive={c.is_live}
+                  description={c.short_description || c.description}
+                  thumbnail={c.thumbnail_url}
+                />
+              ))}
+            </div>
+            <div className="mt-8 text-center md:hidden">
+              <Link to="/classes">
+                <Button variant="outline">View All Classes</Button>
+              </Link>
+            </div>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sampleClasses.slice(0, 6).map((cls) => (
-              <ClassCard key={cls.id} {...cls} />
-            ))}
-          </div>
-          <div className="mt-8 text-center md:hidden">
-            <Link to="/classes">
-              <Button variant="outline">View All Classes</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-20">

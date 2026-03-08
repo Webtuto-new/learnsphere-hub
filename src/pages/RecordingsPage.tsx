@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
-import { sampleClasses } from "@/data/sampleData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,9 +21,6 @@ const RecordingsPage = () => {
     !query || r.title.toLowerCase().includes(query.toLowerCase())
   );
 
-  // Fallback to sample data styled as recordings if DB is empty
-  const hasFallback = recordings.length === 0;
-
   return (
     <Layout>
       <SEOHead title="Recording Store" description="Purchase and watch class recordings at your own pace on Webtuto." path="/recordings" />
@@ -40,26 +36,7 @@ const RecordingsPage = () => {
             <Input className="pl-10" placeholder="Search recordings..." value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
 
-          {hasFallback ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sampleClasses.filter(c => c.hasRecording).map(cls => (
-                <Card key={cls.id} className="overflow-hidden group">
-                  <div className="aspect-video bg-muted flex items-center justify-center">
-                    <Play className="w-10 h-10 text-muted-foreground" />
-                  </div>
-                  <CardContent className="p-4">
-                    <span className="badge-recording mb-2 inline-block">Recording</span>
-                    <h3 className="font-display font-semibold text-foreground mb-1">{cls.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{cls.teacherName}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-foreground">Rs. {cls.price.toLocaleString()}</span>
-                      <Link to={`/class/${cls.id}`}><Button size="sm">View</Button></Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
+          {filtered.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(r => (
                 <Card key={r.id} className="overflow-hidden group">
@@ -83,9 +60,12 @@ const RecordingsPage = () => {
                 </Card>
               ))}
             </div>
-          )}
-          {!hasFallback && filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">No recordings match your search.</div>
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              <Play className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-lg font-medium">No recordings available yet</p>
+              <p className="text-sm mt-1">Check back soon!</p>
+            </div>
           )}
         </div>
       </div>

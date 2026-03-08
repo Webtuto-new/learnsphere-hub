@@ -3,50 +3,24 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import ClassCard from "@/components/ClassCard";
 import { supabase } from "@/integrations/supabase/client";
-import { sampleClasses } from "@/data/sampleData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter } from "lucide-react";
+import { Search, BookOpen } from "lucide-react";
 
 const ClassesPage = () => {
   const [dbClasses, setDbClasses] = useState<any[]>([]);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    supabase.from("classes").select("*, teachers(name)").eq("is_active", true).order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setDbClasses(data || []);
-        setLoaded(true);
-      });
+    supabase.from("classes").select("*, teachers(name), curriculums(name), grades(name), subjects(name)")
+      .eq("is_active", true).order("created_at", { ascending: false })
+      .then(({ data }) => setDbClasses(data || []));
   }, []);
 
-  // Convert DB classes to ClassCard format
-  const dbCards = dbClasses.map(c => ({
-    id: c.id,
-    title: c.title,
-    thumbnail: c.thumbnail_url,
-    curriculum: "National", // TODO: join curriculum name
-    grade: "—",
-    subject: "—",
-    teacherName: c.teachers?.name || "Tutor",
-    classType: c.class_type as any,
-    price: Number(c.price),
-    originalPrice: c.original_price ? Number(c.original_price) : undefined,
-    sessionCount: c.duration_minutes ? undefined : 4,
-    duration: c.duration_minutes ? `${c.duration_minutes} min` : undefined,
-    isLive: c.is_live,
-    hasRecording: false,
-    description: c.short_description || c.description,
-  }));
-
-  // Use DB classes if available, fallback to sample
-  const allClasses = dbCards.length > 0 ? dbCards : sampleClasses;
-
-  const filtered = allClasses.filter(c => {
-    const matchesQuery = !query || c.title.toLowerCase().includes(query.toLowerCase()) || c.teacherName.toLowerCase().includes(query.toLowerCase());
-    const matchesType = typeFilter === "all" || c.classType === typeFilter;
+  const filtered = dbClasses.filter(c => {
+    const matchesQuery = !query || c.title.toLowerCase().includes(query.toLowerCase()) || (c.teachers?.name || "").toLowerCase().includes(query.toLowerCase());
+    const matchesType = typeFilter === "all" || c.class_type === typeFilter;
     return matchesQuery && matchesType;
   });
 
@@ -79,13 +53,33 @@ const ClassesPage = () => {
 
           <p className="text-sm text-muted-foreground mb-4">{filtered.length} classes found</p>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((cls) => (
-              <ClassCard key={cls.id} {...cls} />
-            ))}
-          </div>
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">No classes match your search.</div>
+          {filtered.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map((c) => (
+                <ClassCard
+                  key={c.id}
+                  id={c.id}
+                  title={c.title}
+                  curriculum={c.curriculums?.name || "—"}
+                  grade={c.grades?.name || "—"}
+                  subject={c.subjects?.name || "—"}
+                  teacherName={c.teachers?.name || "Tutor"}
+                  classType={c.class_type}
+                  price={Number(c.price)}
+                  originalPrice={c.original_price ? Number(c.original_price) : undefined}
+                  duration={c.duration_minutes ? `${c.duration_minutes} min` : undefined}
+                  isLive={c.is_live}
+                  description={c.short_description || c.description}
+                  thumbnail={c.thumbnail_url}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">
+              <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-lg font-medium">No classes available yet</p>
+              <p className="text-sm mt-1">Check back soon for new classes!</p>
+            </div>
           )}
         </div>
       </div>
