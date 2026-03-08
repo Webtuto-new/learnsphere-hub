@@ -34,6 +34,7 @@ const AdminClasses = () => {
       schedule_time: form.schedule_time || null,
       duration_minutes: parseInt(form.duration_minutes) || 60,
       is_live: form.is_live,
+      thumbnail_url: form.thumbnail_url || null,
     };
 
     let error;
