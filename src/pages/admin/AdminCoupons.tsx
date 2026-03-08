@@ -37,6 +37,18 @@ const AdminCoupons = () => {
     else { toast({ title: "Saved!" }); setOpen(false); setEditing(null); setForm({ code: "", discount_percent: "", discount_amount: "", max_uses: "", expires_at: "" }); fetchCoupons(); }
   };
 
+  const handleEdit = (c: any) => {
+    setEditing(c);
+    setForm({
+      code: c.code,
+      discount_percent: c.discount_percent?.toString() || "",
+      discount_amount: c.discount_amount?.toString() || "",
+      max_uses: c.max_uses?.toString() || "",
+      expires_at: c.expires_at ? c.expires_at.slice(0, 16) : "",
+    });
+    setOpen(true);
+  };
+
   const toggleActive = async (id: string, current: boolean) => {
     await supabase.from("coupons").update({ is_active: !current }).eq("id", id);
     fetchCoupons();
@@ -46,7 +58,7 @@ const AdminCoupons = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-foreground">Coupons</h1>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm({ code: "", discount_percent: "", discount_amount: "", max_uses: "", expires_at: "" }); } }}>
           <DialogTrigger asChild><Button className="gap-1"><Plus className="w-4 h-4" /> Add Coupon</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? "Edit" : "New"} Coupon</DialogTitle></DialogHeader>
@@ -60,7 +72,7 @@ const AdminCoupons = () => {
                 <div className="space-y-2"><Label>Max Uses</Label><Input type="number" value={form.max_uses} onChange={(e) => setForm(f => ({ ...f, max_uses: e.target.value }))} /></div>
                 <div className="space-y-2"><Label>Expires At</Label><Input type="datetime-local" value={form.expires_at} onChange={(e) => setForm(f => ({ ...f, expires_at: e.target.value }))} /></div>
               </div>
-              <Button onClick={handleSave} className="w-full">Save</Button>
+              <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -73,6 +85,7 @@ const AdminCoupons = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Code</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Discount</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Used</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Expires</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Active</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
@@ -82,13 +95,17 @@ const AdminCoupons = () => {
                     <td className="p-4 font-mono font-medium text-foreground">{c.code}</td>
                     <td className="p-4 text-foreground">{c.discount_percent ? `${c.discount_percent}%` : c.discount_amount ? `LKR ${c.discount_amount}` : "—"}</td>
                     <td className="p-4 text-muted-foreground">{c.used_count}{c.max_uses ? `/${c.max_uses}` : ""}</td>
+                    <td className="p-4 text-muted-foreground text-xs">{c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never"}</td>
                     <td className="p-4"><Switch checked={c.is_active} onCheckedChange={() => toggleActive(c.id, c.is_active)} /></td>
                     <td className="p-4">
-                      <Button variant="ghost" size="sm" onClick={async () => { await supabase.from("coupons").delete().eq("id", c.id); fetchCoupons(); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={async () => { await supabase.from("coupons").delete().eq("id", c.id); fetchCoupons(); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
-                {coupons.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No coupons.</td></tr>}
+                {coupons.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No coupons.</td></tr>}
               </tbody>
             </table>
           </div>
