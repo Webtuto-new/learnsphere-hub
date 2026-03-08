@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Play, CreditCard, Calendar, Clock, ExternalLink } from "lucide-react";
+import { BookOpen, Play, CreditCard, Calendar, Clock, ExternalLink, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const DashboardOverview = () => {
   const { user, profile } = useAuth();
