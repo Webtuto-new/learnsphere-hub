@@ -33,6 +33,8 @@ const LoginPage = () => {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
+    const googleRedirectUrl = "https://edu.webtuto.lk";
+
     try {
       const isCustomDomain =
         !window.location.hostname.includes("lovable.app") &&
@@ -42,7 +44,7 @@ const LoginPage = () => {
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: `${window.location.origin}/dashboard`,
+            redirectTo: googleRedirectUrl,
             skipBrowserRedirect: true,
           },
         });
@@ -59,7 +61,7 @@ const LoginPage = () => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: `${window.location.origin}/dashboard`,
+            redirectTo: googleRedirectUrl,
           },
         });
         if (error) throw error;
