@@ -60,10 +60,8 @@ const AdminLayout = ({ children }: Props) => {
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-destructive flex items-center justify-center">
-            <span className="text-destructive-foreground font-display font-bold">A</span>
-          </div>
-          <span className="font-display font-bold text-lg text-foreground">Admin Panel</span>
+          <img src={logo} alt="Webtuto.LK" className="h-8 w-auto" />
+          <span className="font-display font-semibold text-xs text-destructive bg-destructive/10 px-2 py-0.5 rounded">ADMIN</span>
         </Link>
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-1">
