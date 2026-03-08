@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { sampleClasses } from "@/data/sampleData";
 import { Card, CardContent } from "@/components/ui/card";
