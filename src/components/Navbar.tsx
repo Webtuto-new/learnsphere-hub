@@ -101,7 +101,7 @@ const Navbar = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleSignOut}
-                    className="rounded-full text-[13px] font-medium"
+                    className="rounded-full text-sm font-semibold tracking-[0.01em]"
                   >
                     Sign out
                   </Button>
