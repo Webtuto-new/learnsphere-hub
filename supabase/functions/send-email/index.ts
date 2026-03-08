@@ -59,7 +59,7 @@ serve(async (req) => {
     }
 
     const emailPayload: Record<string, unknown> = {
-      from: from || "Webtuto Academy <onboarding@resend.dev>",
+      from: from || "Webtuto Academy <noreply@edu.webtuto.lk>",
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
