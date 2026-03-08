@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Sun, Moon, Search, ChevronRight } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, ChevronRight, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/logo.png";
 
 const navItems = [
@@ -19,6 +20,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -80,6 +82,17 @@ const Navbar = () => {
               className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
             >
               <Search className="w-[18px] h-[18px]" />
+            </Link>
+            <Link
+              to="/checkout"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 relative"
+            >
+              <ShoppingCart className="w-[18px] h-[18px]" />
+              {itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-accent-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Link>
             <button
               onClick={() => setIsDark(!isDark)}

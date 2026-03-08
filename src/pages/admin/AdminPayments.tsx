@@ -6,17 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, CheckCircle, XCircle, Image, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewing, setReviewing] = useState<any>(null);
   const [editing, setEditing] = useState<any>(null);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [form, setForm] = useState({ user_id: "", amount: "", currency: "LKR", payment_method: "", payment_status: "pending", transaction_ref: "", enrollment_id: "" });
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const { toast } = useToast();
 
   const fetchPayments = async () => {
@@ -75,24 +78,61 @@ const AdminPayments = () => {
     else { toast({ title: "Deleted" }); fetchPayments(); }
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    await supabase.from("payments").update({ payment_status: status }).eq("id", id);
+  const handleApprove = async (payment: any) => {
+    // Create enrollments for all items
+    const items = payment.items || [];
+    for (const item of items) {
+      const enrollmentData: any = { user_id: payment.user_id, status: "active" };
+      if (item.type === "class") enrollmentData.class_id = item.id;
+      else if (item.type === "recording") enrollmentData.recording_id = item.id;
+      else if (item.type === "bundle") enrollmentData.bundle_id = item.id;
+
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + 30);
+      enrollmentData.expires_at = expiry.toISOString();
+
+      const { data: enrollment } = await supabase.from("enrollments").insert(enrollmentData).select().single();
+      if (enrollment && items.length === 1) {
+        await supabase.from("payments").update({ enrollment_id: enrollment.id }).eq("id", payment.id);
+      }
+    }
+
+    // If no items stored, still approve
+    await supabase.from("payments").update({ payment_status: "completed" }).eq("id", payment.id);
+    toast({ title: "Payment approved!", description: "Student enrollment has been activated." });
+    setReviewOpen(false);
+    setReviewing(null);
+    fetchPayments();
+  };
+
+  const handleReject = async (payment: any) => {
+    await supabase.from("payments").update({ payment_status: "failed" }).eq("id", payment.id);
+    toast({ title: "Payment rejected", variant: "destructive" });
+    setReviewOpen(false);
+    setReviewing(null);
     fetchPayments();
   };
 
   const filtered = payments.filter(p => {
+    if (filter !== "all" && p.payment_status !== filter) return false;
     if (!search) return true;
     const q = search.toLowerCase();
     return (p.profiles?.full_name || "").toLowerCase().includes(q) ||
       (p.profiles?.admission_number || "").toLowerCase().includes(q) ||
-      (p.transaction_ref || "").toLowerCase().includes(q) ||
-      (p.payment_status || "").toLowerCase().includes(q);
+      (p.transaction_ref || "").toLowerCase().includes(q);
   });
+
+  const pendingCount = payments.filter(p => p.payment_status === "pending").length;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-foreground">All Payments</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">All Payments</h1>
+          {pendingCount > 0 && (
+            <p className="text-sm text-amber-600 font-medium mt-1">{pendingCount} payment(s) awaiting review</p>
+          )}
+        </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild><Button className="gap-1"><Plus className="w-4 h-4" /> Add Payment</Button></DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -133,8 +173,8 @@ const AdminPayments = () => {
                 <Label>Link to Enrollment (optional)</Label>
                 <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.enrollment_id} onChange={(e) => setForm(f => ({ ...f, enrollment_id: e.target.value }))}>
                   <option value="">None</option>
-                  {enrollments.filter(e => !form.user_id || e.user_id === form.user_id).map(e => (
-                    <option key={e.id} value={e.id}>{e.classes?.title || e.recordings?.title || e.id.slice(0,8)}</option>
+                  {enrollments.map(e => (
+                    <option key={e.id} value={e.id}>{(e as any).classes?.title || (e as any).recordings?.title || e.id.slice(0,8)}</option>
                   ))}
                 </select>
               </div>
@@ -144,7 +184,16 @@ const AdminPayments = () => {
         </Dialog>
       </div>
 
-      <Input placeholder="Search by student, reference, status..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+      <div className="flex flex-wrap gap-3">
+        <Input placeholder="Search by student, reference..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+        <div className="flex gap-1">
+          {["all", "pending", "completed", "failed", "refunded"].map(f => (
+            <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)} className="capitalize">
+              {f}{f === "pending" && pendingCount > 0 ? ` (${pendingCount})` : ""}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -153,39 +202,131 @@ const AdminPayments = () => {
               <thead><tr className="border-b border-border">
                 <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Student</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Items</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Amount</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Method</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Receipt</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Reference</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody>
-                {filtered.map(p => (
-                  <tr key={p.id} className="border-b border-border last:border-0">
-                    <td className="p-4 text-foreground">{format(new Date(p.created_at), "PP")}</td>
-                    <td className="p-4 text-foreground">{p.profiles?.full_name || "—"} <span className="text-xs text-muted-foreground">{p.profiles?.admission_number}</span></td>
-                    <td className="p-4 font-medium text-foreground">{p.currency} {p.amount}</td>
-                    <td className="p-4 text-muted-foreground">{p.payment_method || "—"}</td>
-                    <td className="p-4">
-                      <select className="text-xs rounded border border-input bg-background px-2 py-1" value={p.payment_status} onChange={(e) => updateStatus(p.id, e.target.value)}>
-                        <option value="pending">Pending</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="refunded">Refunded</option>
-                      </select>
-                    </td>
-                    <td className="p-4 text-muted-foreground text-xs">{p.transaction_ref || "—"}</td>
-                    <td className="p-4">
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map(p => {
+                  const items = (p.items as any[]) || [];
+                  return (
+                    <tr key={p.id} className={`border-b border-border last:border-0 ${p.payment_status === "pending" ? "bg-amber-50 dark:bg-amber-950/20" : ""}`}>
+                      <td className="p-4 text-foreground">{format(new Date(p.created_at), "PP")}</td>
+                      <td className="p-4 text-foreground">{p.profiles?.full_name || "—"} <span className="text-xs text-muted-foreground block">{p.profiles?.admission_number}</span></td>
+                      <td className="p-4 text-muted-foreground text-xs">
+                        {items.length > 0 ? items.map((i: any) => i.title).join(", ") : "—"}
+                      </td>
+                      <td className="p-4 font-medium text-foreground">{p.currency} {p.amount}</td>
+                      <td className="p-4">
+                        {p.receipt_url ? (
+                          <a href={p.receipt_url} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 text-xs">
+                            <Image className="w-3 h-3" /> View
+                          </a>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </td>
+                      <td className="p-4">
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                          p.payment_status === "pending" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
+                          p.payment_status === "completed" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+                          p.payment_status === "failed" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                          "bg-muted text-muted-foreground"
+                        }`}>{p.payment_status}</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-1">
+                          {p.payment_status === "pending" && (
+                            <Button variant="default" size="sm" className="gap-1 text-xs" onClick={() => { setReviewing(p); setReviewOpen(true); }}>
+                              <Eye className="w-3 h-3" /> Review
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {filtered.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No payments found.</td></tr>}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
+
+      {/* Review Dialog */}
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Review Payment</DialogTitle></DialogHeader>
+          {reviewing && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Student</span>
+                  <p className="font-medium text-foreground">{reviewing.profiles?.full_name}</p>
+                  <p className="text-xs text-muted-foreground">{reviewing.profiles?.admission_number}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Amount</span>
+                  <p className="font-bold text-foreground text-lg">{reviewing.currency} {reviewing.amount}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Date</span>
+                  <p className="text-foreground">{format(new Date(reviewing.created_at), "PPpp")}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Reference</span>
+                  <p className="text-foreground">{reviewing.transaction_ref || "—"}</p>
+                </div>
+              </div>
+
+              {/* Items */}
+              {reviewing.items && (reviewing.items as any[]).length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-foreground mb-2">Purchased Items</h3>
+                  <div className="space-y-2">
+                    {(reviewing.items as any[]).map((item: any, i: number) => (
+                      <div key={i} className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-foreground">{item.title} <span className="text-xs text-muted-foreground capitalize">({item.type})</span></span>
+                        <span className="font-medium text-foreground">LKR {item.price?.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Receipt */}
+              {reviewing.receipt_url && (
+                <div>
+                  <h3 className="font-semibold text-foreground mb-2">Payment Receipt</h3>
+                  <div className="border border-border rounded-xl overflow-hidden bg-muted/30">
+                    {reviewing.receipt_url.endsWith(".pdf") ? (
+                      <a href={reviewing.receipt_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-6 text-primary hover:underline">
+                        <ExternalLink className="w-5 h-5" /> Open PDF Receipt
+                      </a>
+                    ) : (
+                      <img src={reviewing.receipt_url} alt="Payment receipt" className="w-full max-h-96 object-contain" />
+                    )}
+                  </div>
+                  <a href={reviewing.receipt_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1">
+                    <ExternalLink className="w-3 h-3" /> Open in new tab
+                  </a>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4 border-t border-border">
+                <Button onClick={() => handleApprove(reviewing)} className="flex-1 gap-2 bg-green-600 hover:bg-green-700">
+                  <CheckCircle className="w-4 h-4" /> Approve & Enroll
+                </Button>
+                <Button onClick={() => handleReject(reviewing)} variant="destructive" className="flex-1 gap-2">
+                  <XCircle className="w-4 h-4" /> Reject
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

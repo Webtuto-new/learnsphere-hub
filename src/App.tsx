@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import CurriculumPage from "./pages/CurriculumPage";
@@ -22,6 +23,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SearchPage from "./pages/SearchPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import NotFound from "./pages/NotFound";
 
 // Dashboard pages
@@ -73,6 +75,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <CartProvider>
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
@@ -91,6 +94,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/contact" element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />} />
             <Route path="/terms" element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />} />
             <Route path="/privacy" element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />} />
@@ -127,6 +131,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

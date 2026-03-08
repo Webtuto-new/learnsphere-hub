@@ -70,6 +70,36 @@ export type Database = {
           },
         ]
       }
+      bank_details: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
       bundle_classes: {
         Row: {
           bundle_id: string
@@ -543,8 +573,10 @@ export type Database = {
           currency: string
           enrollment_id: string | null
           id: string
+          items: Json | null
           payment_method: string | null
           payment_status: string
+          receipt_url: string | null
           transaction_ref: string | null
           user_id: string
         }
@@ -554,8 +586,10 @@ export type Database = {
           currency?: string
           enrollment_id?: string | null
           id?: string
+          items?: Json | null
           payment_method?: string | null
           payment_status?: string
+          receipt_url?: string | null
           transaction_ref?: string | null
           user_id: string
         }
@@ -565,8 +599,10 @@ export type Database = {
           currency?: string
           enrollment_id?: string | null
           id?: string
+          items?: Json | null
           payment_method?: string | null
           payment_status?: string
+          receipt_url?: string | null
           transaction_ref?: string | null
           user_id?: string
         }
