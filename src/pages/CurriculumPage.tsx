@@ -21,7 +21,7 @@ const CurriculumPage = () => {
 
   return (
     <Layout>
-      <div className="pt-24 pb-20">
+      <SEOHead title="Curriculum" description="Browse classes by National, Cambridge, and Edexcel syllabuses." path="/curriculum" />
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">

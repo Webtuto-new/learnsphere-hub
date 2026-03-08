@@ -5,7 +5,7 @@ import { sampleClasses } from "@/data/sampleData";
 
 const WorkshopsPage = () => (
   <Layout>
-    <div className="pt-24 pb-20">
+    <SEOHead title="Workshops" description="Intensive hands-on learning workshops on Webtuto." path="/workshops" />
       <div className="container mx-auto px-4">
         <div className="mb-10">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Workshops</h1>

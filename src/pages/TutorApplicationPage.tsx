@@ -22,7 +22,7 @@ const TutorApplicationPage = () => {
 
   return (
     <Layout>
-      <div className="pt-24 pb-20">
+      <SEOHead title="Become a Tutor" description="Join Webtuto and teach thousands of students across Sri Lanka." path="/tutor-application" />
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center mb-10">
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">

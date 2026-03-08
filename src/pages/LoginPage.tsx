@@ -31,7 +31,7 @@ const LoginPage = () => {
 
   return (
     <Layout>
-      <div className="pt-28 pb-20 flex items-center justify-center">
+      <SEOHead title="Log In" description="Log in to your Webtuto student account." path="/login" />
         <div className="w-full max-w-md bg-card rounded-xl p-8 card-elevated">
           <h1 className="font-display text-2xl font-bold text-foreground text-center mb-6">Welcome Back</h1>
           <form className="space-y-4" onSubmit={handleSubmit}>

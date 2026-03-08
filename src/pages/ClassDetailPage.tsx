@@ -245,10 +245,9 @@ const ClassDetailPage = () => {
 
               <div className="flex gap-2 mt-3">
                 <WishlistButton classId={classId} />
-                <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleShare}>
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? "Copied!" : "Share Link"}
-                </Button>
+              </div>
+              <div className="mt-3">
+                <ShareButtons url={shareLink} title={cls.title} />
               </div>
 
               <div className="mt-6 space-y-3 text-sm">

@@ -37,6 +37,7 @@ const SearchPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="Search" description="Search classes, recordings, and teachers on Webtuto." path="/search" />
       <div className="pt-28 pb-20">
         <div className="container mx-auto px-4">
           <h1 className="font-display text-3xl font-bold text-foreground mb-6">Search</h1>

@@ -41,7 +41,7 @@ const SignupPage = () => {
 
   return (
     <Layout>
-      <div className="pt-28 pb-20 flex items-center justify-center">
+      <SEOHead title="Sign Up" description="Create your free Webtuto account and start learning." path="/signup" />
         <div className="w-full max-w-md bg-card rounded-xl p-8 card-elevated">
           <h1 className="font-display text-2xl font-bold text-foreground text-center mb-6">Create Account</h1>
           <form className="space-y-4" onSubmit={handleSubmit}>

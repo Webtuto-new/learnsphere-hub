@@ -11,7 +11,7 @@ const steps = [
 
 const HowToUsePage = () => (
   <Layout>
-    <div className="pt-24 pb-20">
+    <SEOHead title="How To Use Webtuto" description="Get started with Webtuto in a few simple steps." path="/how-to-use" />
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-12">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">How To Use Webtuto</h1>
