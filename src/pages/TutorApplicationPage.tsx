@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,7 @@ const TutorApplicationPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="Become a Tutor" description="Join Webtuto and teach thousands of students across Sri Lanka." path="/tutor-application" />
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center mb-10">

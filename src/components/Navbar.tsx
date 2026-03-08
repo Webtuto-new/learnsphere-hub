@@ -9,11 +9,8 @@ const navItems = [
   { label: "Curriculum", path: "/curriculum" },
   { label: "Classes", path: "/classes" },
   { label: "Recordings", path: "/recordings" },
-  { label: "Bundles", path: "/bundles" },
-  { label: "Seminars", path: "/seminars" },
-  { label: "Workshops", path: "/workshops" },
   { label: "How To Use", path: "/how-to-use" },
-  { label: "Tutor Application", path: "/tutor-application" },
+  { label: "Become a Tutor", path: "/tutor-application" },
 ];
 
 const Navbar = () => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +41,7 @@ const SignupPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="Sign Up" description="Create your free Webtuto account and start learning." path="/signup" />
       <div className="pt-28 pb-20 flex items-center justify-center">
         <div className="w-full max-w-md bg-card rounded-xl p-8 card-elevated">
           <h1 className="font-display text-2xl font-bold text-foreground text-center mb-6">Create Account</h1>

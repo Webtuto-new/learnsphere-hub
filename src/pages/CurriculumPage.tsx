@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { GraduationCap, ArrowRight } from "lucide-react";
@@ -20,6 +21,7 @@ const CurriculumPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="Curriculum" description="Browse classes by National, Cambridge, and Edexcel syllabuses." path="/curriculum" />
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">

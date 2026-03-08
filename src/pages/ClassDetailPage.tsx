@@ -1,4 +1,6 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
+import ShareButtons from "@/components/ShareButtons";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,26 +8,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { sampleClasses } from "@/data/sampleData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, Users, Share2, ExternalLink, Copy, Check } from "lucide-react";
+import { Calendar, Clock, Video, Users, ExternalLink } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 import WishlistButton from "@/components/WishlistButton";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
-import { useToast } from "@/hooks/use-toast";
 
 const tabs = ["Overview", "Schedule", "Teacher", "Reviews"];
 
 const ClassDetailPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("Overview");
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [reviewKey, setReviewKey] = useState(0);
 
   // Try to load from DB first
@@ -69,16 +68,6 @@ const ClassDetailPage = () => {
   const price = dbClass ? Number(dbClass.price) : (sampleCls.price || 0);
 
   const shareLink = `${window.location.origin}/class/${classId}`;
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(shareLink);
-      setCopied(true);
-      toast({ title: "Link copied!" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({ title: "Could not copy link", variant: "destructive" });
-    }
-  };
 
   // Find next upcoming session for countdown
   const now = new Date();
@@ -89,6 +78,7 @@ const ClassDetailPage = () => {
 
   return (
     <Layout>
+      <SEOHead title={cls.title} description={cls.description} path={`/class/${classId}`} />
       {/* Banner */}
       <div className="hero-gradient pt-24 pb-12">
         <div className="container mx-auto px-4">
@@ -256,10 +246,9 @@ const ClassDetailPage = () => {
 
               <div className="flex gap-2 mt-3">
                 <WishlistButton classId={classId} />
-                <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={handleShare}>
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? "Copied!" : "Share Link"}
-                </Button>
+              </div>
+              <div className="mt-3">
+                <ShareButtons url={shareLink} title={cls.title} />
               </div>
 
               <div className="mt-6 space-y-3 text-sm">

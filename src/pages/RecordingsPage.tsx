@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { sampleClasses } from "@/data/sampleData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +27,7 @@ const RecordingsPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="Recording Store" description="Purchase and watch class recordings at your own pace on Webtuto." path="/recordings" />
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-8">

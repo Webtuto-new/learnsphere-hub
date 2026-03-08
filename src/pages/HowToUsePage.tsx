@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { BookOpen, UserPlus, CreditCard, Video } from "lucide-react";
 
 const steps = [
@@ -10,6 +11,7 @@ const steps = [
 
 const HowToUsePage = () => (
   <Layout>
+    <SEOHead title="How To Use Webtuto" description="Get started with Webtuto in a few simple steps." path="/how-to-use" />
     <div className="pt-24 pb-20">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-12">

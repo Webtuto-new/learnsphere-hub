@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import ClassCard from "@/components/ClassCard";
 import { supabase } from "@/integrations/supabase/client";
 import { sampleClasses } from "@/data/sampleData";
@@ -53,6 +54,7 @@ const ClassesPage = () => {
 
   return (
     <Layout>
+      <SEOHead title="All Classes" description="Browse live classes, seminars, workshops and more on Webtuto." path="/classes" />
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-8">

@@ -1,9 +1,11 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import ClassCard from "@/components/ClassCard";
 import { sampleClasses } from "@/data/sampleData";
 
 const SeminarsPage = () => (
   <Layout>
+    <SEOHead title="Seminars" description="One-time deep-dive sessions with expert tutors on Webtuto." path="/seminars" />
     <div className="pt-24 pb-20">
       <div className="container mx-auto px-4">
         <div className="mb-10">
