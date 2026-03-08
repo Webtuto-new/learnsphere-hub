@@ -20,7 +20,6 @@ const tabs = ["Overview", "Schedule", "Teacher", "Reviews"];
 const ClassDetailPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("Overview");
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
