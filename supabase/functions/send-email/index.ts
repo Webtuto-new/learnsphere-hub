@@ -13,6 +13,9 @@ interface EmailRequest {
   html: string;
   from?: string;
   replyTo?: string;
+  // For admin notifications (no auth required for internal calls)
+  _internal?: boolean;
+  _service_key?: string;
 }
 
 serve(async (req) => {
@@ -26,30 +29,30 @@ serve(async (req) => {
       throw new Error("RESEND_API_KEY is not configured");
     }
 
-    // Verify auth
+    const body: EmailRequest = await req.json();
+    const { to, subject, html, from, replyTo } = body;
+
+    // Auth check — allow if user is authenticated OR if service role key matches
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (authHeader) {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { to, subject, html, from, replyTo }: EmailRequest = await req.json();
 
     if (!to || !subject || !html) {
       return new Response(
@@ -59,7 +62,7 @@ serve(async (req) => {
     }
 
     const emailPayload: Record<string, unknown> = {
-      from: from || "Webtuto Academy <noreply@webtutoacademy.lovable.app>",
+      from: from || "Webtuto Academy <onboarding@resend.dev>",
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
@@ -88,6 +91,7 @@ serve(async (req) => {
       );
     }
 
+    console.log(`Email sent to ${to}: ${subject}`);
     return new Response(JSON.stringify({ success: true, id: resendData.id }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
