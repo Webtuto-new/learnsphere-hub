@@ -7,6 +7,7 @@ import {
   ChevronRight, Bell, Heart, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const studentMenu = [
   { label: "Overview", path: "/dashboard", icon: LayoutDashboard },
