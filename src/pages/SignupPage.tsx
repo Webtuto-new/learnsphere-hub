@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 const SignupPage = () => {
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", address: "", password: "", confirm: "" });
