@@ -1,4 +1,4 @@
-import Deno from "https://deno.land/x/deno@v1.0.0/mod.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
