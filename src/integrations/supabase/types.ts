@@ -616,6 +616,47 @@ export type Database = {
         }
         Relationships: []
       }
+      recording_videos: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          episode_number: number | null
+          id: string
+          is_active: boolean
+          recording_id: string
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          episode_number?: number | null
+          id?: string
+          is_active?: boolean
+          recording_id: string
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          episode_number?: number | null
+          id?: string
+          is_active?: boolean
+          recording_id?: string
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recording_videos_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recordings: {
         Row: {
           access_duration_days: number | null
