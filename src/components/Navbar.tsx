@@ -61,7 +61,7 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
+                  className={`relative px-5 py-1.5 rounded-full text-sm font-body font-semibold tracking-[0.02em] transition-all duration-300 ${
                     location.pathname === item.path
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -93,7 +93,7 @@ const Navbar = () => {
               {user ? (
                 <>
                   <Link to="/dashboard">
-                    <Button variant="ghost" size="sm" className="rounded-full text-[13px] font-medium">
+                    <Button variant="ghost" size="sm" className="rounded-full text-sm font-semibold tracking-[0.01em]">
                       Dashboard
                     </Button>
                   </Link>
@@ -101,7 +101,7 @@ const Navbar = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleSignOut}
-                    className="rounded-full text-[13px] font-medium"
+                    className="rounded-full text-sm font-semibold tracking-[0.01em]"
                   >
                     Sign out
                   </Button>
@@ -109,14 +109,14 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="ghost" size="sm" className="rounded-full text-[13px] font-medium">
+                    <Button variant="ghost" size="sm" className="rounded-full text-sm font-semibold tracking-[0.01em]">
                       Log in
                     </Button>
                   </Link>
                   <Link to="/signup">
                     <Button
                       size="sm"
-                      className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-[13px] font-semibold px-5 shadow-sm"
+                      className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-bold tracking-[0.01em] px-5 shadow-sm"
                     >
                       Get Started
                       <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
