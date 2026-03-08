@@ -68,16 +68,6 @@ const ClassDetailPage = () => {
   const price = dbClass ? Number(dbClass.price) : (sampleCls.price || 0);
 
   const shareLink = `${window.location.origin}/class/${classId}`;
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(shareLink);
-      setCopied(true);
-      toast({ title: "Link copied!" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({ title: "Could not copy link", variant: "destructive" });
-    }
-  };
 
   // Find next upcoming session for countdown
   const now = new Date();
