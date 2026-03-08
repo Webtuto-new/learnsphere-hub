@@ -56,19 +56,20 @@ const Navbar = () => {
 
           {/* Desktop Nav — Centered */}
           <div className="hidden lg:flex flex-1 justify-center">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
-                  location.pathname === item.path
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            <div className="flex items-center bg-muted/50 rounded-full px-1.5 py-1.5">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
 
