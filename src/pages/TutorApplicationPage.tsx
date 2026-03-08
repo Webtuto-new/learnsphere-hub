@@ -7,17 +7,63 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 const TutorApplicationPage = () => {
+  const { user } = useAuth();
   const [agreed, setAgreed] = useState({ payment: false, fee: false });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed.payment || !agreed.fee) {
       toast.error("Please agree to all terms before submitting.");
       return;
     }
+
+    setLoading(true);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const subjects = formData.get("subjects") as string;
+
+    const { error } = await supabase.from("tutor_applications").insert({
+      name,
+      email,
+      phone: formData.get("phone") as string,
+      address: formData.get("address") as string,
+      age: parseInt(formData.get("age") as string) || null,
+      teaching_experience: formData.get("experience") as string,
+      subjects_can_teach: subjects,
+      max_grade_level: formData.get("maxGrade") as string,
+      online_teaching_years: parseInt(formData.get("onlineYears") as string) || 0,
+      agreed_payment_terms: agreed.payment,
+      agreed_platform_fee: agreed.fee,
+      user_id: user?.id || null,
+      status: "pending",
+    });
+
+    if (error) {
+      toast.error("Failed to submit application. " + error.message);
+      setLoading(false);
+      return;
+    }
+
     toast.success("Application submitted successfully! We'll review it shortly.");
+
+    try {
+      const appEmail = emailTemplates.tutorApplicationReceived(name);
+      await sendEmail({ to: email, subject: appEmail.subject, html: appEmail.html });
+    } catch (e) {
+      console.error("Tutor application email failed:", e);
+    }
+
+    setLoading(false);
+    form.reset();
+    setAgreed({ payment: false, fee: false });
   };
 
   return (
@@ -38,49 +84,49 @@ const TutorApplicationPage = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" placeholder="Your full name" required />
+                <Input id="name" name="name" placeholder="Your full name" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="age">Age</Label>
-                <Input id="age" type="number" placeholder="Your age" required />
+                <Input id="age" name="age" type="number" placeholder="Your age" required />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
-              <Input id="address" placeholder="Your address" required />
+              <Input id="address" name="address" placeholder="Your address" required />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="your@email.com" required />
+                <Input id="email" name="email" type="email" placeholder="your@email.com" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" placeholder="+94 XX XXX XXXX" required />
+                <Input id="phone" name="phone" placeholder="+94 XX XXX XXXX" required />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="experience">Teaching Experience</Label>
-              <Textarea id="experience" placeholder="Describe your teaching experience..." rows={3} required />
+              <Textarea id="experience" name="experience" placeholder="Describe your teaching experience..." rows={3} required />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="subjects">Subjects You Can Teach</Label>
-                <Input id="subjects" placeholder="e.g., Maths, Science" required />
+                <Input id="subjects" name="subjects" placeholder="e.g., Maths, Science" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxGrade">Maximum Grade Level</Label>
-                <Input id="maxGrade" placeholder="e.g., A/L" required />
+                <Input id="maxGrade" name="maxGrade" placeholder="e.g., A/L" required />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="onlineYears">Online Teaching Experience (years)</Label>
-              <Input id="onlineYears" type="number" placeholder="0" required />
+              <Input id="onlineYears" name="onlineYears" type="number" placeholder="0" required />
             </div>
 
             <div className="space-y-3">
@@ -112,8 +158,8 @@ const TutorApplicationPage = () => {
               </label>
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              Submit Application
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Application"}
             </Button>
           </form>
         </div>
