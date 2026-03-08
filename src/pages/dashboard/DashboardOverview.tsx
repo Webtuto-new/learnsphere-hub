@@ -54,9 +54,15 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">Welcome back, {profile?.full_name}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">Welcome back, {profile?.full_name}</p>
+        </div>
+        <Button onClick={handleSendTestEmail} disabled={sendingEmail} variant="outline" size="sm" className="gap-2">
+          <Mail className="w-4 h-4" />
+          {sendingEmail ? "Sending..." : "Send Test Email"}
+        </Button>
       </div>
 
       {/* Stats */}
