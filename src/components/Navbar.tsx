@@ -48,27 +48,29 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16 lg:h-[72px]">
+        <div className="flex items-center h-16 lg:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center bg-muted/50 rounded-full px-1.5 py-1.5">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
-                  location.pathname === item.path
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {/* Desktop Nav — Centered */}
+          <div className="hidden lg:flex flex-1 justify-center">
+            <div className="flex items-center bg-muted/50 rounded-full px-1.5 py-1.5">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Right Actions */}
