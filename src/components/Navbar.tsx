@@ -48,14 +48,14 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16 lg:h-[72px]">
+        <div className="flex items-center h-16 lg:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center bg-muted/50 rounded-full px-1.5 py-1.5">
+          {/* Desktop Nav — Centered */}
+          <div className="hidden lg:flex flex-1 justify-center">
             {navItems.map((item) => (
               <Link
                 key={item.path}
