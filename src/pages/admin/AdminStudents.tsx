@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Copy, UserPlus, BookOpen, Clock, Pencil, Eye, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Copy, UserPlus, BookOpen, Clock, Pencil, Eye, ArrowLeft, CheckCircle2, XCircle, Ban, ShieldCheck } from "lucide-react";
 import { format, addDays } from "date-fns";
 
 const AdminStudents = () => {
@@ -205,6 +205,23 @@ const AdminStudents = () => {
     }
   };
 
+  // Ban/Unban
+  const toggleBan = async (student: any) => {
+    const action = student.is_banned ? "unban" : "ban";
+    try {
+      const { data, error } = await supabase.functions.invoke("ban-user", {
+        body: { user_id: student.id, action },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: action === "ban" ? "Student banned" : "Student unbanned" });
+      fetchStudents();
+      if (viewStudent?.id === student.id) setViewStudent({ ...student, is_banned: !student.is_banned });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   // ======================== STUDENT DETAIL VIEW ========================
   if (viewStudent) {
     const activeEnrollments = studentEnrollments.filter(e => e.status === "active" && (!e.expires_at || new Date(e.expires_at) > new Date()));
@@ -226,6 +243,14 @@ const AdminStudents = () => {
           </Button>
           <Button size="sm" className="gap-1" onClick={() => openEnroll(viewStudent)}>
             <BookOpen className="w-3 h-3" /> Enroll
+          </Button>
+          <Button
+            variant={viewStudent.is_banned ? "outline" : "destructive"}
+            size="sm"
+            className="gap-1"
+            onClick={() => toggleBan(viewStudent)}
+          >
+            {viewStudent.is_banned ? <><ShieldCheck className="w-3 h-3" /> Unban</> : <><Ban className="w-3 h-3" /> Ban</>}
           </Button>
         </div>
 
@@ -467,7 +492,10 @@ const AdminStudents = () => {
                 {filtered.map((s) => (
                   <tr key={s.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer" onClick={() => openStudentView(s)}>
                     <td className="p-4 font-medium text-foreground font-mono text-xs">{s.admission_number || "—"}</td>
-                    <td className="p-4 text-foreground">{s.full_name}</td>
+                    <td className="p-4 text-foreground">
+                      {s.full_name}
+                      {s.is_banned && <span className="ml-2 text-xs bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">Banned</span>}
+                    </td>
                     <td className="p-4 text-muted-foreground">{s.email}</td>
                     <td className="p-4 text-muted-foreground">{s.phone || "—"}</td>
                     <td className="p-4 text-muted-foreground">{format(new Date(s.created_at), "PP")}</td>
@@ -481,6 +509,9 @@ const AdminStudents = () => {
                         </Button>
                         <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openEnroll(s)}>
                           <BookOpen className="w-3 h-3" /> Enroll
+                        </Button>
+                        <Button variant="ghost" size="sm" className={`text-xs gap-1 ${s.is_banned ? "" : "text-destructive"}`} onClick={() => toggleBan(s)}>
+                          {s.is_banned ? <><ShieldCheck className="w-3 h-3" /> Unban</> : <><Ban className="w-3 h-3" /> Ban</>}
                         </Button>
                       </div>
                     </td>
