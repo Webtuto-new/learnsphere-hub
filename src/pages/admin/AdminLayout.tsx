@@ -6,6 +6,7 @@ import {
   FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const adminMenu = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
