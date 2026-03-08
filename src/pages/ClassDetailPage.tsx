@@ -25,7 +25,6 @@ const ClassDetailPage = () => {
   const [sessions, setSessions] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [reviewKey, setReviewKey] = useState(0);
 
   // Try to load from DB first
