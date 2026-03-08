@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, FileText, Upload, ArrowLeft } from "lucide-react";
-import FileUpload from "@/components/FileUpload";
+import FileOrLinkInput from "@/components/FileOrLinkInput";
 
 const AdminSessions = () => {
   const [classes, setClasses] = useState<any[]>([]);
@@ -167,15 +167,15 @@ const AdminSessions = () => {
                     <option value="other">Other</option>
                   </select>
                 </div>
-                <FileUpload
+                <FileOrLinkInput
                   value={resForm.file_url || null}
                   onChange={(url) => setResForm(f => ({ ...f, file_url: url || "" }))}
                   bucket="thumbnails"
                   folder="resources"
                   accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.png,.mp4,.zip"
                   label="File"
-                  hint="Drag & drop a file (PDF, Doc, Image, etc.)"
-                  previewType="file"
+                  linkPlaceholder="https://drive.google.com/... or any URL"
+                  uploadHint="Drag & drop a file (PDF, Doc, Image, etc.)"
                 />
                 <Button onClick={handleAddResource} className="w-full">Add Resource</Button>
               </div>
@@ -230,15 +230,15 @@ const AdminSessions = () => {
                   <div className="space-y-2"><Label>End Time</Label><Input type="time" value={form.end_time} onChange={(e) => setForm(f => ({ ...f, end_time: e.target.value }))} /></div>
                 </div>
                 <div className="space-y-2"><Label>Zoom Meeting Link</Label><Input value={form.zoom_link} onChange={(e) => setForm(f => ({ ...f, zoom_link: e.target.value }))} placeholder="https://zoom.us/j/..." /></div>
-                <FileUpload
+                <FileOrLinkInput
                   value={form.notes_url || null}
                   onChange={(url) => setForm(f => ({ ...f, notes_url: url || "" }))}
                   bucket="thumbnails"
                   folder="notes"
                   accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png"
                   label="Session Notes (PDF/Doc)"
-                  hint="Drag & drop notes file or click to browse"
-                  previewType="file"
+                  linkPlaceholder="https://drive.google.com/... or any URL"
+                  uploadHint="Drag & drop notes file"
                 />
                 <div className="space-y-2"><Label>Recording URL (optional)</Label><Input value={form.recording_url} onChange={(e) => setForm(f => ({ ...f, recording_url: e.target.value }))} /></div>
                 <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Session</Button>

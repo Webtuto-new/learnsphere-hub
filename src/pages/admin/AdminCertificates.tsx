@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import FileUpload from "@/components/FileUpload";
+import FileOrLinkInput from "@/components/FileOrLinkInput";
 
 const AdminCertificates = () => {
   const [certs, setCerts] = useState<any[]>([]);
@@ -82,15 +82,15 @@ const AdminCertificates = () => {
                 </select>
               </div>
               <div className="space-y-2"><Label>Certificate Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Certificate of Completion" /></div>
-              <FileUpload
+              <FileOrLinkInput
                 value={form.pdf_url || null}
                 onChange={(url) => setForm(f => ({ ...f, pdf_url: url || "" }))}
                 bucket="thumbnails"
                 folder="certificates"
                 accept=".pdf"
                 label="Certificate PDF (optional)"
-                hint="Drag & drop certificate PDF"
-                previewType="file"
+                linkPlaceholder="https://drive.google.com/... or direct PDF URL"
+                uploadHint="Drag & drop certificate PDF"
               />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Issue"}</Button>
             </div>
