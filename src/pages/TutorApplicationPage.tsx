@@ -86,7 +86,7 @@ const TutorApplicationPage = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" placeholder="Your full name" required />
+                <Input id="name" name="name" placeholder="Your full name" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="age">Age</Label>
