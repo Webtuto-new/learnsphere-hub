@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Sun, Moon, Search } from "lucide-react";
+import { Menu, X, Sun, Moon, Search, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
@@ -10,8 +10,6 @@ const navItems = [
   { label: "Curriculum", path: "/curriculum" },
   { label: "Classes", path: "/classes" },
   { label: "Recordings", path: "/recordings" },
-  { label: "How To Use", path: "/how-to-use" },
-  { label: "Become a Tutor", path: "/tutor-application" },
 ];
 
 const Navbar = () => {
@@ -20,7 +18,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -43,27 +41,29 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-card/95 glass shadow-sm border-b border-border"
+          ? "bg-background/80 glass shadow-[0_1px_0_hsl(var(--border)/0.5),0_4px_20px_hsl(var(--primary)/0.06)]"
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Webtuto.LK" className="h-10 w-auto" />
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16 lg:h-[72px]">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center bg-muted/50 rounded-full px-1.5 py-1.5">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
                   location.pathname === item.path
-                    ? "text-primary bg-primary/8"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {item.label}
@@ -71,35 +71,62 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link to="/search" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-              <Search className="w-5 h-5" />
+          {/* Right Actions */}
+          <div className="flex items-center gap-1.5">
+            <Link
+              to="/search"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
+            >
+              <Search className="w-[18px] h-[18px]" />
             </Link>
             <button
               onClick={() => setIsDark(!isDark)}
-              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
               aria-label="Toggle theme"
             >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
             </button>
-            <div className="hidden lg:flex items-center gap-2">
+
+            <div className="hidden lg:flex items-center gap-2 ml-2">
               {user ? (
                 <>
                   <Link to="/dashboard">
-                    <Button variant="ghost" size="sm">Dashboard</Button>
+                    <Button variant="ghost" size="sm" className="rounded-full text-[13px] font-medium">
+                      Dashboard
+                    </Button>
                   </Link>
-                  <Button variant="outline" size="sm" onClick={handleSignOut}>Sign out</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="rounded-full text-[13px] font-medium"
+                  >
+                    Sign out
+                  </Button>
                 </>
               ) : (
                 <>
-                  <Link to="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
-                  <Link to="/signup"><Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold">Sign up</Button></Link>
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm" className="rounded-full text-[13px] font-medium">
+                      Log in
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button
+                      size="sm"
+                      className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-[13px] font-semibold px-5 shadow-sm"
+                    >
+                      Get Started
+                      <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                    </Button>
+                  </Link>
                 </>
               )}
             </div>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
+              className="lg:hidden p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -107,32 +134,42 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="lg:hidden bg-card border-b border-border animate-slide-in-right">
-          <div className="container mx-auto px-4 py-4 space-y-1">
+        <div className="lg:hidden bg-background/95 glass border-t border-border/50 animate-in slide-in-from-top-2 duration-300">
+          <div className="container mx-auto px-4 py-5 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   location.pathname === item.path
-                    ? "text-primary bg-primary/8"
+                    ? "text-primary-foreground bg-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 }`}
               >
                 {item.label}
+                <ChevronRight className="w-4 h-4 opacity-40" />
               </Link>
             ))}
-            <div className="flex gap-2 pt-4 border-t border-border mt-4">
+            <div className="flex gap-2.5 pt-5 border-t border-border/50 mt-4">
               {user ? (
                 <>
-                  <Link to="/dashboard" className="flex-1"><Button variant="outline" className="w-full">Dashboard</Button></Link>
-                  <Button variant="outline" className="flex-1" onClick={handleSignOut}>Sign out</Button>
+                  <Link to="/dashboard" className="flex-1">
+                    <Button variant="outline" className="w-full rounded-xl">Dashboard</Button>
+                  </Link>
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={handleSignOut}>Sign out</Button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="flex-1"><Button variant="outline" className="w-full">Log in</Button></Link>
-                  <Link to="/signup" className="flex-1"><Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Sign up</Button></Link>
+                  <Link to="/login" className="flex-1">
+                    <Button variant="outline" className="w-full rounded-xl">Log in</Button>
+                  </Link>
+                  <Link to="/signup" className="flex-1">
+                    <Button className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
+                      Get Started
+                    </Button>
+                  </Link>
                 </>
               )}
             </div>
