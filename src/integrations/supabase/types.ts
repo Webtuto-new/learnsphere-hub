@@ -139,6 +139,44 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          certificate_number: string
+          class_id: string | null
+          id: string
+          issued_at: string
+          pdf_url: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          certificate_number: string
+          class_id?: string | null
+          id?: string
+          issued_at?: string
+          pdf_url?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string
+          class_id?: string | null
+          id?: string
+          issued_at?: string
+          pdf_url?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_sessions: {
         Row: {
           class_id: string
@@ -200,7 +238,9 @@ export type Database = {
           curriculum_id: string | null
           description: string | null
           duration_minutes: number | null
+          free_trial_duration_minutes: number | null
           grade_id: string | null
+          has_free_trial: boolean | null
           id: string
           is_active: boolean
           is_featured: boolean
@@ -224,7 +264,9 @@ export type Database = {
           curriculum_id?: string | null
           description?: string | null
           duration_minutes?: number | null
+          free_trial_duration_minutes?: number | null
           grade_id?: string | null
+          has_free_trial?: boolean | null
           id?: string
           is_active?: boolean
           is_featured?: boolean
@@ -248,7 +290,9 @@ export type Database = {
           curriculum_id?: string | null
           description?: string | null
           duration_minutes?: number | null
+          free_trial_duration_minutes?: number | null
           grade_id?: string | null
+          has_free_trial?: boolean | null
           id?: string
           is_active?: boolean
           is_featured?: boolean
@@ -697,6 +741,41 @@ export type Database = {
           },
         ]
       }
+      session_resources: {
+        Row: {
+          created_at: string
+          file_type: string | null
+          file_url: string
+          id: string
+          session_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          session_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          session_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_resources_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "class_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           created_at: string
@@ -731,6 +810,50 @@ export type Database = {
             columns: ["grade_id"]
             isOneToOne: false
             referencedRelation: "grades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          period_end: string
+          period_start: string
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_payouts_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
             referencedColumns: ["id"]
           },
         ]
@@ -851,6 +974,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      waitlists: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlists_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wishlists: {
         Row: {
