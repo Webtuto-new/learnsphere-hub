@@ -54,6 +54,7 @@ import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminBundles from "./pages/admin/AdminBundles";
 
 const queryClient = new QueryClient();
 
