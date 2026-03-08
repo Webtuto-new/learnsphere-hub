@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 const adminMenu = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { label: "Classes", path: "/admin/classes", icon: BookOpen },
+  { label: "Sessions & Zoom", path: "/admin/sessions", icon: Play },
   { label: "Students", path: "/admin/students", icon: Users },
   { label: "Teachers", path: "/admin/teachers", icon: GraduationCap },
   { label: "Tutor Applications", path: "/admin/applications", icon: FileText },
