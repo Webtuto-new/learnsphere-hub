@@ -82,15 +82,15 @@ const AdminCertificates = () => {
                 </select>
               </div>
               <div className="space-y-2"><Label>Certificate Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Certificate of Completion" /></div>
-              <FileUpload
+              <FileOrLinkInput
                 value={form.pdf_url || null}
                 onChange={(url) => setForm(f => ({ ...f, pdf_url: url || "" }))}
                 bucket="thumbnails"
                 folder="certificates"
                 accept=".pdf"
                 label="Certificate PDF (optional)"
-                hint="Drag & drop certificate PDF"
-                previewType="file"
+                linkPlaceholder="https://drive.google.com/... or direct PDF URL"
+                uploadHint="Drag & drop certificate PDF"
               />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Issue"}</Button>
             </div>
