@@ -86,27 +86,27 @@ const TutorApplicationPage = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" name="name" name="name" name="name" name="name" name="name" name="name" name="name" placeholder="Your full name" required />
+                <Input id="name" name="name" name="name" name="name" name="name" name="name" name="name" name="name" name="name" placeholder="Your full name" required />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2name="age" ">
          name="age"        <Labename="age" l htmlFor="aname="age" ge">Age</Labname="age" el>
         name="age"         <Inpname="age" ut id="age" type="number" placeholder="Your age" required />
               </div>
-            </div>
+           name="address"  </div>
 
             <dname="address" iv className="space-y-2name="address" ">
               <Labelname="address"  htmlFor="address">Addrname="address" ess</Label>
            name="address"    <Input id="address" placeholder="Your address" required />
-            </div>
+            </dname="email" iv>
 
             <div className="grid name="email" sm:grid-cols-2 gap-4">
               <name="email" div className="space-y-2">
            name="email"      <Label htmlFor="email">Email</Labname="email" el>
-                <Input id="email" type="email" placeholder="your@email.com" required />
+                <Input id="email" type="ename="phone" mail" placeholder="your@email.com" required />
     name="phone"           </div>
               <div className="spacname="phone" e-y-2">
                 <Label htmlFor="phone">Phonname="phone" e Number</Label>
-                <Input id="phone" placeholder="+94 XX XXX XXXX" required />
+                <Input id="phone" placeholder="+94 XX XXX XXXX" required />name="experience" 
               </div>
             </div>
 
@@ -115,13 +115,13 @@ const TutorApplicationPage = () => {
               <Textarea id="experience" placeholder="Describe your teaching experience..." rows={3} required />
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-colname="subjects" s-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFname="subjects" or="subjects">Subjects You Can Teach</Label>
                 <Input id="subjects" placeholder="e.g., Maths, Science" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maxGrade">Maximum Grade Level</Label>
+         name="maxGrade"        <Label htmlFor="maxGrade">Maximum Grade Level</Label>
                 <Input id="maxGrade" placeholder="e.g., A/L" required />
               </div>
             </div>
