@@ -167,15 +167,15 @@ const AdminSessions = () => {
                     <option value="other">Other</option>
                   </select>
                 </div>
-                <FileUpload
+                <FileOrLinkInput
                   value={resForm.file_url || null}
                   onChange={(url) => setResForm(f => ({ ...f, file_url: url || "" }))}
                   bucket="thumbnails"
                   folder="resources"
                   accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.png,.mp4,.zip"
                   label="File"
-                  hint="Drag & drop a file (PDF, Doc, Image, etc.)"
-                  previewType="file"
+                  linkPlaceholder="https://drive.google.com/... or any URL"
+                  uploadHint="Drag & drop a file (PDF, Doc, Image, etc.)"
                 />
                 <Button onClick={handleAddResource} className="w-full">Add Resource</Button>
               </div>
