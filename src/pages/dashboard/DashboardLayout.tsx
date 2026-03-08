@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Calendar, BookOpen, Play, FileText, CreditCard,
   User, Award, Users, Gift, Wrench, LogOut, Menu, X, Sun, Moon,
-  ChevronRight, Bell
+  ChevronRight, Bell, Heart, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,8 @@ const studentMenu = [
   { label: "Schedule", path: "/dashboard/schedule", icon: Calendar },
   { label: "My Classes", path: "/dashboard/classes", icon: BookOpen },
   { label: "Recordings", path: "/dashboard/recordings", icon: Play },
+  { label: "Class History", path: "/dashboard/history", icon: Clock },
+  { label: "Wishlist", path: "/dashboard/wishlist", icon: Heart },
   { label: "Notes", path: "/dashboard/notes", icon: FileText },
   { label: "Payments", path: "/dashboard/payments", icon: CreditCard },
 ];
