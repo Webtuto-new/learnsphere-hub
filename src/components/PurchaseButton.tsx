@@ -74,7 +74,7 @@ const PurchaseButton = ({ type, itemId, price, title }: Props) => {
     } else {
       // Update coupon usage
       if (couponCode && discount > 0) {
-        await supabase.rpc("increment_coupon_usage" as any, { coupon_code: couponCode.toUpperCase() }).catch(() => {});
+        try { await supabase.from("coupons").update({ used_count: discount } as any).eq("code", couponCode.toUpperCase()); } catch {}
       }
       toast({ title: "Purchase successful!", description: `You now have access to ${title}` });
       setOpen(false);
