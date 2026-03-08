@@ -13,7 +13,7 @@ const AdminClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true });
+  const [form, setForm] = useState({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: "" as string | null });
   const { toast } = useToast();
 
   const fetchClasses = () => {
