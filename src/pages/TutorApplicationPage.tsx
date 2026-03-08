@@ -12,15 +12,60 @@ import { supabase } from "@/integrations/supabase/client";
 import { sendEmail, emailTemplates } from "@/lib/email";
 
 const TutorApplicationPage = () => {
+  const { user } = useAuth();
   const [agreed, setAgreed] = useState({ payment: false, fee: false });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed.payment || !agreed.fee) {
       toast.error("Please agree to all terms before submitting.");
       return;
     }
+
+    setLoading(true);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const subjects = formData.get("subjects") as string;
+
+    // Insert into database
+    const { error } = await supabase.from("tutor_applications").insert({
+      name,
+      email,
+      phone: formData.get("phone") as string,
+      address: formData.get("address") as string,
+      age: parseInt(formData.get("age") as string) || null,
+      teaching_experience: formData.get("experience") as string,
+      subjects_can_teach: subjects,
+      max_grade_level: formData.get("maxGrade") as string,
+      online_teaching_years: parseInt(formData.get("onlineYears") as string) || 0,
+      agreed_payment_terms: agreed.payment,
+      agreed_platform_fee: agreed.fee,
+      user_id: user?.id || null,
+      status: "pending",
+    });
+
+    if (error) {
+      toast.error("Failed to submit application. " + error.message);
+      setLoading(false);
+      return;
+    }
+
     toast.success("Application submitted successfully! We'll review it shortly.");
+
+    // Send confirmation email to applicant
+    try {
+      const appEmail = emailTemplates.tutorApplicationReceived(name);
+      await sendEmail({ to: email, subject: appEmail.subject, html: appEmail.html });
+    } catch (e) {
+      console.error("Tutor application email failed:", e);
+    }
+
+    setLoading(false);
+    form.reset();
+    setAgreed({ payment: false, fee: false });
   };
 
   return (
