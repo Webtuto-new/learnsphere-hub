@@ -79,6 +79,26 @@ const PurchaseButton = ({ type, itemId, price, title }: Props) => {
       }
       toast({ title: "Purchase successful!", description: `You now have access to ${title}` });
       setOpen(false);
+
+      // Send enrollment + payment confirmation emails (best effort)
+      const studentName = profile?.full_name || user?.email || "Student";
+      const studentEmail = user?.email;
+      const transRef = `WT-${Date.now()}`;
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 30);
+
+      if (studentEmail) {
+        try {
+          const enrollEmail = emailTemplates.enrollmentConfirmation(studentName, title, expiryDate.toLocaleDateString());
+          await sendEmail({ to: studentEmail, subject: enrollEmail.subject, html: enrollEmail.html });
+
+          const payEmail = emailTemplates.paymentConfirmation(studentName, String(finalPrice), title, transRef, "manual");
+          await sendEmail({ to: studentEmail, subject: payEmail.subject, html: payEmail.html });
+        } catch (e) {
+          console.error("Email send failed:", e);
+        }
+      }
+
       navigate("/dashboard/classes");
     }
     setLoading(false);
