@@ -1,4 +1,6 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
+import ShareButtons from "@/components/ShareButtons";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,13 +8,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { sampleClasses } from "@/data/sampleData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, Users, Share2, ExternalLink, Copy, Check } from "lucide-react";
+import { Calendar, Clock, Video, Users, ExternalLink } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 import WishlistButton from "@/components/WishlistButton";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
-import { useToast } from "@/hooks/use-toast";
 
 const tabs = ["Overview", "Schedule", "Teacher", "Reviews"];
 
