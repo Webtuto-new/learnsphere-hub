@@ -116,7 +116,7 @@ const Navbar = () => {
                   <Link to="/signup">
                     <Button
                       size="sm"
-                      className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-[13px] font-semibold px-5 shadow-sm"
+                      className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-sm font-bold tracking-[0.01em] px-5 shadow-sm"
                     >
                       Get Started
                       <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
