@@ -70,9 +70,32 @@ const AdminClasses = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("classes").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Class deleted" }); fetchClasses(); }
+    try {
+      // Get enrollment IDs for this class
+      const { data: enrollments } = await supabase.from("enrollments").select("id").eq("class_id", id);
+      const enrollmentIds = (enrollments || []).map(e => e.id);
+
+      // Delete payments linked to those enrollments
+      if (enrollmentIds.length > 0) {
+        const { error: paymentsErr } = await supabase.from("payments").delete().in("enrollment_id", enrollmentIds);
+        if (paymentsErr) throw paymentsErr;
+      }
+
+      // Delete related records in order
+      for (const table of ["enrollments", "class_sessions", "reviews", "wishlists", "waitlists", "bundle_classes", "certificates", "recordings"] as const) {
+        const { error } = await supabase.from(table).delete().eq("class_id", id);
+        if (error) throw error;
+      }
+
+      // Finally delete the class
+      const { error } = await supabase.from("classes").delete().eq("id", id);
+      if (error) throw error;
+
+      toast({ title: "Class deleted" });
+      fetchClasses();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   return (
