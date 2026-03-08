@@ -67,6 +67,7 @@ const AdminClasses = () => {
       schedule_time: cls.schedule_time || "",
       duration_minutes: cls.duration_minutes?.toString() || "60",
       is_live: cls.is_live,
+      thumbnail_url: cls.thumbnail_url || null,
     });
     setOpen(true);
   };
