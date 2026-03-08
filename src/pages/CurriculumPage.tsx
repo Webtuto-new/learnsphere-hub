@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { GraduationCap, ArrowRight } from "lucide-react";
