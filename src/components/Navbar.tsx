@@ -83,6 +83,17 @@ const Navbar = () => {
             >
               <Search className="w-[18px] h-[18px]" />
             </Link>
+            <Link
+              to="/checkout"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 relative"
+            >
+              <ShoppingCart className="w-[18px] h-[18px]" />
+              {itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-accent-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
             <button
               onClick={() => setIsDark(!isDark)}
               className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
