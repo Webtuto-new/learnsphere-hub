@@ -50,7 +50,7 @@ const AdminClasses = () => {
       toast({ title: editing ? "Class updated!" : "Class created!" });
       setOpen(false);
       setEditing(null);
-      setForm({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true });
+      setForm({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: null });
       fetchClasses();
     }
   };
