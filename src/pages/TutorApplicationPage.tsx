@@ -160,8 +160,8 @@ const TutorApplicationPage = () => {
               </label>
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              Submit Application
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Application"}
             </Button>
           </form>
         </div>
