@@ -244,6 +244,14 @@ const AdminStudents = () => {
           <Button size="sm" className="gap-1" onClick={() => openEnroll(viewStudent)}>
             <BookOpen className="w-3 h-3" /> Enroll
           </Button>
+          <Button
+            variant={viewStudent.is_banned ? "outline" : "destructive"}
+            size="sm"
+            className="gap-1"
+            onClick={() => toggleBan(viewStudent)}
+          >
+            {viewStudent.is_banned ? <><ShieldCheck className="w-3 h-3" /> Unban</> : <><Ban className="w-3 h-3" /> Ban</>}
+          </Button>
         </div>
 
         {/* Stats */}
