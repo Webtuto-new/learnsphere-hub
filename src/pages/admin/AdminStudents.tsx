@@ -205,6 +205,23 @@ const AdminStudents = () => {
     }
   };
 
+  // Ban/Unban
+  const toggleBan = async (student: any) => {
+    const action = student.is_banned ? "unban" : "ban";
+    try {
+      const { data, error } = await supabase.functions.invoke("ban-user", {
+        body: { user_id: student.id, action },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: action === "ban" ? "Student banned" : "Student unbanned" });
+      fetchStudents();
+      if (viewStudent?.id === student.id) setViewStudent({ ...student, is_banned: !student.is_banned });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   // ======================== STUDENT DETAIL VIEW ========================
   if (viewStudent) {
     const activeEnrollments = studentEnrollments.filter(e => e.status === "active" && (!e.expires_at || new Date(e.expires_at) > new Date()));
