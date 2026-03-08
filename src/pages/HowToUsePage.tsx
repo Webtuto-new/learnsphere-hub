@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
 import { BookOpen, UserPlus, CreditCard, Video } from "lucide-react";
 
 const steps = [
