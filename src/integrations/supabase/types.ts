@@ -589,6 +589,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          is_banned: boolean
           phone: string | null
           updated_at: string
         }
@@ -600,6 +601,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id: string
+          is_banned?: boolean
           phone?: string | null
           updated_at?: string
         }
@@ -611,6 +613,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          is_banned?: boolean
           phone?: string | null
           updated_at?: string
         }
