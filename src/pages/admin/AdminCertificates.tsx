@@ -6,14 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Award, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import FileUpload from "@/components/FileUpload";
 
 const AdminCertificates = () => {
   const [certs, setCerts] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ user_id: "", class_id: "", title: "" });
+  const [editing, setEditing] = useState<any>(null);
+  const [form, setForm] = useState({ user_id: "", class_id: "", title: "", pdf_url: "" });
   const { toast } = useToast();
 
   const fetchCerts = () => {
@@ -23,30 +25,47 @@ const AdminCertificates = () => {
 
   useEffect(() => {
     fetchCerts();
-    supabase.from("profiles").select("id, full_name").then(({ data }) => setProfiles(data || []));
-    supabase.from("classes").select("id, title").then(({ data }) => setClasses(data || []));
+    supabase.from("profiles").select("id, full_name").order("full_name").then(({ data }) => setProfiles(data || []));
+    supabase.from("classes").select("id, title").order("title").then(({ data }) => setClasses(data || []));
   }, []);
 
   const handleSave = async () => {
-    const certNum = `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const { error } = await supabase.from("certificates").insert({
-      user_id: form.user_id,
-      class_id: form.class_id || null,
-      title: form.title,
-      certificate_number: certNum,
-    });
+    let error;
+    if (editing) {
+      ({ error } = await supabase.from("certificates").update({
+        user_id: form.user_id,
+        class_id: form.class_id || null,
+        title: form.title,
+        pdf_url: form.pdf_url || null,
+      }).eq("id", editing.id));
+    } else {
+      const certNum = `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      ({ error } = await supabase.from("certificates").insert({
+        user_id: form.user_id,
+        class_id: form.class_id || null,
+        title: form.title,
+        certificate_number: certNum,
+        pdf_url: form.pdf_url || null,
+      }));
+    }
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Certificate issued!" }); setOpen(false); setForm({ user_id: "", class_id: "", title: "" }); fetchCerts(); }
+    else { toast({ title: editing ? "Updated!" : "Certificate issued!" }); setOpen(false); setEditing(null); setForm({ user_id: "", class_id: "", title: "", pdf_url: "" }); fetchCerts(); }
+  };
+
+  const handleEdit = (c: any) => {
+    setEditing(c);
+    setForm({ user_id: c.user_id, class_id: c.class_id || "", title: c.title, pdf_url: c.pdf_url || "" });
+    setOpen(true);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-foreground">Certificates</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm({ user_id: "", class_id: "", title: "", pdf_url: "" }); } }}>
           <DialogTrigger asChild><Button className="gap-1"><Plus className="w-4 h-4" /> Issue Certificate</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Issue Certificate</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editing ? "Edit" : "Issue"} Certificate</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Student</Label>
@@ -63,7 +82,17 @@ const AdminCertificates = () => {
                 </select>
               </div>
               <div className="space-y-2"><Label>Certificate Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Certificate of Completion" /></div>
-              <Button onClick={handleSave} className="w-full">Issue</Button>
+              <FileUpload
+                value={form.pdf_url || null}
+                onChange={(url) => setForm(f => ({ ...f, pdf_url: url || "" }))}
+                bucket="thumbnails"
+                folder="certificates"
+                accept=".pdf"
+                label="Certificate PDF (optional)"
+                hint="Drag & drop certificate PDF"
+                previewType="file"
+              />
+              <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Issue"}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -89,7 +118,11 @@ const AdminCertificates = () => {
                     <td className="p-4 text-muted-foreground">{(c as any).classes?.title || "—"}</td>
                     <td className="p-4 text-muted-foreground">{new Date(c.issued_at).toLocaleDateString()}</td>
                     <td className="p-4">
-                      <Button variant="ghost" size="sm" onClick={async () => { await supabase.from("certificates").delete().eq("id", c.id); fetchCerts(); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <div className="flex gap-1">
+                        {c.pdf_url && <a href={c.pdf_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline px-2 py-1">PDF</a>}
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={async () => { await supabase.from("certificates").delete().eq("id", c.id); fetchCerts(); }} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

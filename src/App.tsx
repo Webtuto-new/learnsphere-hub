@@ -54,6 +54,7 @@ import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminBundles from "./pages/admin/AdminBundles";
 
 const queryClient = new QueryClient();
 
@@ -116,6 +117,7 @@ const App = () => (
             <Route path="/admin/applications" element={<AdminWrapper><AdminApplications /></AdminWrapper>} />
             <Route path="/admin/recordings" element={<AdminWrapper><AdminRecordings /></AdminWrapper>} />
             <Route path="/admin/curriculum" element={<AdminWrapper><AdminCurriculum /></AdminWrapper>} />
+            <Route path="/admin/bundles" element={<AdminWrapper><AdminBundles /></AdminWrapper>} />
             <Route path="/admin/payments" element={<AdminWrapper><AdminPayments /></AdminWrapper>} />
             <Route path="/admin/payouts" element={<AdminWrapper><AdminPayouts /></AdminWrapper>} />
             <Route path="/admin/certificates" element={<AdminWrapper><AdminCertificates /></AdminWrapper>} />
