@@ -492,7 +492,10 @@ const AdminStudents = () => {
                 {filtered.map((s) => (
                   <tr key={s.id} className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer" onClick={() => openStudentView(s)}>
                     <td className="p-4 font-medium text-foreground font-mono text-xs">{s.admission_number || "—"}</td>
-                    <td className="p-4 text-foreground">{s.full_name}</td>
+                    <td className="p-4 text-foreground">
+                      {s.full_name}
+                      {s.is_banned && <span className="ml-2 text-xs bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">Banned</span>}
+                    </td>
                     <td className="p-4 text-muted-foreground">{s.email}</td>
                     <td className="p-4 text-muted-foreground">{s.phone || "—"}</td>
                     <td className="p-4 text-muted-foreground">{format(new Date(s.created_at), "PP")}</td>
@@ -506,6 +509,9 @@ const AdminStudents = () => {
                         </Button>
                         <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => openEnroll(s)}>
                           <BookOpen className="w-3 h-3" /> Enroll
+                        </Button>
+                        <Button variant="ghost" size="sm" className={`text-xs gap-1 ${s.is_banned ? "" : "text-destructive"}`} onClick={() => toggleBan(s)}>
+                          {s.is_banned ? <><ShieldCheck className="w-3 h-3" /> Unban</> : <><Ban className="w-3 h-3" /> Ban</>}
                         </Button>
                       </div>
                     </td>
