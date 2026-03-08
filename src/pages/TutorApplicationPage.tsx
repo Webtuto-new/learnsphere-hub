@@ -86,32 +86,32 @@ const TutorApplicationPage = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" name="name" name="name" name="name" name="name" name="name" placeholder="Your full name" required />
+                <Input id="name" name="name" name="name" name="name" name="name" name="name" name="name" placeholder="Your full name" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="aname="age" ge">Age</Labname="age" el>
+                <Labename="age" l htmlFor="aname="age" ge">Age</Labname="age" el>
         name="age"         <Inpname="age" ut id="age" type="number" placeholder="Your age" required />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2name="address" ">
               <Labelname="address"  htmlFor="address">Addrname="address" ess</Label>
            name="address"    <Input id="address" placeholder="Your address" required />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <name="email" div className="space-y-2">
            name="email"      <Label htmlFor="email">Email</Labname="email" el>
                 <Input id="email" type="email" placeholder="your@email.com" required />
               </div>
-              <div className="space-y-2">
+              <div className="spacname="phone" e-y-2">
                 <Label htmlFor="phone">Phonname="phone" e Number</Label>
                 <Input id="phone" placeholder="+94 XX XXX XXXX" required />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="experience">Teaching Experience</Label>
+              <Label htmlFor="experience">Teacname="experience" hing Experience</Label>
               <Textarea id="experience" placeholder="Describe your teaching experience..." rows={3} required />
             </div>
 
