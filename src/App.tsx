@@ -23,6 +23,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SearchPage from "./pages/SearchPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import NotFound from "./pages/NotFound";
 
 // Dashboard pages
