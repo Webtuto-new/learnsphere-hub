@@ -17,7 +17,7 @@ interface Props {
 }
 
 const PurchaseButton = ({ type, itemId, price, title }: Props) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
