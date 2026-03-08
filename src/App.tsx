@@ -34,6 +34,8 @@ import DashboardPayments from "./pages/dashboard/DashboardPayments";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardWishlist from "./pages/dashboard/DashboardWishlist";
 import DashboardHistory from "./pages/dashboard/DashboardHistory";
+import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
+import DashboardNotes from "./pages/dashboard/DashboardNotes";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
 
 // Admin pages
@@ -47,10 +49,11 @@ import AdminApplications from "./pages/admin/AdminApplications";
 import AdminRecordings from "./pages/admin/AdminRecordings";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
 import AdminPayments from "./pages/admin/AdminPayments";
+import AdminPayouts from "./pages/admin/AdminPayouts";
+import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 
 const queryClient = new QueryClient();
 
@@ -98,10 +101,10 @@ const App = () => (
             <Route path="/dashboard/recordings" element={<DashboardWrapper><DashboardRecordings /></DashboardWrapper>} />
             <Route path="/dashboard/history" element={<DashboardWrapper><DashboardHistory /></DashboardWrapper>} />
             <Route path="/dashboard/wishlist" element={<DashboardWrapper><DashboardWishlist /></DashboardWrapper>} />
-            <Route path="/dashboard/notes" element={<DashboardWrapper><DashboardPlaceholder title="My Notes" /></DashboardWrapper>} />
+            <Route path="/dashboard/notes" element={<DashboardWrapper><DashboardNotes /></DashboardWrapper>} />
             <Route path="/dashboard/payments" element={<DashboardWrapper><DashboardPayments /></DashboardWrapper>} />
             <Route path="/dashboard/profile" element={<DashboardWrapper><DashboardProfile /></DashboardWrapper>} />
-            <Route path="/dashboard/certificates" element={<DashboardWrapper><DashboardPlaceholder title="Certificates" /></DashboardWrapper>} />
+            <Route path="/dashboard/certificates" element={<DashboardWrapper><DashboardCertificates /></DashboardWrapper>} />
             <Route path="/dashboard/referrals" element={<DashboardWrapper><DashboardPlaceholder title="Referrals" /></DashboardWrapper>} />
 
             {/* Admin Dashboard */}
@@ -114,6 +117,8 @@ const App = () => (
             <Route path="/admin/recordings" element={<AdminWrapper><AdminRecordings /></AdminWrapper>} />
             <Route path="/admin/curriculum" element={<AdminWrapper><AdminCurriculum /></AdminWrapper>} />
             <Route path="/admin/payments" element={<AdminWrapper><AdminPayments /></AdminWrapper>} />
+            <Route path="/admin/payouts" element={<AdminWrapper><AdminPayouts /></AdminWrapper>} />
+            <Route path="/admin/certificates" element={<AdminWrapper><AdminCertificates /></AdminWrapper>} />
             <Route path="/admin/coupons" element={<AdminWrapper><AdminCoupons /></AdminWrapper>} />
             <Route path="/admin/announcements" element={<AdminWrapper><AdminAnnouncements /></AdminWrapper>} />
             <Route path="/admin/analytics" element={<AdminWrapper><AdminAnalytics /></AdminWrapper>} />

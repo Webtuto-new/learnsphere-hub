@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, BookOpen, Users, GraduationCap, Play, CreditCard,
-  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone
+  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,8 @@ const adminMenu = [
   { label: "Recordings", path: "/admin/recordings", icon: Play },
   { label: "Curriculum", path: "/admin/curriculum", icon: BookOpen },
   { label: "Payments", path: "/admin/payments", icon: CreditCard },
+  { label: "Teacher Payouts", path: "/admin/payouts", icon: DollarSign },
+  { label: "Certificates", path: "/admin/certificates", icon: Award },
   { label: "Coupons", path: "/admin/coupons", icon: Tag },
   { label: "Announcements", path: "/admin/announcements", icon: Megaphone },
   { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
