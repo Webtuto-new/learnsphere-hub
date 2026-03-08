@@ -33,7 +33,7 @@ const ShareButtons = ({ url, title }: ShareButtonsProps) => {
         {copied ? "Copied!" : "Copy Link"}
       </Button>
       <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-        <Button variant="outline" size="sm" className="w-full gap-1 text-green-600 hover:text-green-700">
+        <Button variant="outline" size="sm" className="w-full gap-1 text-secondary hover:text-secondary">
           <Share2 className="w-4 h-4" /> WhatsApp
         </Button>
       </a>
