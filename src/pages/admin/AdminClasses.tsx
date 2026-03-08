@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import ThumbnailUpload from "@/components/ThumbnailUpload";
 
 const AdminClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true });
+  const [form, setForm] = useState({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: "" as string | null });
   const { toast } = useToast();
 
   const fetchClasses = () => {
@@ -33,6 +34,7 @@ const AdminClasses = () => {
       schedule_time: form.schedule_time || null,
       duration_minutes: parseInt(form.duration_minutes) || 60,
       is_live: form.is_live,
+      thumbnail_url: form.thumbnail_url || null,
     };
 
     let error;
@@ -48,7 +50,7 @@ const AdminClasses = () => {
       toast({ title: editing ? "Class updated!" : "Class created!" });
       setOpen(false);
       setEditing(null);
-      setForm({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true });
+      setForm({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: null });
       fetchClasses();
     }
   };
@@ -65,6 +67,7 @@ const AdminClasses = () => {
       schedule_time: cls.schedule_time || "",
       duration_minutes: cls.duration_minutes?.toString() || "60",
       is_live: cls.is_live,
+      thumbnail_url: cls.thumbnail_url || null,
     });
     setOpen(true);
   };
@@ -109,6 +112,7 @@ const AdminClasses = () => {
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editing ? "Edit Class" : "New Class"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
+              <ThumbnailUpload value={form.thumbnail_url} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url }))} title={form.title} folder="classes" />
               <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Short Description</Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Description</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={3} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
