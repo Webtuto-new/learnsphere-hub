@@ -7,6 +7,7 @@ import {
   ChevronRight, Bell, Heart, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const studentMenu = [
   { label: "Overview", path: "/dashboard", icon: LayoutDashboard },
@@ -64,10 +65,7 @@ const DashboardLayout = ({ children }: Props) => {
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
-            <span className="text-secondary-foreground font-display font-bold">W</span>
-          </div>
-          <span className="font-display font-bold text-lg text-foreground">Webtuto</span>
+          <img src={logo} alt="Webtuto.LK" className="h-8 w-auto" />
         </Link>
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-1">

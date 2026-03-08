@@ -2,7 +2,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, GraduationCap, Play, Users, ArrowRight, Star } from "lucide-react";
+import { BookOpen, GraduationCap, Play, Users, ArrowRight, Star, Zap } from "lucide-react";
 import ClassCard from "@/components/ClassCard";
 import { sampleClasses, curriculumData } from "@/data/sampleData";
 
@@ -17,22 +17,24 @@ const Index = () => {
   return (
     <Layout>
       <SEOHead title="Webtuto" description="Sri Lanka's #1 online learning platform. Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses." path="/" />
+      {/* Hero */}
       <section className="hero-gradient relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-secondary blur-3xl" />
-          <div className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-accent blur-3xl" />
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-secondary/10 blur-[100px]" />
+          <div className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-accent/8 blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[150px]" />
         </div>
         <div className="container mx-auto px-4 relative">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-primary-foreground/80">
-              <Star className="w-4 h-4 text-accent" />
+            <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-primary-foreground/80 border border-primary-foreground/10">
+              <Zap className="w-4 h-4 text-accent" />
               Sri Lanka's #1 Online Learning Platform
             </div>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight tracking-tight">
               Learn Smarter with{" "}
-              <span className="text-accent">Webtuto</span>
+              <span className="text-gradient-gold">Webtuto.LK</span>
             </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-primary-foreground/60 max-w-2xl mx-auto leading-relaxed">
               Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses. Join thousands of students excelling in their studies.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
@@ -57,7 +59,7 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {stats.map((stat) => (
               <div key={stat.label} className="bg-card rounded-xl p-5 text-center card-elevated">
-                <stat.icon className="w-6 h-6 text-secondary mx-auto mb-2" />
+                <stat.icon className="w-6 h-6 text-accent mx-auto mb-2" />
                 <div className="font-display font-bold text-2xl text-foreground">{stat.value}</div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
@@ -84,8 +86,8 @@ const Index = () => {
                 to={`/curriculum?tab=${key}`}
                 className="bg-card rounded-xl p-6 card-elevated text-center group"
               >
-                <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-secondary/20 transition-colors">
-                  <GraduationCap className="w-7 h-7 text-secondary" />
+                <div className="w-14 h-14 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/12 transition-colors">
+                  <GraduationCap className="w-7 h-7 text-primary" />
                 </div>
                 <h3 className="font-display font-semibold text-lg text-foreground mb-2">{cur.name}</h3>
                 <p className="text-sm text-muted-foreground">{cur.grades.length} grade levels</p>
@@ -96,7 +98,7 @@ const Index = () => {
       </section>
 
       {/* Featured Classes */}
-      <section className="py-20 bg-muted/50">
+      <section className="py-20 bg-muted/40">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-10">
             <div>
@@ -126,15 +128,16 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="hero-gradient rounded-2xl p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-accent blur-3xl" />
+            <div className="absolute inset-0">
+              <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-accent/10 blur-[80px]" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-secondary/10 blur-[60px]" />
             </div>
             <div className="relative space-y-6">
               <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">
                 Ready to Start Learning?
               </h2>
-              <p className="text-primary-foreground/70 max-w-xl mx-auto">
-                Join Webtuto today and get access to the best tutors in Sri Lanka
+              <p className="text-primary-foreground/60 max-w-xl mx-auto">
+                Join Webtuto.LK today and get access to the best tutors in Sri Lanka
               </p>
               <Link to="/signup">
                 <Button variant="hero" size="lg" className="text-base">

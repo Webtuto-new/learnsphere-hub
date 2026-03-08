@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -44,17 +45,14 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-card/95 backdrop-blur-lg shadow-sm border-b border-border"
+          ? "bg-card/95 glass shadow-sm border-b border-border"
           : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
-              <span className="text-secondary-foreground font-display font-bold text-lg">W</span>
-            </div>
-            <span className="font-display font-bold text-xl text-foreground">Webtuto</span>
+            <img src={logo} alt="Webtuto.LK" className="h-10 w-auto" />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">
@@ -62,10 +60,10 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   location.pathname === item.path
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 }`}
               >
                 {item.label}
@@ -74,9 +72,12 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link to="/search" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+              <Search className="w-5 h-5" />
+            </Link>
             <button
               onClick={() => setIsDark(!isDark)}
-              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
               aria-label="Toggle theme"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -92,13 +93,13 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
-                  <Link to="/signup"><Button size="sm">Sign up</Button></Link>
+                  <Link to="/signup"><Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold">Sign up</Button></Link>
                 </>
               )}
             </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -115,8 +116,8 @@ const Navbar = () => {
                 to={item.path}
                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                   location.pathname === item.path
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 }`}
               >
                 {item.label}
@@ -131,7 +132,7 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/login" className="flex-1"><Button variant="outline" className="w-full">Log in</Button></Link>
-                  <Link to="/signup" className="flex-1"><Button className="w-full">Sign up</Button></Link>
+                  <Link to="/signup" className="flex-1"><Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Sign up</Button></Link>
                 </>
               )}
             </div>
