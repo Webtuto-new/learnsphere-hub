@@ -17,6 +17,7 @@ const adminMenu = [
   { label: "Tutor Applications", path: "/admin/applications", icon: FileText },
   { label: "Recordings", path: "/admin/recordings", icon: Play },
   { label: "Curriculum", path: "/admin/curriculum", icon: BookOpen },
+  { label: "Bundles", path: "/admin/bundles", icon: Package },
   { label: "Payments", path: "/admin/payments", icon: CreditCard },
   { label: "Teacher Payouts", path: "/admin/payouts", icon: DollarSign },
   { label: "Certificates", path: "/admin/certificates", icon: Award },
