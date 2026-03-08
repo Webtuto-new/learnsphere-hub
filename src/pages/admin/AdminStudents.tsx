@@ -49,12 +49,12 @@ const AdminStudents = () => {
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("classes").select("id, title, is_active").order("title");
     setClasses(data || []);
   };
 
   const fetchRecordings = async () => {
-    const { data } = await supabase.from("recordings").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("recordings").select("id, title, is_active").order("title");
     setRecordings(data || []);
   };
 
