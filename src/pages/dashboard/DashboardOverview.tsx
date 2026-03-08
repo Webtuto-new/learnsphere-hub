@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const DashboardOverview = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const { toast } = useToast();
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
