@@ -36,6 +36,13 @@ const SignupPage = () => {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Account created!", description: "Please check your email to verify your account." });
+      // Send welcome email (best effort, don't block navigation)
+      try {
+        const { subject, html } = emailTemplates.welcome(form.full_name);
+        await sendEmail({ to: form.email, subject, html });
+      } catch (e) {
+        console.error("Welcome email failed:", e);
+      }
       navigate("/login");
     }
   };
