@@ -10,11 +10,14 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { sendEmail, emailTemplates } from "@/lib/email";
+import FileOrLinkInput from "@/components/FileOrLinkInput";
 
 const TutorApplicationPage = () => {
   const { user } = useAuth();
   const [agreed, setAgreed] = useState({ payment: false, fee: false });
   const [loading, setLoading] = useState(false);
+  const [cvUrl, setCvUrl] = useState<string | null>(null);
+  const [demoUrl, setDemoUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +31,6 @@ const TutorApplicationPage = () => {
     const formData = new FormData(form);
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
-    const subjects = formData.get("subjects") as string;
 
     const { error } = await supabase.from("tutor_applications").insert({
       name,
@@ -37,12 +39,14 @@ const TutorApplicationPage = () => {
       address: formData.get("address") as string,
       age: parseInt(formData.get("age") as string) || null,
       teaching_experience: formData.get("experience") as string,
-      subjects_can_teach: subjects,
+      subjects_can_teach: formData.get("subjects") as string,
       max_grade_level: formData.get("maxGrade") as string,
       online_teaching_years: parseInt(formData.get("onlineYears") as string) || 0,
       agreed_payment_terms: agreed.payment,
       agreed_platform_fee: agreed.fee,
       user_id: user?.id || null,
+      cv_url: cvUrl || null,
+      demo_recording_url: demoUrl || null,
       status: "pending",
     });
 
@@ -64,6 +68,8 @@ const TutorApplicationPage = () => {
     setLoading(false);
     form.reset();
     setAgreed({ payment: false, fee: false });
+    setCvUrl(null);
+    setDemoUrl(null);
   };
 
   return (
@@ -138,6 +144,32 @@ const TutorApplicationPage = () => {
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* File uploads */}
+            <div className="space-y-4 border-t border-border pt-6">
+              <h3 className="font-display font-semibold text-foreground">Upload Documents</h3>
+              <FileOrLinkInput
+                value={cvUrl}
+                onChange={setCvUrl}
+                bucket="applications"
+                folder="cv"
+                accept=".pdf,.doc,.docx"
+                label="CV / Resume"
+                linkPlaceholder="https://drive.google.com/... or direct link to your CV"
+                uploadHint="Upload your CV (PDF, DOC)"
+              />
+              <FileOrLinkInput
+                value={demoUrl}
+                onChange={setDemoUrl}
+                bucket="applications"
+                folder="demo"
+                accept="video/*,.mp4,.mov,.webm"
+                label="Demo Teaching Recording"
+                linkPlaceholder="https://youtube.com/watch?v=... or direct video link"
+                uploadHint="Upload a demo teaching video"
+                previewType="video"
+              />
             </div>
 
             <div className="space-y-4 border-t border-border pt-6">
