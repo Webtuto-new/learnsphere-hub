@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import ThumbnailUpload from "@/components/ThumbnailUpload";
 
 const AdminClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
