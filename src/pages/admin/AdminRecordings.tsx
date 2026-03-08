@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import FileUpload from "@/components/FileUpload";
 
 const AdminRecordings = () => {
   const [recordings, setRecordings] = useState<any[]>([]);
