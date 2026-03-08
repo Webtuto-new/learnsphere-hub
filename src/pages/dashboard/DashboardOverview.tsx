@@ -9,9 +9,31 @@ import { useToast } from "@/hooks/use-toast";
 
 const DashboardOverview = () => {
   const { user, profile } = useAuth();
+  const { toast } = useToast();
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  const handleSendTestEmail = async () => {
+    if (!user?.email) return;
+    setSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-email", {
+        body: {
+          to: user.email,
+          subject: "🎓 Welcome to Webtuto Academy!",
+          html: `<div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #ffffff;"><div style="text-align: center; margin-bottom: 32px;"><h1 style="font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; color: #1a2340; margin: 0;">Welcome to Webtuto Academy</h1></div><p style="font-size: 16px; color: #555; line-height: 1.6;">Hi ${profile?.full_name || "there"}! 👋</p><p style="font-size: 16px; color: #555; line-height: 1.6;">This is a test email from <strong>Webtuto Academy</strong> — Sri Lanka's #1 online learning platform. If you're seeing this, your email system is working perfectly!</p><div style="text-align: center; margin: 32px 0;"><a href="https://edu.webtuto.lk" style="background: #1a3a7a; color: #ffffff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Visit Webtuto Academy</a></div><p style="font-size: 14px; color: #999; text-align: center; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">© 2026 Webtuto Academy. All rights reserved.</p></div>`,
+        },
+      });
+      if (error) throw error;
+      toast({ title: "Test email sent!", description: `Check your inbox at ${user.email}` });
+    } catch (err: any) {
+      toast({ title: "Failed to send email", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
