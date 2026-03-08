@@ -61,7 +61,7 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium tracking-wide transition-all duration-300 ${
+                  className={`relative px-5 py-1.5 rounded-full text-sm font-body font-semibold tracking-[0.02em] transition-all duration-300 ${
                     location.pathname === item.path
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
