@@ -80,6 +80,7 @@ const ClassDetailPage = () => {
     <Layout>
       <SEOHead title={cls.title} description={cls.description} path={`/class/${classId}`} />
       {/* Banner */}
+      <div className="hero-gradient pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
             <div className="flex flex-wrap gap-2 mb-4">

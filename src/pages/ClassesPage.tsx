@@ -55,6 +55,7 @@ const ClassesPage = () => {
   return (
     <Layout>
       <SEOHead title="All Classes" description="Browse live classes, seminars, workshops and more on Webtuto." path="/classes" />
+      <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">All Classes</h1>

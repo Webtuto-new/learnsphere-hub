@@ -6,6 +6,7 @@ import { sampleClasses } from "@/data/sampleData";
 const BundlesPage = () => (
   <Layout>
     <SEOHead title="Class Bundles" description="Save more with curated class bundles on Webtuto." path="/bundles" />
+    <div className="pt-24 pb-20">
       <div className="container mx-auto px-4">
         <div className="mb-10">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Class Bundles</h1>
