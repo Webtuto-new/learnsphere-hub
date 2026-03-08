@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -20,6 +21,8 @@ const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -35,6 +38,11 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location]);
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -45,17 +53,13 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
               <span className="text-secondary-foreground font-display font-bold text-lg">W</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground">
-              Webtuto
-            </span>
+            <span className="font-display font-bold text-xl text-foreground">Webtuto</span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
               <Link
@@ -72,7 +76,6 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Side */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsDark(!isDark)}
@@ -82,12 +85,19 @@ const Navbar = () => {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <div className="hidden lg:flex items-center gap-2">
-              <Link to="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
-              </Link>
-              <Link to="/signup">
-                <Button size="sm">Sign up</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="ghost" size="sm">Dashboard</Button>
+                  </Link>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>Sign out</Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
+                  <Link to="/signup"><Button size="sm">Sign up</Button></Link>
+                </>
+              )}
             </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -99,7 +109,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="lg:hidden bg-card border-b border-border animate-slide-in-right">
           <div className="container mx-auto px-4 py-4 space-y-1">
@@ -117,12 +126,17 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex gap-2 pt-4 border-t border-border mt-4">
-              <Link to="/login" className="flex-1">
-                <Button variant="outline" className="w-full">Log in</Button>
-              </Link>
-              <Link to="/signup" className="flex-1">
-                <Button className="w-full">Sign up</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="flex-1"><Button variant="outline" className="w-full">Dashboard</Button></Link>
+                  <Button variant="outline" className="flex-1" onClick={handleSignOut}>Sign out</Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="flex-1"><Button variant="outline" className="w-full">Log in</Button></Link>
+                  <Link to="/signup" className="flex-1"><Button className="w-full">Sign up</Button></Link>
+                </>
+              )}
             </div>
           </div>
         </div>
