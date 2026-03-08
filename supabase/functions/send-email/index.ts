@@ -13,9 +13,6 @@ interface EmailRequest {
   html: string;
   from?: string;
   replyTo?: string;
-  // For admin notifications (no auth required for internal calls)
-  _internal?: boolean;
-  _service_key?: string;
 }
 
 serve(async (req) => {
@@ -32,20 +29,27 @@ serve(async (req) => {
     const body: EmailRequest = await req.json();
     const { to, subject, html, from, replyTo } = body;
 
-    // Auth check — allow if user is authenticated OR if service role key matches
+    // Auth check — allow authenticated users or service role
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-        { global: { headers: { Authorization: authHeader } } }
-      );
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      const token = authHeader.replace("Bearer ", "");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+      // Allow service role key
+      if (token !== serviceRoleKey) {
+        // Validate as user JWT
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       }
     } else {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
