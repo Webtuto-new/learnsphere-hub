@@ -36,7 +36,7 @@ const LoginPage = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/dashboard",
+        redirectTo: "https://edu.webtuto.lk/dashboard",
       },
     });
     if (error) {
