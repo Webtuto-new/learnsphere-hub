@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ShoppingCart, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 interface Props {
   type: "class" | "recording" | "bundle";
