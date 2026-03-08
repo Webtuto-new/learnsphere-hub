@@ -78,8 +78,8 @@ const AdminCurriculum = () => {
         <DialogContent>
           <DialogHeader><DialogTitle>{dialog?.editing ? "Edit" : "Add"} {dialog?.type}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="e.g. national, grade-10, science" /></div>
+            <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => { const name = e.target.value; setForm(f => ({ ...f, name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") })); }} /></div>
+            <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="auto-generated from name" /></div>
             <Button onClick={handleSave} className="w-full">Save</Button>
           </div>
         </DialogContent>
