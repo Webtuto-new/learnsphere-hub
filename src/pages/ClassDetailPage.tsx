@@ -1,14 +1,13 @@
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import ShareButtons from "@/components/ShareButtons";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { sampleClasses } from "@/data/sampleData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, Users, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Video, Users, ExternalLink, ArrowLeft } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 import WishlistButton from "@/components/WishlistButton";
 import ReviewForm from "@/components/ReviewForm";
@@ -26,19 +25,19 @@ const ClassDetailPage = () => {
   const [teacher, setTeacher] = useState<any>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [reviewKey, setReviewKey] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Try to load from DB first
   useEffect(() => {
     if (!id) return;
-    supabase.from("classes").select("*, teachers(*)").eq("id", id).single()
+    supabase.from("classes").select("*, teachers(*), curriculums(name), grades(name), subjects(name)").eq("id", id).maybeSingle()
       .then(({ data }) => {
         if (data) {
           setDbClass(data);
           setTeacher(data.teachers);
-          // Fetch sessions
           supabase.from("class_sessions").select("*").eq("class_id", id).order("session_date")
             .then(({ data: s }) => setSessions(s || []));
         }
+        setLoading(false);
       });
     if (user) {
       supabase.from("enrollments").select("id").eq("user_id", user.id).eq("class_id", id).eq("status", "active")
@@ -46,14 +45,31 @@ const ClassDetailPage = () => {
     }
   }, [id, user]);
 
-  // Fallback to sample data if DB class not found
-  const sampleCls = sampleClasses.find((c) => c.id === id) || sampleClasses[0];
-  const cls = dbClass ? {
+  if (loading) {
+    return (
+      <Layout>
+        <div className="pt-32 pb-20 text-center text-muted-foreground">Loading...</div>
+      </Layout>
+    );
+  }
+
+  if (!dbClass) {
+    return (
+      <Layout>
+        <div className="pt-32 pb-20 text-center">
+          <p className="text-muted-foreground text-lg mb-4">Class not found</p>
+          <Link to="/classes"><Button variant="outline">Browse Classes</Button></Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  const cls = {
     title: dbClass.title,
     description: dbClass.description || dbClass.short_description || "",
-    curriculum: "National",
-    grade: "—",
-    subject: "—",
+    curriculum: dbClass.curriculums?.name || "—",
+    grade: dbClass.grades?.name || "—",
+    subject: dbClass.subjects?.name || "—",
     teacherName: teacher?.name || "Tutor",
     price: Number(dbClass.price),
     originalPrice: dbClass.original_price ? Number(dbClass.original_price) : undefined,
@@ -62,14 +78,12 @@ const ClassDetailPage = () => {
     isLive: dbClass.is_live,
     classType: dbClass.class_type,
     thumbnail: dbClass.thumbnail_url,
-  } : sampleCls;
+  };
 
-  const classId = dbClass?.id || id || "1";
-  const price = dbClass ? Number(dbClass.price) : (sampleCls.price || 0);
-
+  const classId = dbClass.id;
+  const price = cls.price;
   const shareLink = `${window.location.origin}/class/${classId}`;
 
-  // Find next upcoming session for countdown
   const now = new Date();
   const nextSession = sessions.find(s => {
     const sessionDate = new Date(`${s.session_date}T${s.start_time}`);
@@ -79,15 +93,14 @@ const ClassDetailPage = () => {
   return (
     <Layout>
       <SEOHead title={cls.title} description={cls.description} path={`/class/${classId}`} />
-      {/* Banner */}
       <div className="hero-gradient pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge variant="secondary">{cls.curriculum}</Badge>
-              {cls.grade && <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80">{cls.grade}</Badge>}
-              {cls.subject && <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80">{cls.subject}</Badge>}
-              {dbClass && <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80 capitalize">{cls.classType}</Badge>}
+              {cls.grade !== "—" && <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80">{cls.grade}</Badge>}
+              {cls.subject !== "—" && <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80">{cls.subject}</Badge>}
+              <Badge variant="outline" className="border-primary-foreground/30 text-primary-foreground/80 capitalize">{cls.classType}</Badge>
             </div>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-3">{cls.title}</h1>
             <p className="text-primary-foreground/70 mb-4">{cls.description}</p>
@@ -102,14 +115,11 @@ const ClassDetailPage = () => {
 
       <div className="container mx-auto px-4 py-10">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Countdown for next session */}
             {nextSession && isEnrolled && (
               <CountdownTimer targetDate={new Date(`${nextSession.session_date}T${nextSession.start_time}`)} sessionTitle={nextSession.title} zoomLink={nextSession.zoom_link} />
             )}
 
-            {/* Tabs */}
             <div className="flex gap-1 border-b border-border overflow-x-auto">
               {tabs.map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
@@ -125,20 +135,7 @@ const ClassDetailPage = () => {
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-semibold text-foreground mb-3">About this class</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {cls.description} This class is designed for students who want to excel in their studies. Our experienced tutor {cls.teacherName} will guide you through all the key topics with interactive sessions, practice problems, and regular assessments.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-display font-semibold text-foreground mb-3">What you'll learn</h3>
-                  <ul className="space-y-2 text-muted-foreground">
-                    {["Complete coverage of the syllabus topics", "Past paper practice and exam techniques", "Interactive problem-solving sessions", "Access to session recordings", "Downloadable notes and resources"].map((item) => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-secondary shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">{cls.description}</p>
                 </div>
               </div>
             )}
@@ -173,21 +170,7 @@ const ClassDetailPage = () => {
                     </div>
                   );
                 }) : (
-                  // Fallback static schedule
-                  [1, 2, 3, 4].map(w => (
-                    <div key={w} className="flex items-center justify-between bg-card rounded-xl p-4 card-elevated">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                          <span className="font-display font-bold text-secondary">W{w}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Week {w} — Thursday</p>
-                          <p className="text-sm text-muted-foreground">8:00 PM - 10:00 PM</p>
-                        </div>
-                      </div>
-                      <Badge variant="outline">Upcoming</Badge>
-                    </div>
-                  ))
+                  <p className="text-muted-foreground">No sessions scheduled yet.</p>
                 )}
               </div>
             )}
@@ -200,11 +183,11 @@ const ClassDetailPage = () => {
                   </div>
                   <div>
                     <h2 className="font-display text-xl font-semibold text-foreground">{cls.teacherName}</h2>
-                    <p className="text-muted-foreground">{teacher?.qualifications || `${cls.subject} Specialist`}</p>
+                    <p className="text-muted-foreground">{teacher?.qualifications || "Educator"}</p>
                   </div>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
-                  {teacher?.bio || `An experienced educator with years of teaching experience. Known for making complex concepts easy to understand through interactive teaching methods.`}
+                  {teacher?.bio || "An experienced educator dedicated to helping students succeed."}
                 </p>
               </div>
             )}
@@ -218,7 +201,6 @@ const ClassDetailPage = () => {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-6 card-elevated sticky top-24">
               <div className="flex items-center gap-3 mb-4">
