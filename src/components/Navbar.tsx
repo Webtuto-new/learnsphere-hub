@@ -69,6 +69,7 @@ const Navbar = () => {
                 {item.label}
               </Link>
             ))}
+            </div>
           </div>
 
           {/* Right Actions */}
