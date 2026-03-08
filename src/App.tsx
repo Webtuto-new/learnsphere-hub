@@ -10,6 +10,7 @@ import CurriculumPage from "./pages/CurriculumPage";
 import ClassesPage from "./pages/ClassesPage";
 import ClassDetailPage from "./pages/ClassDetailPage";
 import RecordingsPage from "./pages/RecordingsPage";
+import RecordingPlayerPage from "./pages/RecordingPlayerPage";
 import BundlesPage from "./pages/BundlesPage";
 import SeminarsPage from "./pages/SeminarsPage";
 import WorkshopsPage from "./pages/WorkshopsPage";
@@ -19,6 +20,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import SearchPage from "./pages/SearchPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -27,16 +29,27 @@ import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardSchedule from "./pages/dashboard/DashboardSchedule";
 import DashboardClasses from "./pages/dashboard/DashboardClasses";
+import DashboardRecordings from "./pages/dashboard/DashboardRecordings";
 import DashboardPayments from "./pages/dashboard/DashboardPayments";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
+import DashboardWishlist from "./pages/dashboard/DashboardWishlist";
+import DashboardHistory from "./pages/dashboard/DashboardHistory";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminClasses from "./pages/admin/AdminClasses";
+import AdminSessions from "./pages/admin/AdminSessions";
 import AdminStudents from "./pages/admin/AdminStudents";
+import AdminTeachers from "./pages/admin/AdminTeachers";
 import AdminApplications from "./pages/admin/AdminApplications";
+import AdminRecordings from "./pages/admin/AdminRecordings";
+import AdminCurriculum from "./pages/admin/AdminCurriculum";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 
 const queryClient = new QueryClient();
@@ -63,6 +76,7 @@ const App = () => (
             <Route path="/classes" element={<ClassesPage />} />
             <Route path="/class/:id" element={<ClassDetailPage />} />
             <Route path="/recordings" element={<RecordingsPage />} />
+            <Route path="/recording/:id" element={<RecordingPlayerPage />} />
             <Route path="/bundles" element={<BundlesPage />} />
             <Route path="/seminars" element={<SeminarsPage />} />
             <Route path="/workshops" element={<WorkshopsPage />} />
@@ -72,6 +86,7 @@ const App = () => (
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/contact" element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />} />
             <Route path="/terms" element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />} />
             <Route path="/privacy" element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />} />
@@ -80,7 +95,9 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardWrapper><DashboardOverview /></DashboardWrapper>} />
             <Route path="/dashboard/schedule" element={<DashboardWrapper><DashboardSchedule /></DashboardWrapper>} />
             <Route path="/dashboard/classes" element={<DashboardWrapper><DashboardClasses /></DashboardWrapper>} />
-            <Route path="/dashboard/recordings" element={<DashboardWrapper><DashboardPlaceholder title="My Recordings" /></DashboardWrapper>} />
+            <Route path="/dashboard/recordings" element={<DashboardWrapper><DashboardRecordings /></DashboardWrapper>} />
+            <Route path="/dashboard/history" element={<DashboardWrapper><DashboardHistory /></DashboardWrapper>} />
+            <Route path="/dashboard/wishlist" element={<DashboardWrapper><DashboardWishlist /></DashboardWrapper>} />
             <Route path="/dashboard/notes" element={<DashboardWrapper><DashboardPlaceholder title="My Notes" /></DashboardWrapper>} />
             <Route path="/dashboard/payments" element={<DashboardWrapper><DashboardPayments /></DashboardWrapper>} />
             <Route path="/dashboard/profile" element={<DashboardWrapper><DashboardProfile /></DashboardWrapper>} />
@@ -90,15 +107,16 @@ const App = () => (
             {/* Admin Dashboard */}
             <Route path="/admin" element={<AdminWrapper><AdminDashboard /></AdminWrapper>} />
             <Route path="/admin/classes" element={<AdminWrapper><AdminClasses /></AdminWrapper>} />
+            <Route path="/admin/sessions" element={<AdminWrapper><AdminSessions /></AdminWrapper>} />
             <Route path="/admin/students" element={<AdminWrapper><AdminStudents /></AdminWrapper>} />
-            <Route path="/admin/teachers" element={<AdminWrapper><AdminPlaceholder title="Manage Teachers" /></AdminWrapper>} />
+            <Route path="/admin/teachers" element={<AdminWrapper><AdminTeachers /></AdminWrapper>} />
             <Route path="/admin/applications" element={<AdminWrapper><AdminApplications /></AdminWrapper>} />
-            <Route path="/admin/recordings" element={<AdminWrapper><AdminPlaceholder title="Manage Recordings" /></AdminWrapper>} />
-            <Route path="/admin/curriculum" element={<AdminWrapper><AdminPlaceholder title="Manage Curriculum" /></AdminWrapper>} />
-            <Route path="/admin/payments" element={<AdminWrapper><AdminPlaceholder title="Manage Payments" /></AdminWrapper>} />
-            <Route path="/admin/coupons" element={<AdminWrapper><AdminPlaceholder title="Manage Coupons" /></AdminWrapper>} />
-            <Route path="/admin/announcements" element={<AdminWrapper><AdminPlaceholder title="Manage Announcements" /></AdminWrapper>} />
-            <Route path="/admin/analytics" element={<AdminWrapper><AdminPlaceholder title="Analytics" /></AdminWrapper>} />
+            <Route path="/admin/recordings" element={<AdminWrapper><AdminRecordings /></AdminWrapper>} />
+            <Route path="/admin/curriculum" element={<AdminWrapper><AdminCurriculum /></AdminWrapper>} />
+            <Route path="/admin/payments" element={<AdminWrapper><AdminPayments /></AdminWrapper>} />
+            <Route path="/admin/coupons" element={<AdminWrapper><AdminCoupons /></AdminWrapper>} />
+            <Route path="/admin/announcements" element={<AdminWrapper><AdminAnnouncements /></AdminWrapper>} />
+            <Route path="/admin/analytics" element={<AdminWrapper><AdminAnalytics /></AdminWrapper>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
