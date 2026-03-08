@@ -50,7 +50,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center h-16 lg:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+          <Link to="/" className="flex items-center gap-2.5 group shrink-0 lg:w-48">
             <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
@@ -74,7 +74,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 lg:w-48 lg:justify-end">
             <Link
               to="/search"
               className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
