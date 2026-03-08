@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import FileUpload from "@/components/FileUpload";
 
 const AdminRecordings = () => {
   const [recordings, setRecordings] = useState<any[]>([]);
@@ -165,7 +166,7 @@ const AdminRecordings = () => {
               <DialogHeader><DialogTitle>{editingVid ? "Edit" : "Add"} Video</DialogTitle></DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2"><Label>Title</Label><Input value={vidForm.title} onChange={(e) => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Episode 1 - Introduction" /></div>
-                <div className="space-y-2"><Label>Video URL</Label><Input value={vidForm.video_url} onChange={(e) => setVidForm(f => ({ ...f, video_url: e.target.value }))} placeholder="https://..." /></div>
+                <FileUpload value={vidForm.video_url || null} onChange={(url) => setVidForm(f => ({ ...f, video_url: url || "" }))} bucket="thumbnails" folder="videos" accept="video/*" label="Video File" hint="Drag & drop a video or click to browse" previewType="video" />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Episode #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
                   <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>

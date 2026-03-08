@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import ThumbnailUpload from "@/components/ThumbnailUpload";
 
 const AdminTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -57,7 +58,7 @@ const AdminTeachers = () => {
               <div className="space-y-2"><Label>Name</Label><Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Bio</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={3} value={form.bio} onChange={(e) => setForm(f => ({ ...f, bio: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Qualifications</Label><Input value={form.qualifications} onChange={(e) => setForm(f => ({ ...f, qualifications: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Avatar URL</Label><Input value={form.avatar_url} onChange={(e) => setForm(f => ({ ...f, avatar_url: e.target.value }))} /></div>
+              <ThumbnailUpload value={form.avatar_url || null} onChange={(url) => setForm(f => ({ ...f, avatar_url: url || "" }))} title={form.name} folder="teachers" />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
