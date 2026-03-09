@@ -233,12 +233,21 @@ const ClassDetailPage = () => {
                 <p className="text-sm text-accent font-medium mb-4">Save LKR {(cls.originalPrice - price).toLocaleString()}!</p>
               )}
 
-              {isEnrolled ? (
+              {enrollment ? (
                 <div className="space-y-3">
-                  <div className="bg-secondary/10 text-secondary text-center p-3 rounded-lg font-medium text-sm">✓ You're enrolled</div>
+                  <div className="bg-secondary/10 text-secondary p-4 rounded-lg space-y-1">
+                    <div className="flex items-center gap-2 font-medium text-sm">
+                      <span className="text-lg">✓</span> Enrolled
+                    </div>
+                    {enrollment.expires_at && (
+                      <p className="text-xs text-secondary/80">
+                        Expires: {new Date(enrollment.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    )}
+                  </div>
                   {nextSession?.zoom_link && (
                     <a href={nextSession.zoom_link} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full gap-2" size="lg"><ExternalLink className="w-4 h-4" /> Join Next Class</Button>
+                      <Button className="w-full gap-2" size="lg"><Video className="w-4 h-4" /> Join Next Class</Button>
                     </a>
                   )}
                 </div>

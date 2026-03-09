@@ -62,23 +62,74 @@ const DashboardClasses = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {enrollments.map((e) => (
-            <Card key={e.id} className="overflow-hidden">
-              <CardContent className="p-4">
-                <h3 className="font-medium text-foreground mb-1">{e.classes?.title || "Class"}</h3>
-                <p className="text-xs text-muted-foreground mb-2">{e.classes?.short_description || ""}</p>
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    e.status === "active" ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"
-                  }`}>{e.status}</span>
-                  <Link to={`/class/${e.class_id}`}>
-                    <Button variant="ghost" size="sm"><ExternalLink className="w-4 h-4" /></Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid lg:grid-cols-2 gap-4">
+          {enrollments.map((e) => {
+            const nextSession = nextSessions[e.class_id];
+            const expiresAt = e.expires_at ? new Date(e.expires_at) : null;
+            const isExpired = expiresAt && expiresAt < new Date();
+
+            return (
+              <Card key={e.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-display font-semibold text-foreground mb-1 text-lg">{e.classes?.title || "Class"}</h3>
+                      {e.classes?.short_description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">{e.classes.short_description}</p>
+                      )}
+                    </div>
+                    <Link to={`/class/${e.class_id}`}>
+                      <Button variant="ghost" size="sm" className="shrink-0">
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Expiry info */}
+                  <div className="flex items-center gap-2">
+                    <Badge variant={isExpired ? "destructive" : "secondary"} className="text-xs">
+                      <Calendar className="w-3 h-3 mr-1" />
+                      {expiresAt ? `Expires ${expiresAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : "Active"}
+                    </Badge>
+                  </div>
+
+                  {/* Next session & actions */}
+                  {nextSession && (
+                    <div className="pt-3 border-t border-border/50 space-y-2">
+                      <p className="text-xs text-muted-foreground font-medium">Next Session:</p>
+                      <p className="text-sm text-foreground font-medium">{nextSession.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(nextSession.session_date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · {nextSession.start_time}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {nextSession.zoom_link && (
+                          <a href={nextSession.zoom_link} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="default" className="gap-1.5">
+                              <Video className="w-3.5 h-3.5" /> Join Zoom
+                            </Button>
+                          </a>
+                        )}
+                        {nextSession.recording_url && (
+                          <a href={nextSession.recording_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline" className="gap-1.5">
+                              <Video className="w-3.5 h-3.5" /> Recording
+                            </Button>
+                          </a>
+                        )}
+                        {nextSession.notes_url && (
+                          <a href={nextSession.notes_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline" className="gap-1.5">
+                              <FileText className="w-3.5 h-3.5" /> Notes
+                            </Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
