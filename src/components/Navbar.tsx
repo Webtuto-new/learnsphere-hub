@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Sun, Moon, Search, ChevronRight, ShoppingCart } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -15,22 +16,20 @@ const navItems = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { itemCount } = useCart();
+  const { theme, setTheme } = useTheme();
+
+  const isDark = theme === "dark";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -53,7 +52,11 @@ const Navbar = () => {
         <div className="flex items-center h-16 lg:h-[72px]">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group shrink-0 lg:w-48">
-            <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
+            <img
+              src={logo}
+              alt="Webtuto.LK"
+              className="h-9 w-auto transition-transform duration-300 group-hover:scale-105"
+            />
           </Link>
 
           {/* Desktop Nav — Centered */}
@@ -95,9 +98,10 @@ const Navbar = () => {
               )}
             </Link>
             <button
-              onClick={() => setIsDark(!isDark)}
+              onClick={() => setTheme(isDark ? "light" : "dark")}
               className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
               aria-label="Toggle theme"
+              type="button"
             >
               {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
             </button>
@@ -142,6 +146,7 @@ const Navbar = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
+              type="button"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -171,14 +176,20 @@ const Navbar = () => {
               {user ? (
                 <>
                   <Link to="/dashboard" className="flex-1">
-                    <Button variant="outline" className="w-full rounded-xl">Dashboard</Button>
+                    <Button variant="outline" className="w-full rounded-xl">
+                      Dashboard
+                    </Button>
                   </Link>
-                  <Button variant="outline" className="flex-1 rounded-xl" onClick={handleSignOut}>Sign out</Button>
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={handleSignOut}>
+                    Sign out
+                  </Button>
                 </>
               ) : (
                 <>
                   <Link to="/login" className="flex-1">
-                    <Button variant="outline" className="w-full rounded-xl">Log in</Button>
+                    <Button variant="outline" className="w-full rounded-xl">
+                      Log in
+                    </Button>
                   </Link>
                   <Link to="/signup" className="flex-1">
                     <Button className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90">
