@@ -8,9 +8,9 @@ import ClassCard from "@/components/ClassCard";
 import { supabase } from "@/integrations/supabase/client";
 
 const stats = [
-  { icon: Users, label: "Active Students", value: "5,000+" },
-  { icon: GraduationCap, label: "Expert Tutors", value: "200+" },
-  { icon: BookOpen, label: "Courses", value: "500+" },
+  { icon: Users, label: "Active Students", value: "500+" },
+  { icon: GraduationCap, label: "Expert Tutors", value: "25+" },
+  { icon: BookOpen, label: "Courses/Classes", value: "50+" },
   { icon: Play, label: "Recordings", value: "1,200+" },
 ];
 
