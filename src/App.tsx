@@ -124,6 +124,7 @@ const App = () => (
             <Route path="/admin/curriculum" element={<AdminWrapper><AdminCurriculum /></AdminWrapper>} />
             <Route path="/admin/bundles" element={<AdminWrapper><AdminBundles /></AdminWrapper>} />
             <Route path="/admin/payments" element={<AdminWrapper><AdminPayments /></AdminWrapper>} />
+            <Route path="/admin/bank-details" element={<AdminWrapper><AdminBankDetails /></AdminWrapper>} />
             <Route path="/admin/payouts" element={<AdminWrapper><AdminPayouts /></AdminWrapper>} />
             <Route path="/admin/certificates" element={<AdminWrapper><AdminCertificates /></AdminWrapper>} />
             <Route path="/admin/coupons" element={<AdminWrapper><AdminCoupons /></AdminWrapper>} />
