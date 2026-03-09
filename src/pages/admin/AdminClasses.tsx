@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,19 +9,59 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 
+const emptyForm = {
+  title: "", description: "", short_description: "", class_type: "monthly",
+  price: "", schedule_day: "", schedule_time: "", duration_minutes: "60",
+  is_live: true, thumbnail_url: null as string | null,
+  teacher_id: "", curriculum_id: "", grade_id: "", subject_id: "",
+};
+
 const AdminClasses = () => {
   const [classes, setClasses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: "" as string | null });
+  const [form, setForm] = useState({ ...emptyForm });
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [curriculums, setCurriculums] = useState<any[]>([]);
+  const [grades, setGrades] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const { toast } = useToast();
 
   const fetchClasses = () => {
-    supabase.from("classes").select("*, teachers(name)").order("created_at", { ascending: false })
+    supabase.from("classes")
+      .select("*, teachers(name), curriculums(name), grades(name), subjects(name)")
+      .order("created_at", { ascending: false })
       .then(({ data }) => setClasses(data || []));
   };
 
-  useEffect(() => { fetchClasses(); }, []);
+  useEffect(() => {
+    fetchClasses();
+    supabase.from("teachers").select("id, name").eq("is_active", true).then(({ data }) => setTeachers(data || []));
+    supabase.from("curriculums").select("id, name").eq("is_active", true).then(({ data }) => setCurriculums(data || []));
+  }, []);
+
+  // Load grades when curriculum changes
+  useEffect(() => {
+    if (form.curriculum_id) {
+      supabase.from("grades").select("id, name").eq("curriculum_id", form.curriculum_id).eq("is_active", true)
+        .then(({ data }) => { setGrades(data || []); });
+    } else {
+      setGrades([]);
+    }
+    setForm(f => ({ ...f, grade_id: "", subject_id: "" }));
+    setSubjects([]);
+  }, [form.curriculum_id]);
+
+  // Load subjects when grade changes
+  useEffect(() => {
+    if (form.grade_id) {
+      supabase.from("subjects").select("id, name").eq("grade_id", form.grade_id).eq("is_active", true)
+        .then(({ data }) => setSubjects(data || []));
+    } else {
+      setSubjects([]);
+    }
+    setForm(f => ({ ...f, subject_id: "" }));
+  }, [form.grade_id]);
 
   const handleSave = async () => {
     const payload = {
@@ -35,6 +75,10 @@ const AdminClasses = () => {
       duration_minutes: parseInt(form.duration_minutes) || 60,
       is_live: form.is_live,
       thumbnail_url: form.thumbnail_url || null,
+      teacher_id: form.teacher_id || null,
+      curriculum_id: form.curriculum_id || null,
+      grade_id: form.grade_id || null,
+      subject_id: form.subject_id || null,
     };
 
     let error;
@@ -50,7 +94,7 @@ const AdminClasses = () => {
       toast({ title: editing ? "Class updated!" : "Class created!" });
       setOpen(false);
       setEditing(null);
-      setForm({ title: "", description: "", short_description: "", class_type: "monthly", price: "", schedule_day: "", schedule_time: "", duration_minutes: "60", is_live: true, thumbnail_url: null });
+      setForm({ ...emptyForm });
       fetchClasses();
     }
   };
@@ -68,32 +112,37 @@ const AdminClasses = () => {
       duration_minutes: cls.duration_minutes?.toString() || "60",
       is_live: cls.is_live,
       thumbnail_url: cls.thumbnail_url || null,
+      teacher_id: cls.teacher_id || "",
+      curriculum_id: cls.curriculum_id || "",
+      grade_id: cls.grade_id || "",
+      subject_id: cls.subject_id || "",
     });
+    // Pre-load grades & subjects for the selected curriculum/grade
+    if (cls.curriculum_id) {
+      supabase.from("grades").select("id, name").eq("curriculum_id", cls.curriculum_id).eq("is_active", true)
+        .then(({ data }) => setGrades(data || []));
+    }
+    if (cls.grade_id) {
+      supabase.from("subjects").select("id, name").eq("grade_id", cls.grade_id).eq("is_active", true)
+        .then(({ data }) => setSubjects(data || []));
+    }
     setOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     try {
-      // Get enrollment IDs for this class
       const { data: enrollments } = await supabase.from("enrollments").select("id").eq("class_id", id);
       const enrollmentIds = (enrollments || []).map(e => e.id);
-
-      // Delete payments linked to those enrollments
       if (enrollmentIds.length > 0) {
         const { error: paymentsErr } = await supabase.from("payments").delete().in("enrollment_id", enrollmentIds);
         if (paymentsErr) throw paymentsErr;
       }
-
-      // Delete related records in order
       for (const table of ["enrollments", "class_sessions", "reviews", "wishlists", "waitlists", "bundle_classes", "certificates", "recordings"] as const) {
         const { error } = await supabase.from(table).delete().eq("class_id", id);
         if (error) throw error;
       }
-
-      // Finally delete the class
       const { error } = await supabase.from("classes").delete().eq("id", id);
       if (error) throw error;
-
       toast({ title: "Class deleted" });
       fetchClasses();
     } catch (error: any) {
@@ -101,11 +150,13 @@ const AdminClasses = () => {
     }
   };
 
+  const sel = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-foreground">Manage Classes</h1>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); } }}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm({ ...emptyForm }); } }}>
           <DialogTrigger asChild>
             <Button className="gap-1"><Plus className="w-4 h-4" /> Add Class</Button>
           </DialogTrigger>
@@ -115,13 +166,53 @@ const AdminClasses = () => {
               <ThumbnailUpload value={form.thumbnail_url} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url }))} title={form.title} folder="classes" />
               <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} /></div>
               <div className="space-y-2"><Label>Short Description</Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Description</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={3} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>Description</Label><textarea className={sel} rows={3} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+
+              {/* Curriculum → Grade → Subject cascade */}
+              <div className="space-y-2">
+                <Label>Curriculum</Label>
+                <select className={sel} value={form.curriculum_id} onChange={(e) => setForm(f => ({ ...f, curriculum_id: e.target.value }))}>
+                  <option value="">— Select Curriculum —</option>
+                  {curriculums.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              {grades.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Grade</Label>
+                  <select className={sel} value={form.grade_id} onChange={(e) => setForm(f => ({ ...f, grade_id: e.target.value }))}>
+                    <option value="">— Select Grade —</option>
+                    {grades.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                  </select>
+                </div>
+              )}
+              {subjects.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Subject</Label>
+                  <select className={sel} value={form.subject_id} onChange={(e) => setForm(f => ({ ...f, subject_id: e.target.value }))}>
+                    <option value="">— Select Subject —</option>
+                    {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>Teacher</Label>
+                <select className={sel} value={form.teacher_id} onChange={(e) => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
+                  <option value="">— Select Teacher —</option>
+                  {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Type</Label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.class_type} onChange={(e) => setForm(f => ({ ...f, class_type: e.target.value }))}>
-                    <option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="seminar">Seminar</option>
-                    <option value="workshop">Workshop</option><option value="hourly">Hourly</option><option value="recording">Recording</option>
+                  <select className={sel} value={form.class_type} onChange={(e) => setForm(f => ({ ...f, class_type: e.target.value }))}>
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="seminar">Seminar</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="hourly">Hourly</option>
+                    <option value="recording">Recording</option>
                   </select>
                 </div>
                 <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} /></div>
@@ -144,6 +235,7 @@ const AdminClasses = () => {
               <thead><tr className="border-b border-border">
                 <th className="text-left p-4 font-medium text-muted-foreground">Title</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Teacher</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
@@ -153,6 +245,7 @@ const AdminClasses = () => {
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="p-4 font-medium text-foreground">{c.title}</td>
                     <td className="p-4 text-muted-foreground capitalize">{c.class_type}</td>
+                    <td className="p-4 text-muted-foreground">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-foreground">LKR {c.price}</td>
                     <td className="p-4 text-muted-foreground">{c.teachers?.name || "—"}</td>
                     <td className="p-4 flex gap-1">
@@ -161,7 +254,7 @@ const AdminClasses = () => {
                     </td>
                   </tr>
                 ))}
-                {classes.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No classes yet.</td></tr>}
+                {classes.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No classes yet.</td></tr>}
               </tbody>
             </table>
           </div>
