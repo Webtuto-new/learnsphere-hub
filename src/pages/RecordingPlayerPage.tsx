@@ -382,9 +382,6 @@ const LessonList = ({
 
 export default RecordingPlayerPage;
 
-        <div className="container mx-auto px-4">
-          {/* Back nav */}
-          <Link to="/recordings" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Recordings
           </Link>
 

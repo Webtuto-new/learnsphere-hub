@@ -208,10 +208,6 @@ const Navbar = () => {
 
 export default Navbar;
 
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center h-16 lg:h-[72px]">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0 lg:w-48">
             <img src={logo} alt="Webtuto.LK" className="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
