@@ -67,6 +67,14 @@ const RecordingPlayerPage = () => {
 
   const totalDuration = lessons.reduce((sum, lesson) => sum + (lesson.duration_minutes || 0), 0);
 
+  const handleVideoEnded = () => {
+    if (!activeLesson) return;
+    const currentIndex = lessons.findIndex(l => l.id === activeLesson.id);
+    if (currentIndex < lessons.length - 1) {
+      setActiveLesson(lessons[currentIndex + 1]);
+    }
+  };
+
   return (
     <Layout>
       <div className="pt-24 pb-20 min-h-screen">
@@ -90,6 +98,7 @@ const RecordingPlayerPage = () => {
                       className="w-full h-full object-contain bg-black"
                       src={activeLesson.video_url}
                       controlsList="nodownload"
+                      onEnded={handleVideoEnded}
                     >
                       Your browser does not support the video tag.
                     </video>
