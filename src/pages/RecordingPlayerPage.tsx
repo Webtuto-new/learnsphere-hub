@@ -251,7 +251,7 @@ const RecordingPlayerPage = () => {
                       Next <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
-                )
+                )}
 
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
