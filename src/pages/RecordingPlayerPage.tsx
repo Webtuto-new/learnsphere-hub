@@ -98,6 +98,7 @@ const RecordingPlayerPage = () => {
                       className="w-full h-full object-contain bg-black"
                       src={activeLesson.video_url}
                       controlsList="nodownload"
+                      onEnded={handleVideoEnded}
                     >
                       Your browser does not support the video tag.
                     </video>
