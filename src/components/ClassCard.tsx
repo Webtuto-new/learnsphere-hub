@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clock, Users, Video, Share2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Clock, Users, ArrowRight } from "lucide-react";
 
 export interface ClassCardProps {
   id: string;
