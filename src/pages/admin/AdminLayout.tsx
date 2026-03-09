@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, BookOpen, Users, GraduationCap, Play, CreditCard,
-  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package
+  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package, Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
