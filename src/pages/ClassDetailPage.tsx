@@ -145,7 +145,7 @@ const ClassDetailPage = () => {
                 <h2 className="font-display text-xl font-semibold text-foreground">Session Schedule</h2>
                 {sessions.length > 0 ? sessions.map((session) => {
                   const sessionDate = new Date(`${session.session_date}T${session.start_time}`);
-                  const isJoinable = isEnrolled && session.zoom_link && Math.abs(sessionDate.getTime() - now.getTime()) < 15 * 60 * 1000;
+                  const isJoinable = enrollment && session.zoom_link && Math.abs(sessionDate.getTime() - now.getTime()) < 15 * 60 * 1000;
                   return (
                     <div key={session.id} className="flex items-center justify-between bg-card rounded-xl p-4 card-elevated">
                       <div className="flex items-center gap-4">
