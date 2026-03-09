@@ -21,8 +21,8 @@ const RecordingPlayerPage = () => {
   const { user } = useAuth();
   const [recording, setRecording] = useState<any>(null);
   const [hasAccess, setHasAccess] = useState(false);
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
-  const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [related, setRelated] = useState<any[]>([]);
 
   useEffect(() => {
