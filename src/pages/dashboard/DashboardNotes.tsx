@@ -98,6 +98,23 @@ const DashboardNotes = () => {
     fetchResources();
   }, [user, authLoading]);
 
+  if (isLoading || authLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="font-display text-2xl font-bold text-foreground">Notes & Resources</h1>
+        <Card>
+          <CardContent className="py-12">
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold text-foreground">Notes & Resources</h1>
@@ -105,6 +122,7 @@ const DashboardNotes = () => {
         <Card><CardContent className="py-12 text-center text-muted-foreground">
           <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p>No downloadable resources available yet.</p>
+          <p className="text-sm mt-2">Resources will appear here once you enroll in classes with uploaded materials.</p>
         </CardContent></Card>
       ) : (
         <div className="space-y-3">
