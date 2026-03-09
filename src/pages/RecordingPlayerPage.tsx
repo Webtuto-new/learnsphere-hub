@@ -37,12 +37,12 @@ const RecordingPlayerPage = () => {
         }
       });
 
-    // Fetch episodes from recording_videos
+    // Fetch lessons from recording_videos
     supabase.from("recording_videos").select("*").eq("recording_id", id).eq("is_active", true).order("episode_number", { ascending: true })
       .then(({ data }) => {
-        const eps = data || [];
-        setEpisodes(eps);
-        if (eps.length > 0) setActiveEpisode(eps[0]);
+        const lessonsData = data || [];
+        setLessons(lessonsData);
+        if (lessonsData.length > 0) setActiveLesson(lessonsData[0]);
       });
 
     if (user) {
