@@ -23,7 +23,7 @@ const ClassDetailPage = () => {
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
-  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollment, setEnrollment] = useState<any>(null);
   const [reviewKey, setReviewKey] = useState(0);
   const [loading, setLoading] = useState(true);
 
