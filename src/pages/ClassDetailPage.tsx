@@ -231,13 +231,42 @@ const ClassDetailPage = () => {
 
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-6 card-elevated sticky top-24">
+              {isHourly ? (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-foreground mb-3">Configure your weekly sessions:</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Hours per class:</span>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setHoursPerWeek(Math.max(1, hoursPerWeek - 1))} disabled={hoursPerWeek <= 1}>-</Button>
+                        <span className="w-8 text-center font-medium">{hoursPerWeek}</span>
+                        <Button size="sm" variant="outline" onClick={() => setHoursPerWeek(hoursPerWeek + 1)}>+</Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Classes per week:</span>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setClassesPerWeek(Math.max(1, classesPerWeek - 1))} disabled={classesPerWeek <= 1}>-</Button>
+                        <span className="w-8 text-center font-medium">{classesPerWeek}</span>
+                        <Button size="sm" variant="outline" onClick={() => setClassesPerWeek(classesPerWeek + 1)}>+</Button>
+                      </div>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3 text-sm">
+                      <p className="text-muted-foreground">Total: <span className="font-medium text-foreground">{totalHours} hours/week</span></p>
+                      <p className="text-muted-foreground">Rate: LKR {cls.basePrice.toLocaleString()}/hour</p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="flex items-center gap-3 mb-4">
                 <span className="font-display font-bold text-3xl text-foreground">LKR {price.toLocaleString()}</span>
-                {cls.originalPrice && (
+                {isHourly && <span className="text-sm text-muted-foreground">/week</span>}
+                {cls.originalPrice && !isHourly && (
                   <span className="text-muted-foreground line-through">LKR {cls.originalPrice.toLocaleString()}</span>
                 )}
               </div>
-              {cls.originalPrice && (
+              {cls.originalPrice && !isHourly && (
                 <p className="text-sm text-accent font-medium mb-4">Save LKR {(cls.originalPrice - price).toLocaleString()}!</p>
               )}
 
@@ -253,6 +282,11 @@ const ClassDetailPage = () => {
                       </p>
                     )}
                   </div>
+                  {isHourly && (
+                    <Button variant="outline" className="w-full" onClick={() => setEnrollment(null)}>
+                      Add More Hours
+                    </Button>
+                  )}
                   {nextSession?.zoom_link && (
                     <a href={nextSession.zoom_link} target="_blank" rel="noopener noreferrer">
                       <Button className="w-full gap-2" size="lg"><Video className="w-4 h-4" /> Join Next Class</Button>
@@ -260,7 +294,7 @@ const ClassDetailPage = () => {
                   )}
                 </div>
               ) : (
-                <PurchaseButton type="class" itemId={classId} price={price} title={cls.title} />
+                <PurchaseButton type="class" itemId={classId} price={price} title={isHourly ? `${cls.title} (${totalHours}h/week)` : cls.title} />
               )}
 
               <div className="flex gap-2 mt-3">
@@ -272,7 +306,7 @@ const ClassDetailPage = () => {
 
               <div className="mt-6 space-y-3 text-sm">
                 {[
-                  { icon: Calendar, text: `${cls.sessionCount} sessions` },
+                  { icon: Calendar, text: isHourly ? `${totalHours} hours/week` : `${cls.sessionCount} sessions` },
                   { icon: Clock, text: cls.duration },
                   { icon: Video, text: "Recordings included" },
                 ].map((item) => (
