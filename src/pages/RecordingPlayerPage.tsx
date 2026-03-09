@@ -110,7 +110,31 @@ const RecordingPlayerPage = () => {
   const handleVideoEnded = () => {
     if (!activeLesson) return;
     const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
-    if (currentIndex < lessons.length - 1) setActiveLesson(lessons[currentIndex + 1]);
+    const nextLesson = lessons[currentIndex + 1];
+    if (nextLesson) {
+      setPlayerError(null);
+      setActiveLesson(nextLesson);
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
+    const nextLesson = lessons[currentIndex + 1];
+    if (nextLesson) {
+      setPlayerError(null);
+      setActiveLesson(nextLesson);
+    }
+  };
+
+  const handlePrevLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
+    const prevLesson = lessons[currentIndex - 1];
+    if (prevLesson) {
+      setPlayerError(null);
+      setActiveLesson(prevLesson);
+    }
   };
 
   if (!recording) {

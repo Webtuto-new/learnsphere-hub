@@ -58,7 +58,7 @@ const DashboardPayments = () => {
     
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
-    pdf.text('webtutoacademy.lovable.app', margin, yPos + 8);
+    pdf.text('edu.webtuto.lk', margin, yPos + 8);
     
     // Invoice title on right
     pdf.setFontSize(28);

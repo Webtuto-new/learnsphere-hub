@@ -54,7 +54,7 @@ const emailShell = (heading: string, content: string) => `
     </div>
     <div style="${footerStyle}">
       <p style="${footerText}">© ${new Date().getFullYear()} Webtuto Academy. All rights reserved.</p>
-      <p style="${footerText}">You're receiving this because you're registered on <a href="${SITE_URL}" style="color: #1a3a7a; text-decoration: none;">webtutoacademy.lovable.app</a></p>
+      <p style="${footerText}">You're receiving this because you're registered on <a href="${SITE_URL}" style="color: #1a3a7a; text-decoration: none;">edu.webtuto.lk</a></p>
     </div>
   </div>
 </body>
