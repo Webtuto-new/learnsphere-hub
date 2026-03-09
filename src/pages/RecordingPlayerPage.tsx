@@ -127,22 +127,22 @@ const RecordingPlayerPage = () => {
                   <p className="text-muted-foreground leading-relaxed">{recording.description}</p>
                 )}
 
-                {/* Mobile episode list */}
+                {/* Mobile lesson list */}
                 <div className="lg:hidden">
-                  <EpisodeList
-                    episodes={episodes}
-                    activeEpisode={activeEpisode}
-                    onSelect={setActiveEpisode}
+                  <LessonList
+                    lessons={lessons}
+                    activeLesson={activeLesson}
+                    onSelect={setActiveLesson}
                   />
                 </div>
               </div>
 
-              {/* Sidebar episode list (desktop) */}
+              {/* Sidebar lesson list (desktop) */}
               <div className="hidden lg:block">
-                <EpisodeList
-                  episodes={episodes}
-                  activeEpisode={activeEpisode}
-                  onSelect={setActiveEpisode}
+                <LessonList
+                  lessons={lessons}
+                  activeLesson={activeLesson}
+                  onSelect={setActiveLesson}
                 />
               </div>
             </div>
