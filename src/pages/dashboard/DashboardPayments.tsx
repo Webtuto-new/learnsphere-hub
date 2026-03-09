@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Download, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow, isPast, differenceInDays } from "date-fns";
+import jsPDF from "jspdf";
 
 const DashboardPayments = () => {
   const { user, profile } = useAuth();
@@ -33,46 +34,149 @@ const DashboardPayments = () => {
 
   const generateInvoice = (p: any) => {
     const itemName = p.enrollments?.classes?.title || p.enrollments?.recordings?.title || "Service";
-    const lines = [
-      "════════════════════════════════════════",
-      "              INVOICE",
-      "         WebTuto Academy",
-      "════════════════════════════════════════",
-      "",
-      `Invoice Date:    ${format(new Date(p.created_at), "PPP")}`,
-      `Invoice #:       INV-${p.id.slice(0, 8).toUpperCase()}`,
-      "",
-      "────────────────────────────────────────",
-      "  BILL TO",
-      "────────────────────────────────────────",
-      `  Name:          ${profile?.full_name || "Student"}`,
-      `  Email:         ${profile?.email || "—"}`,
-      `  Admission #:   ${profile?.admission_number || "—"}`,
-      "",
-      "────────────────────────────────────────",
-      "  ITEM DETAILS",
-      "────────────────────────────────────────",
-      `  Item:          ${itemName}`,
-      `  Amount:        ${p.currency} ${p.amount}`,
-      `  Method:        ${p.payment_method || "—"}`,
-      `  Status:        ${p.payment_status}`,
-      `  Reference:     ${p.transaction_ref || "—"}`,
-      "",
-      "────────────────────────────────────────",
-      `  TOTAL:         ${p.currency} ${p.amount}`,
-      "────────────────────────────────────────",
-      "",
-      "  Thank you for your payment!",
-      "  WebTuto Academy - webtutoacademy.lovable.app",
-      "════════════════════════════════════════",
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoice-${p.id.slice(0, 8)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const invoiceNumber = `INV-${p.id.slice(0, 8).toUpperCase()}`;
+    const invoiceDate = format(new Date(p.created_at), "PPP");
+    
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.width;
+    const margin = 20;
+    let yPos = 20;
+
+    // Brand color (primary blue from your theme)
+    const primaryColor: [number, number, number] = [41, 68, 114]; // hsl(225, 70%, 28%) converted to RGB
+    const accentColor: [number, number, number] = [242, 183, 71]; // hsl(42, 92%, 56%) converted to RGB
+    
+    // Header with gradient effect (simulated)
+    pdf.setFillColor(...primaryColor);
+    pdf.rect(0, 0, pageWidth, 45, 'F');
+    
+    // Company name
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(24);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('WebTuto Academy', margin, yPos);
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('webtutoacademy.lovable.app', margin, yPos + 8);
+    
+    // Invoice title on right
+    pdf.setFontSize(28);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('INVOICE', pageWidth - margin, yPos, { align: 'right' });
+    
+    yPos = 60;
+    
+    // Invoice details box
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFillColor(245, 247, 250);
+    pdf.roundedRect(pageWidth - 70, yPos, 50, 20, 2, 2, 'F');
+    
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...primaryColor);
+    pdf.text('Invoice #', pageWidth - 68, yPos + 6);
+    pdf.text('Date', pageWidth - 68, yPos + 14);
+    
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(invoiceNumber, pageWidth - margin, yPos + 6, { align: 'right' });
+    pdf.text(invoiceDate, pageWidth - margin, yPos + 14, { align: 'right' });
+    
+    // Bill To section
+    yPos += 35;
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...primaryColor);
+    pdf.text('BILL TO', margin, yPos);
+    
+    yPos += 8;
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(profile?.full_name || "Student", margin, yPos);
+    
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(80, 80, 80);
+    if (profile?.email) {
+      yPos += 6;
+      pdf.text(profile.email, margin, yPos);
+    }
+    if (profile?.admission_number) {
+      yPos += 6;
+      pdf.text(`Admission #: ${profile.admission_number}`, margin, yPos);
+    }
+    
+    // Items table
+    yPos += 20;
+    const tableTop = yPos;
+    
+    // Table header
+    pdf.setFillColor(...primaryColor);
+    pdf.rect(margin, yPos, pageWidth - 2 * margin, 10, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Description', margin + 5, yPos + 7);
+    pdf.text('Amount', pageWidth - margin - 5, yPos + 7, { align: 'right' });
+    
+    yPos += 10;
+    
+    // Table row
+    pdf.setFillColor(250, 250, 250);
+    pdf.rect(margin, yPos, pageWidth - 2 * margin, 12, 'F');
+    
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(itemName, margin + 5, yPos + 8);
+    pdf.text(`${p.currency} ${p.amount.toFixed(2)}`, pageWidth - margin - 5, yPos + 8, { align: 'right' });
+    
+    yPos += 12;
+    
+    // Divider line
+    pdf.setDrawColor(...primaryColor);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPos, pageWidth - margin, yPos);
+    
+    // Total section
+    yPos += 8;
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...primaryColor);
+    pdf.text('TOTAL', pageWidth - 70, yPos);
+    pdf.setFontSize(14);
+    pdf.text(`${p.currency} ${p.amount.toFixed(2)}`, pageWidth - margin - 5, yPos, { align: 'right' });
+    
+    // Payment details
+    yPos += 20;
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(...primaryColor);
+    pdf.text('Payment Details', margin, yPos);
+    
+    yPos += 8;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(80, 80, 80);
+    pdf.text(`Payment Method: ${p.payment_method || 'Bank Transfer'}`, margin, yPos);
+    yPos += 6;
+    pdf.text(`Status: ${p.payment_status.charAt(0).toUpperCase() + p.payment_status.slice(1)}`, margin, yPos);
+    yPos += 6;
+    pdf.text(`Transaction Reference: ${p.transaction_ref || '—'}`, margin, yPos);
+    
+    // Footer with accent color
+    const footerY = pdf.internal.pageSize.height - 25;
+    pdf.setFillColor(...accentColor);
+    pdf.rect(0, footerY - 5, pageWidth, 3, 'F');
+    
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(100, 100, 100);
+    pdf.text('Thank you for your payment!', pageWidth / 2, footerY + 5, { align: 'center' });
+    pdf.text('For support, contact us at support@webtutoacademy.com', pageWidth / 2, footerY + 11, { align: 'center' });
+    
+    // Save the PDF
+    pdf.save(`invoice-${invoiceNumber}.pdf`);
   };
 
   return (
