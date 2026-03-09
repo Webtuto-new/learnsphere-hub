@@ -226,6 +226,33 @@ const RecordingPlayerPage = () => {
                   )}
                 </div>
 
+                {/* Navigation buttons */}
+                {activeLesson && lessons.length > 1 && (
+                  <div className="flex items-center justify-between gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevLesson}
+                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === 0}
+                      className="gap-1.5"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Previous
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {lessons.findIndex((l) => l.id === activeLesson.id) + 1} / {lessons.length}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextLesson}
+                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === lessons.length - 1}
+                      className="gap-1.5"
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )
+
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
                   {activeLesson && <p className="text-primary font-medium text-sm">Now Playing: {activeLesson.title}</p>}
