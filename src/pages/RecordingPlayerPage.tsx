@@ -5,7 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, ArrowLeft, FileText } from "lucide-react";
+import { Play, ArrowLeft } from "lucide-react";
+import PurchaseButton from "@/components/PurchaseButton";
 
 const RecordingPlayerPage = () => {
   const { id } = useParams();
