@@ -5,7 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, ArrowLeft, FileText } from "lucide-react";
+import { Play, ArrowLeft } from "lucide-react";
+import PurchaseButton from "@/components/PurchaseButton";
 
 const RecordingPlayerPage = () => {
   const { id } = useParams();
@@ -66,8 +67,13 @@ const RecordingPlayerPage = () => {
               </div>
               <h1 className="font-display text-2xl font-bold text-foreground">{recording.title}</h1>
               <p className="text-muted-foreground">{recording.description}</p>
-              <p className="text-3xl font-bold text-foreground">LKR {recording.price}</p>
-              <Button size="lg" disabled>Purchase to Watch</Button>
+              <PurchaseButton
+                type="recording"
+                itemId={recording.id}
+                price={recording.price}
+                title={recording.title}
+                thumbnail_url={recording.thumbnail_url}
+              />
               <p className="text-xs text-muted-foreground">Access for {recording.access_duration_days || 365} days after purchase.</p>
             </div>
           )}
