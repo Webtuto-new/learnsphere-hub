@@ -173,22 +173,22 @@ const RecordingPlayerPage = () => {
               </div>
               <p className="text-xs text-muted-foreground">Access for {recording.access_duration_days || 365} days after purchase.</p>
 
-              {/* Episode preview list */}
-              {episodes.length > 0 && (
+              {/* Lesson preview list */}
+              {lessons.length > 0 && (
                 <div className="text-left mt-8">
                   <h3 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                     <ListVideo className="w-5 h-5 text-primary" /> Course Content
                   </h3>
                   <div className="space-y-2">
-                    {episodes.map((ep, i) => (
-                      <div key={ep.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
+                    {lessons.map((lesson, i) => (
+                      <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
                         <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
-                          {ep.episode_number || i + 1}
+                          {lesson.episode_number || i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{ep.title}</p>
-                          {ep.duration_minutes && (
-                            <p className="text-xs text-muted-foreground">{ep.duration_minutes} min</p>
+                          <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
+                          {lesson.duration_minutes && (
+                            <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>
                           )}
                         </div>
                         <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
