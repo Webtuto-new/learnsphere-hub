@@ -121,5 +121,6 @@ const ClassCard = ({
       </div>
     </Link>
   );
+};
 
 export default ClassCard;
