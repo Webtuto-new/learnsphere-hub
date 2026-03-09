@@ -82,13 +82,13 @@ const RecordingPlayerPage = () => {
               <div className="space-y-5">
                 {/* Video player */}
                 <div className="aspect-video bg-foreground rounded-2xl overflow-hidden relative shadow-lg">
-                  {activeEpisode ? (
+                  {activeLesson ? (
                     <video
-                      key={activeEpisode.id}
+                      key={activeLesson.id}
                       controls
                       autoPlay
                       className="w-full h-full object-contain bg-black"
-                      src={activeEpisode.video_url}
+                      src={activeLesson.video_url}
                       controlsList="nodownload"
                     >
                       Your browser does not support the video tag.
@@ -96,7 +96,7 @@ const RecordingPlayerPage = () => {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
                       <Play className="w-16 h-16 mb-2" />
-                      <p className="text-sm">No episodes available yet</p>
+                      <p className="text-sm">No lessons available yet</p>
                     </div>
                   )}
                 </div>
