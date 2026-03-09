@@ -11,7 +11,7 @@ export interface ClassCardProps {
   grade: string;
   subject: string;
   teacherName: string;
-  classType: "monthly" | "seminar" | "workshop" | "bundle" | "recording";
+  classType: string;
   price: number;
   originalPrice?: number;
   sessionCount?: number;
@@ -23,6 +23,7 @@ export interface ClassCardProps {
 
 const typeLabels: Record<string, string> = {
   monthly: "Monthly",
+  hourly: "Hourly",
   seminar: "Seminar",
   workshop: "Workshop",
   bundle: "Bundle",
@@ -50,13 +51,13 @@ const ClassCard = ({
 
   return (
     <div className="bg-card rounded-xl overflow-hidden card-elevated group">
-      {/* Thumbnail */}
+      {/* Thumbnail — auto-generate from title if none */}
       <div className="relative aspect-video bg-muted overflow-hidden">
         {thumbnail ? (
           <img src={thumbnail} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
-            <Video className="w-10 h-10 text-muted-foreground" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20 p-4">
+            <span className="font-display font-bold text-lg text-foreground/70 text-center line-clamp-3">{title}</span>
           </div>
         )}
         <div className="absolute top-3 left-3 flex gap-1.5">
@@ -78,7 +79,7 @@ const ClassCard = ({
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="secondary" className="text-xs">{curriculum}</Badge>
           <Badge variant="outline" className="text-xs">{grade}</Badge>
-          <Badge variant="outline" className="text-xs">{typeLabels[classType]}</Badge>
+          <Badge variant="outline" className="text-xs">{typeLabels[classType] || classType}</Badge>
         </div>
 
         <h3 className="font-display font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
@@ -107,7 +108,7 @@ const ClassCard = ({
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-2">
             <span className="font-display font-bold text-lg text-foreground">
-              Rs. {price.toLocaleString()}
+              {classType === "hourly" ? `Rs. ${price.toLocaleString()}/hr` : `Rs. ${price.toLocaleString()}`}
             </span>
             {originalPrice && (
               <span className="text-sm text-muted-foreground line-through">

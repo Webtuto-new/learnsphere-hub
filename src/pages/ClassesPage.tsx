@@ -6,17 +6,53 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, BookOpen } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const ClassesPage = () => {
+  const [searchParams] = useSearchParams();
   const [dbClasses, setDbClasses] = useState<any[]>([]);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [subjectMeta, setSubjectMeta] = useState<{ name: string; gradeName: string } | null>(null);
+
+  const subjectSlug = searchParams.get("subject");
+  const gradeSlug = searchParams.get("grade");
 
   useEffect(() => {
-    supabase.from("classes").select("*, teachers(name), curriculums(name), grades(name), subjects(name)")
-      .eq("is_active", true).order("created_at", { ascending: false })
-      .then(({ data }) => setDbClasses(data || []));
-  }, []);
+    const fetchClasses = async () => {
+      let q = supabase.from("classes").select("*, teachers(name), curriculums(name), grades(name, slug), subjects(name, slug)")
+        .eq("is_active", true).order("created_at", { ascending: false });
+
+      const { data } = await q;
+      let classes = data || [];
+
+      // Filter by subject/grade slugs if provided
+      if (subjectSlug) {
+        classes = classes.filter(c => c.subjects?.slug === subjectSlug);
+      }
+      if (gradeSlug) {
+        classes = classes.filter(c => c.grades?.slug === gradeSlug);
+      }
+
+      setDbClasses(classes);
+
+      // Get subject/grade names for header
+      if (subjectSlug && classes.length > 0) {
+        const first = classes[0];
+        setSubjectMeta({ name: first.subjects?.name || subjectSlug, gradeName: first.grades?.name || "" });
+      } else if (subjectSlug) {
+        // Fetch from subjects table directly
+        const { data: subData } = await supabase.from("subjects").select("name, grade_id").eq("slug", subjectSlug).maybeSingle();
+        if (subData) {
+          const { data: gradeData } = await supabase.from("grades").select("name").eq("id", subData.grade_id).maybeSingle();
+          setSubjectMeta({ name: subData.name, gradeName: gradeData?.name || "" });
+        }
+      } else {
+        setSubjectMeta(null);
+      }
+    };
+    fetchClasses();
+  }, [subjectSlug, gradeSlug]);
 
   const filtered = dbClasses.filter(c => {
     const matchesQuery = !query || c.title.toLowerCase().includes(query.toLowerCase()) || (c.teachers?.name || "").toLowerCase().includes(query.toLowerCase());
@@ -24,16 +60,19 @@ const ClassesPage = () => {
     return matchesQuery && matchesType;
   });
 
-  const types = ["all", "monthly", "seminar", "workshop", "bundle", "recording"];
+  const types = ["all", "monthly", "hourly", "seminar", "workshop", "bundle", "recording"];
+
+  const pageTitle = subjectMeta ? `${subjectMeta.name} — ${subjectMeta.gradeName}` : "All Classes";
+  const pageDesc = subjectMeta ? `Browse ${subjectMeta.name} classes for ${subjectMeta.gradeName}` : "Browse live classes, seminars, workshops and more";
 
   return (
     <Layout>
-      <SEOHead title="All Classes" description="Browse live classes, seminars, workshops and more on Webtuto." path="/classes" />
+      <SEOHead title={pageTitle} description={pageDesc} path="/classes" />
       <div className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">All Classes</h1>
-            <p className="text-muted-foreground">Browse live classes, seminars, workshops and more</p>
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">{pageTitle}</h1>
+            <p className="text-muted-foreground">{pageDesc}</p>
           </div>
 
           {/* Filters */}
