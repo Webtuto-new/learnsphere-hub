@@ -222,30 +222,30 @@ const RecordingPlayerPage = () => {
   );
 };
 
-/* Episode list sidebar component */
-const EpisodeList = ({
-  episodes,
-  activeEpisode,
+/* Lesson list sidebar component */
+const LessonList = ({
+  lessons,
+  activeLesson,
   onSelect,
 }: {
-  episodes: Episode[];
-  activeEpisode: Episode | null;
-  onSelect: (ep: Episode) => void;
+  lessons: Lesson[];
+  activeLesson: Lesson | null;
+  onSelect: (lesson: Lesson) => void;
 }) => (
   <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
     <div className="p-4 border-b border-border/60">
       <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
         <ListVideo className="w-4 h-4 text-primary" />
-        Episodes ({episodes.length})
+        Lessons ({lessons.length})
       </h3>
     </div>
     <div className="max-h-[60vh] overflow-y-auto divide-y divide-border/40">
-      {episodes.map((ep, i) => {
-        const isActive = activeEpisode?.id === ep.id;
+      {lessons.map((lesson, i) => {
+        const isActive = activeLesson?.id === lesson.id;
         return (
           <button
-            key={ep.id}
-            onClick={() => onSelect(ep)}
+            key={lesson.id}
+            onClick={() => onSelect(lesson)}
             className={`w-full flex items-center gap-3 p-3.5 text-left transition-colors hover:bg-muted/60 ${
               isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
             }`}
@@ -253,23 +253,23 @@ const EpisodeList = ({
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
               isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}>
-              {isActive ? <Play className="w-3.5 h-3.5" /> : (ep.episode_number || i + 1)}
+              {isActive ? <Play className="w-3.5 h-3.5" /> : (lesson.episode_number || i + 1)}
             </div>
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
-                {ep.title}
+                {lesson.title}
               </p>
-              {ep.duration_minutes && (
-                <p className="text-xs text-muted-foreground">{ep.duration_minutes} min</p>
+              {lesson.duration_minutes && (
+                <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>
               )}
             </div>
             <ChevronRight className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground/40"}`} />
           </button>
         );
       })}
-      {episodes.length === 0 && (
+      {lessons.length === 0 && (
         <div className="p-6 text-center text-sm text-muted-foreground">
-          No episodes added yet.
+          No lessons added yet.
         </div>
       )}
     </div>
