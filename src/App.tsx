@@ -51,6 +51,7 @@ import AdminApplications from "./pages/admin/AdminApplications";
 import AdminRecordings from "./pages/admin/AdminRecordings";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
 import AdminPayments from "./pages/admin/AdminPayments";
+import AdminBankDetails from "./pages/admin/AdminBankDetails";
 import AdminPayouts from "./pages/admin/AdminPayouts";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminCoupons from "./pages/admin/AdminCoupons";
