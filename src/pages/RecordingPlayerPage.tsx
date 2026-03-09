@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Clock, ExternalLink, ListVideo, Lock, Play } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock, ExternalLink, ListVideo, Lock, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
@@ -110,7 +110,31 @@ const RecordingPlayerPage = () => {
   const handleVideoEnded = () => {
     if (!activeLesson) return;
     const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
-    if (currentIndex < lessons.length - 1) setActiveLesson(lessons[currentIndex + 1]);
+    const nextLesson = lessons[currentIndex + 1];
+    if (nextLesson) {
+      setPlayerError(null);
+      setActiveLesson(nextLesson);
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
+    const nextLesson = lessons[currentIndex + 1];
+    if (nextLesson) {
+      setPlayerError(null);
+      setActiveLesson(nextLesson);
+    }
+  };
+
+  const handlePrevLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = lessons.findIndex((l) => l.id === activeLesson.id);
+    const prevLesson = lessons[currentIndex - 1];
+    if (prevLesson) {
+      setPlayerError(null);
+      setActiveLesson(prevLesson);
+    }
   };
 
   if (!recording) {
@@ -201,6 +225,33 @@ const RecordingPlayerPage = () => {
                     </video>
                   )}
                 </div>
+
+                {/* Navigation buttons */}
+                {activeLesson && lessons.length > 1 && (
+                  <div className="flex items-center justify-between gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevLesson}
+                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === 0}
+                      className="gap-1.5"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Previous
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {lessons.findIndex((l) => l.id === activeLesson.id) + 1} / {lessons.length}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextLesson}
+                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === lessons.length - 1}
+                      className="gap-1.5"
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
