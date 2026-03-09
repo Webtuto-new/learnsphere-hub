@@ -159,7 +159,7 @@ const RecordingPlayerPage = () => {
                 {recording.description && <p className="text-muted-foreground">{recording.description}</p>}
                 <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                   {recording.teachers?.name && <span>{recording.teachers.name}</span>}
-                  {episodes.length > 0 && <span>{episodes.length} episode{episodes.length !== 1 ? "s" : ""}</span>}
+                  {lessons.length > 0 && <span>{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</span>}
                 </div>
               </div>
               <div className="max-w-sm mx-auto">
