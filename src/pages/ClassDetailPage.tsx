@@ -147,26 +147,46 @@ const ClassDetailPage = () => {
                   const sessionDate = new Date(`${session.session_date}T${session.start_time}`);
                   const isJoinable = enrollment && session.zoom_link && Math.abs(sessionDate.getTime() - now.getTime()) < 15 * 60 * 1000;
                   return (
-                    <div key={session.id} className="flex items-center justify-between bg-card rounded-xl p-4 card-elevated">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                          <span className="font-display font-bold text-secondary">W{session.week_number || "—"}</span>
+                    <div key={session.id} className="bg-card rounded-xl p-4 card-elevated space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                            <span className="font-display font-bold text-secondary">W{session.week_number || "—"}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground">{session.title}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(session.session_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · {session.start_time} - {session.end_time}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{session.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(session.session_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · {session.start_time} - {session.end_time}
-                          </p>
+                        <Badge variant={session.status === "completed" ? "secondary" : session.status === "live" ? "destructive" : "outline"} className="capitalize shrink-0">{session.status}</Badge>
+                      </div>
+                      {enrollment && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+                          {isJoinable && session.zoom_link && (
+                            <a href={session.zoom_link} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="default" className="gap-1.5">
+                                <Video className="w-3.5 h-3.5" /> Join Zoom
+                              </Button>
+                            </a>
+                          )}
+                          {session.recording_url && (
+                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5">
+                                <Video className="w-3.5 h-3.5" /> Recording
+                              </Button>
+                            </a>
+                          )}
+                          {session.notes_url && (
+                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5">
+                                <ExternalLink className="w-3.5 h-3.5" /> Notes
+                              </Button>
+                            </a>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={session.status === "completed" ? "secondary" : session.status === "live" ? "destructive" : "outline"} className="capitalize">{session.status}</Badge>
-                        {isJoinable && (
-                          <a href={session.zoom_link} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="gap-1"><ExternalLink className="w-3 h-3" /> Join</Button>
-                          </a>
-                        )}
-                      </div>
+                      )}
                     </div>
                   );
                 }) : (
