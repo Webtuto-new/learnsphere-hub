@@ -10,11 +10,41 @@ import { Badge } from "@/components/ui/badge";
 const DashboardClasses = () => {
   const { user } = useAuth();
   const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [nextSessions, setNextSessions] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("enrollments").select("*, classes(*)").eq("user_id", user.id).not("class_id", "is", null)
-      .then(({ data }) => setEnrollments(data || []));
+    
+    // Fetch enrollments with class details and expiry
+    supabase
+      .from("enrollments")
+      .select("id, expires_at, enrolled_at, status, class_id, classes(*)")
+      .eq("user_id", user.id)
+      .not("class_id", "is", null)
+      .eq("status", "active")
+      .order("enrolled_at", { ascending: false })
+      .then(({ data }) => {
+        const enrolls = data || [];
+        setEnrollments(enrolls);
+        
+        // Fetch next upcoming session for each class
+        enrolls.forEach(async (e) => {
+          if (e.class_id) {
+            const { data: sessions } = await supabase
+              .from("class_sessions")
+              .select("*")
+              .eq("class_id", e.class_id)
+              .gte("session_date", new Date().toISOString().split("T")[0])
+              .order("session_date", { ascending: true })
+              .order("start_time", { ascending: true })
+              .limit(1);
+            
+            if (sessions && sessions.length > 0) {
+              setNextSessions(prev => ({ ...prev, [e.class_id]: sessions[0] }));
+            }
+          }
+        });
+      });
   }, [user]);
 
   return (
