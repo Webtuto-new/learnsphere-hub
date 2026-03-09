@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Clock, ExternalLink, ListVideo, Lock, Play } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock, ExternalLink, ListVideo, Lock, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
