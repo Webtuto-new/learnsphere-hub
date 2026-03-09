@@ -24,6 +24,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SearchPage from "./pages/SearchPage";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import ContactPage from "./pages/ContactPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import NotFound from "./pages/NotFound";
 
@@ -102,18 +103,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
-                <Route
-                  path="/contact"
-                  element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />}
-                />
-                <Route
-                  path="/terms"
-                  element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />}
-                />
-                <Route
-                  path="/privacy"
-                  element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />}
-                />
+                <Route path="/contact" element={<ContactPage />} />
 
                 {/* Student Dashboard */}
                 <Route
