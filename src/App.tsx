@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ThemeProvider from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import CurriculumPage from "./pages/CurriculumPage";
 import ClassesPage from "./pages/ClassesPage";
@@ -62,82 +63,287 @@ import AdminBundles from "./pages/admin/AdminBundles";
 const queryClient = new QueryClient();
 
 const DashboardWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute><DashboardLayout>{children}</DashboardLayout></ProtectedRoute>
+  <ProtectedRoute>
+    <DashboardLayout>{children}</DashboardLayout>
+  </ProtectedRoute>
 );
 
 const AdminWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute requireAdmin><AdminLayout>{children}</AdminLayout></ProtectedRoute>
+  <ProtectedRoute requireAdmin>
+    <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
 );
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Index />} />
-            <Route path="/curriculum" element={<CurriculumPage />} />
-            <Route path="/classes" element={<ClassesPage />} />
-            <Route path="/class/:id" element={<ClassDetailPage />} />
-            <Route path="/recordings" element={<RecordingsPage />} />
-            <Route path="/recording/:id" element={<RecordingPlayerPage />} />
-            <Route path="/bundles" element={<BundlesPage />} />
-            <Route path="/seminars" element={<SeminarsPage />} />
-            <Route path="/workshops" element={<WorkshopsPage />} />
-            <Route path="/how-to-use" element={<HowToUsePage />} />
-            <Route path="/tutor-application" element={<TutorApplicationPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/contact" element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />} />
-            <Route path="/terms" element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />} />
-            <Route path="/privacy" element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />} />
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <CartProvider>
+              <Routes>
+                {/* Public */}
+                <Route path="/" element={<Index />} />
+                <Route path="/curriculum" element={<CurriculumPage />} />
+                <Route path="/classes" element={<ClassesPage />} />
+                <Route path="/class/:id" element={<ClassDetailPage />} />
+                <Route path="/recordings" element={<RecordingsPage />} />
+                <Route path="/recording/:id" element={<RecordingPlayerPage />} />
+                <Route path="/bundles" element={<BundlesPage />} />
+                <Route path="/seminars" element={<SeminarsPage />} />
+                <Route path="/workshops" element={<WorkshopsPage />} />
+                <Route path="/how-to-use" element={<HowToUsePage />} />
+                <Route path="/tutor-application" element={<TutorApplicationPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route
+                  path="/contact"
+                  element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />}
+                />
+                <Route
+                  path="/terms"
+                  element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />}
+                />
+                <Route
+                  path="/privacy"
+                  element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />}
+                />
 
-            {/* Student Dashboard */}
-            <Route path="/dashboard" element={<DashboardWrapper><DashboardOverview /></DashboardWrapper>} />
-            <Route path="/dashboard/schedule" element={<DashboardWrapper><DashboardSchedule /></DashboardWrapper>} />
-            <Route path="/dashboard/classes" element={<DashboardWrapper><DashboardClasses /></DashboardWrapper>} />
-            <Route path="/dashboard/recordings" element={<DashboardWrapper><DashboardRecordings /></DashboardWrapper>} />
-            <Route path="/dashboard/history" element={<DashboardWrapper><DashboardHistory /></DashboardWrapper>} />
-            <Route path="/dashboard/wishlist" element={<DashboardWrapper><DashboardWishlist /></DashboardWrapper>} />
-            <Route path="/dashboard/notes" element={<DashboardWrapper><DashboardNotes /></DashboardWrapper>} />
-            <Route path="/dashboard/payments" element={<DashboardWrapper><DashboardPayments /></DashboardWrapper>} />
-            <Route path="/dashboard/profile" element={<DashboardWrapper><DashboardProfile /></DashboardWrapper>} />
-            <Route path="/dashboard/certificates" element={<DashboardWrapper><DashboardCertificates /></DashboardWrapper>} />
-            <Route path="/dashboard/referrals" element={<DashboardWrapper><DashboardPlaceholder title="Referrals" /></DashboardWrapper>} />
+                {/* Student Dashboard */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardOverview />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/schedule"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardSchedule />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/classes"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardClasses />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/recordings"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardRecordings />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/history"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardHistory />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/wishlist"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardWishlist />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/notes"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardNotes />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/payments"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardPayments />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/profile"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardProfile />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/certificates"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardCertificates />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/referrals"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardPlaceholder title="Referrals" />
+                    </DashboardWrapper>
+                  }
+                />
 
-            {/* Admin Dashboard */}
-            <Route path="/admin" element={<AdminWrapper><AdminDashboard /></AdminWrapper>} />
-            <Route path="/admin/classes" element={<AdminWrapper><AdminClasses /></AdminWrapper>} />
-            <Route path="/admin/sessions" element={<AdminWrapper><AdminSessions /></AdminWrapper>} />
-            <Route path="/admin/students" element={<AdminWrapper><AdminStudents /></AdminWrapper>} />
-            <Route path="/admin/teachers" element={<AdminWrapper><AdminTeachers /></AdminWrapper>} />
-            <Route path="/admin/applications" element={<AdminWrapper><AdminApplications /></AdminWrapper>} />
-            <Route path="/admin/recordings" element={<AdminWrapper><AdminRecordings /></AdminWrapper>} />
-            <Route path="/admin/curriculum" element={<AdminWrapper><AdminCurriculum /></AdminWrapper>} />
-            <Route path="/admin/bundles" element={<AdminWrapper><AdminBundles /></AdminWrapper>} />
-            <Route path="/admin/payments" element={<AdminWrapper><AdminPayments /></AdminWrapper>} />
-            <Route path="/admin/bank-details" element={<AdminWrapper><AdminBankDetails /></AdminWrapper>} />
-            <Route path="/admin/payouts" element={<AdminWrapper><AdminPayouts /></AdminWrapper>} />
-            <Route path="/admin/certificates" element={<AdminWrapper><AdminCertificates /></AdminWrapper>} />
-            <Route path="/admin/coupons" element={<AdminWrapper><AdminCoupons /></AdminWrapper>} />
-            <Route path="/admin/announcements" element={<AdminWrapper><AdminAnnouncements /></AdminWrapper>} />
-            <Route path="/admin/analytics" element={<AdminWrapper><AdminAnalytics /></AdminWrapper>} />
+                {/* Admin Dashboard */}
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminWrapper>
+                      <AdminDashboard />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/classes"
+                  element={
+                    <AdminWrapper>
+                      <AdminClasses />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/sessions"
+                  element={
+                    <AdminWrapper>
+                      <AdminSessions />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/students"
+                  element={
+                    <AdminWrapper>
+                      <AdminStudents />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/teachers"
+                  element={
+                    <AdminWrapper>
+                      <AdminTeachers />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/applications"
+                  element={
+                    <AdminWrapper>
+                      <AdminApplications />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/recordings"
+                  element={
+                    <AdminWrapper>
+                      <AdminRecordings />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/curriculum"
+                  element={
+                    <AdminWrapper>
+                      <AdminCurriculum />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/bundles"
+                  element={
+                    <AdminWrapper>
+                      <AdminBundles />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/payments"
+                  element={
+                    <AdminWrapper>
+                      <AdminPayments />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/bank-details"
+                  element={
+                    <AdminWrapper>
+                      <AdminBankDetails />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/payouts"
+                  element={
+                    <AdminWrapper>
+                      <AdminPayouts />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/certificates"
+                  element={
+                    <AdminWrapper>
+                      <AdminCertificates />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/coupons"
+                  element={
+                    <AdminWrapper>
+                      <AdminCoupons />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/announcements"
+                  element={
+                    <AdminWrapper>
+                      <AdminAnnouncements />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/analytics"
+                  element={
+                    <AdminWrapper>
+                      <AdminAnalytics />
+                    </AdminWrapper>
+                  }
+                />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </CartProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
 export default App;
+
