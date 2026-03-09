@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Download, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow, isPast, differenceInDays } from "date-fns";
+import jsPDF from "jspdf";
 
 const DashboardPayments = () => {
   const { user, profile } = useAuth();
