@@ -7,12 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Play, ArrowLeft, Clock, Lock, ListVideo, ChevronRight } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 
-interface Episode {
+interface Lesson {
   id: string;
   title: string;
   video_url: string;
   duration_minutes: number | null;
-  episode_number: number | null;
+  episode_number: number | null; // DB field name, displayed as lesson number
   is_active: boolean;
 }
 
