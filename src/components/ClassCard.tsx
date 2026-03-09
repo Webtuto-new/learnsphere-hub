@@ -50,7 +50,7 @@ const ClassCard = ({
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   return (
-    <div className="bg-card rounded-xl overflow-hidden card-elevated group">
+    <Link to={`/class/${id}`} className="block bg-card rounded-xl overflow-hidden card-elevated group hover:ring-2 hover:ring-primary/20 transition-all duration-300">
       {/* Thumbnail — auto-generate from title if none */}
       <div className="relative aspect-video bg-muted overflow-hidden">
         {thumbnail ? (
@@ -77,12 +77,12 @@ const ClassCard = ({
       {/* Content */}
       <div className="p-4 space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary" className="text-xs">{curriculum}</Badge>
-          <Badge variant="outline" className="text-xs">{grade}</Badge>
-          <Badge variant="outline" className="text-xs">{typeLabels[classType] || classType}</Badge>
+          <span className="inline-flex items-center rounded-md border border-border bg-secondary/10 px-2 py-0.5 text-xs font-medium text-secondary">{curriculum}</span>
+          <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">{grade}</span>
+          <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">{typeLabels[classType] || classType}</span>
         </div>
 
-        <h3 className="font-display font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="font-display font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-200">
           {title}
         </h3>
 
@@ -116,18 +116,12 @@ const ClassCard = ({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-              <Share2 className="w-4 h-4" />
-            </button>
-            <Link to={`/class/${id}`}>
-              <Button size="sm">View</Button>
-            </Link>
-          </div>
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-primary group-hover:gap-2 transition-all duration-200">
+            View <ArrowRight className="w-3.5 h-3.5" />
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
-};
 
 export default ClassCard;
