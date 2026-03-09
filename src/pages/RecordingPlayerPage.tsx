@@ -106,9 +106,9 @@ const RecordingPlayerPage = () => {
                   <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">
                     {recording.title}
                   </h1>
-                  {activeEpisode && (
+                  {activeLesson && (
                     <p className="text-primary font-medium text-sm">
-                      Now Playing: {activeEpisode.title}
+                      Now Playing: {activeLesson.title}
                     </p>
                   )}
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -119,7 +119,7 @@ const RecordingPlayerPage = () => {
                         {totalDuration} min total
                       </span>
                     )}
-                    <span>{episodes.length} episode{episodes.length !== 1 ? "s" : ""}</span>
+                    <span>{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</span>
                   </div>
                 </div>
 
