@@ -12,24 +12,91 @@ const DashboardNotes = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-    // Get enrolled class sessions, then their resources
-    supabase.from("enrollments").select("class_id").eq("user_id", user.id).eq("status", "active")
-      .then(async ({ data: enrollments }) => {
-        if (!enrollments?.length) return;
+    const fetchResources = async () => {
+      if (authLoading) {
+        return;
+      }
+      
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        
+        // Get enrolled class sessions, then their resources
+        const { data: enrollments, error: enrollError } = await supabase
+          .from("enrollments")
+          .select("class_id")
+          .eq("user_id", user.id)
+          .eq("status", "active");
+
+        if (enrollError) {
+          console.error("Error fetching enrollments:", enrollError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!enrollments?.length) {
+          console.log("No active enrollments found");
+          setIsLoading(false);
+          return;
+        }
+
         const classIds = enrollments.map(e => e.class_id).filter(Boolean);
-        if (!classIds.length) return;
-        const { data: sessions } = await supabase.from("class_sessions").select("id, title, class_id").in("class_id", classIds);
-        if (!sessions?.length) return;
+        if (!classIds.length) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data: sessions, error: sessionsError } = await supabase
+          .from("class_sessions")
+          .select("id, title, class_id")
+          .in("class_id", classIds);
+
+        if (sessionsError) {
+          console.error("Error fetching sessions:", sessionsError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!sessions?.length) {
+          console.log("No sessions found for enrolled classes");
+          setIsLoading(false);
+          return;
+        }
+
         const sessionIds = sessions.map(s => s.id);
-        const { data: res } = await supabase.from("session_resources").select("*").in("session_id", sessionIds).order("created_at", { ascending: false });
+        const { data: res, error: resourcesError } = await supabase
+          .from("session_resources")
+          .select("*")
+          .in("session_id", sessionIds)
+          .order("created_at", { ascending: false });
+
+        if (resourcesError) {
+          console.error("Error fetching resources:", resourcesError);
+          setIsLoading(false);
+          return;
+        }
+
         // Attach session title
-        setResources((res || []).map(r => ({
+        const resourcesWithTitles = (res || []).map(r => ({
           ...r,
           session_title: sessions.find(s => s.id === r.session_id)?.title || "Session",
-        })));
-      });
-  }, [user]);
+        }));
+        
+        console.log("Found resources:", resourcesWithTitles.length);
+        setResources(resourcesWithTitles);
+      } catch (error) {
+        console.error("Unexpected error fetching resources:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, [user, authLoading]);
 
   return (
     <div className="space-y-6">
