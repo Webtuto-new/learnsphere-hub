@@ -26,6 +26,8 @@ const ClassDetailPage = () => {
   const [enrollment, setEnrollment] = useState<any>(null);
   const [reviewKey, setReviewKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hoursPerWeek, setHoursPerWeek] = useState(1);
+  const [classesPerWeek, setClassesPerWeek] = useState(1);
 
   useEffect(() => {
     if (!id) return;
