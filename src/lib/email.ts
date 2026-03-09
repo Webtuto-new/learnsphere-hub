@@ -36,8 +36,8 @@ const infoLabel = `color: #64748b; font-size: 13px;`;
 const infoValue = `color: #0a1628; font-weight: 600; font-size: 14px;`;
 const divider = `border: none; border-top: 1px solid #e8edf3; margin: 24px 0;`;
 
-const SITE_URL = "https://webtutoacademy.lovable.app";
-const LOGO_URL = "https://webtutoacademy.lovable.app/favicon.png";
+const SITE_URL = "https://edu.webtuto.lk";
+const LOGO_URL = "https://edu.webtuto.lk/favicon.png";
 
 const emailShell = (heading: string, content: string) => `
 <!DOCTYPE html>
