@@ -66,6 +66,11 @@ const ClassDetailPage = () => {
     );
   }
 
+  const isHourly = dbClass.class_type === "hourly";
+  const basePrice = Number(dbClass.price);
+  const totalHours = hoursPerWeek * classesPerWeek;
+  const calculatedPrice = isHourly ? basePrice * totalHours : basePrice;
+
   const cls = {
     title: dbClass.title,
     description: dbClass.description || dbClass.short_description || "",
@@ -73,7 +78,8 @@ const ClassDetailPage = () => {
     grade: dbClass.grades?.name || "—",
     subject: dbClass.subjects?.name || "—",
     teacherName: teacher?.name || "Tutor",
-    price: Number(dbClass.price),
+    price: calculatedPrice,
+    basePrice: basePrice,
     originalPrice: dbClass.original_price ? Number(dbClass.original_price) : undefined,
     sessionCount: sessions.length || 4,
     duration: dbClass.duration_minutes ? `${dbClass.duration_minutes} min` : "2 hrs",
