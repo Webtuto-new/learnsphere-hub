@@ -103,18 +103,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
-                <Route
-                  path="/contact"
-                  element={<PlaceholderPage title="Contact Us" description="Get in touch with the Webtuto team." />}
-                />
-                <Route
-                  path="/terms"
-                  element={<PlaceholderPage title="Terms of Service" description="Our terms and conditions for using Webtuto." />}
-                />
-                <Route
-                  path="/privacy"
-                  element={<PlaceholderPage title="Privacy Policy" description="How we handle and protect your data." />}
-                />
+                <Route path="/contact" element={<ContactPage />} />
 
                 {/* Student Dashboard */}
                 <Route

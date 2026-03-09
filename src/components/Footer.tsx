@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="bg-card border-t border-border mt-20">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div>
             <Link to="/" className="inline-block mb-4">
               <img src={logo} alt="Webtuto.LK" className="h-10 w-auto" />
@@ -31,24 +31,12 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Curriculum</h4>
-            <div className="space-y-2.5">
-              {["National Syllabus", "Cambridge", "Edexcel", "London Syllabus"].map((item) => (
-                <span key={item} className="block text-sm text-muted-foreground">
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
             <h4 className="font-display font-semibold text-foreground mb-4">Support</h4>
             <div className="space-y-2.5">
               {[
                 { label: "How To Use", path: "/how-to-use" },
                 { label: "Become a Tutor", path: "/tutor-application" },
                 { label: "Contact", path: "/contact" },
-                { label: "Terms", path: "/terms" },
-                { label: "Privacy", path: "/privacy" },
               ].map((item) => (
                 <Link key={item.path} to={item.path} className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                   {item.label}
