@@ -164,25 +164,27 @@ const Index = () => {
       )}
 
       {/* CTA */}
-      <section className="py-20">
+      <section className="py-24">
         <div className="container mx-auto px-4">
-          <div className="hero-gradient rounded-2xl p-10 md:p-16 text-center relative overflow-hidden">
+          <div className="hero-gradient rounded-3xl p-12 md:p-20 text-center relative overflow-hidden">
             <div className="absolute inset-0">
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-accent/10 blur-[80px]" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-secondary/10 blur-[60px]" />
+              <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-accent/10 blur-[100px]" />
+              <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-secondary/10 blur-[80px]" />
             </div>
-            <div className="relative space-y-6">
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">
+            <div className="relative space-y-8">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground leading-tight">
                 Ready to Start Learning?
               </h2>
-              <p className="text-primary-foreground/60 max-w-xl mx-auto">
+              <p className="text-primary-foreground/70 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
                 Join Webtuto.LK today and get access to the best tutors in Sri Lanka
               </p>
-              <Link to="/signup">
-                <Button variant="hero" size="lg" className="text-base">
-                  Sign Up Now — It's Free
-                </Button>
-              </Link>
+              <div className="pt-4">
+                <Link to="/signup">
+                  <Button variant="hero" size="lg" className="text-base px-10 py-6">
+                    Sign Up Now — It's Free
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
