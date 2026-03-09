@@ -40,8 +40,8 @@ const ClassDetailPage = () => {
         setLoading(false);
       });
     if (user) {
-      supabase.from("enrollments").select("id").eq("user_id", user.id).eq("class_id", id).eq("status", "active")
-        .then(({ data }) => setIsEnrolled(!!data?.length));
+      supabase.from("enrollments").select("id, expires_at, enrolled_at").eq("user_id", user.id).eq("class_id", id).eq("status", "active").maybeSingle()
+        .then(({ data }) => setEnrollment(data));
     }
   }, [id, user]);
 
