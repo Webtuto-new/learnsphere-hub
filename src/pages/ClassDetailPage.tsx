@@ -23,7 +23,7 @@ const ClassDetailPage = () => {
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
-  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollment, setEnrollment] = useState<any>(null);
   const [reviewKey, setReviewKey] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -40,8 +40,8 @@ const ClassDetailPage = () => {
         setLoading(false);
       });
     if (user) {
-      supabase.from("enrollments").select("id").eq("user_id", user.id).eq("class_id", id).eq("status", "active")
-        .then(({ data }) => setIsEnrolled(!!data?.length));
+      supabase.from("enrollments").select("id, expires_at, enrolled_at").eq("user_id", user.id).eq("class_id", id).eq("status", "active").maybeSingle()
+        .then(({ data }) => setEnrollment(data));
     }
   }, [id, user]);
 
@@ -116,7 +116,7 @@ const ClassDetailPage = () => {
       <div className="container mx-auto px-4 py-10">
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {nextSession && isEnrolled && (
+            {nextSession && enrollment && (
               <CountdownTimer targetDate={new Date(`${nextSession.session_date}T${nextSession.start_time}`)} sessionTitle={nextSession.title} zoomLink={nextSession.zoom_link} />
             )}
 
@@ -145,28 +145,48 @@ const ClassDetailPage = () => {
                 <h2 className="font-display text-xl font-semibold text-foreground">Session Schedule</h2>
                 {sessions.length > 0 ? sessions.map((session) => {
                   const sessionDate = new Date(`${session.session_date}T${session.start_time}`);
-                  const isJoinable = isEnrolled && session.zoom_link && Math.abs(sessionDate.getTime() - now.getTime()) < 15 * 60 * 1000;
+                  const isJoinable = enrollment && session.zoom_link && Math.abs(sessionDate.getTime() - now.getTime()) < 15 * 60 * 1000;
                   return (
-                    <div key={session.id} className="flex items-center justify-between bg-card rounded-xl p-4 card-elevated">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                          <span className="font-display font-bold text-secondary">W{session.week_number || "—"}</span>
+                    <div key={session.id} className="bg-card rounded-xl p-4 card-elevated space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                            <span className="font-display font-bold text-secondary">W{session.week_number || "—"}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground">{session.title}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(session.session_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · {session.start_time} - {session.end_time}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{session.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(session.session_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · {session.start_time} - {session.end_time}
-                          </p>
+                        <Badge variant={session.status === "completed" ? "secondary" : session.status === "live" ? "destructive" : "outline"} className="capitalize shrink-0">{session.status}</Badge>
+                      </div>
+                      {enrollment && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+                          {isJoinable && session.zoom_link && (
+                            <a href={session.zoom_link} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="default" className="gap-1.5">
+                                <Video className="w-3.5 h-3.5" /> Join Zoom
+                              </Button>
+                            </a>
+                          )}
+                          {session.recording_url && (
+                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5">
+                                <Video className="w-3.5 h-3.5" /> Recording
+                              </Button>
+                            </a>
+                          )}
+                          {session.notes_url && (
+                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5">
+                                <ExternalLink className="w-3.5 h-3.5" /> Notes
+                              </Button>
+                            </a>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={session.status === "completed" ? "secondary" : session.status === "live" ? "destructive" : "outline"} className="capitalize">{session.status}</Badge>
-                        {isJoinable && (
-                          <a href={session.zoom_link} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="gap-1"><ExternalLink className="w-3 h-3" /> Join</Button>
-                          </a>
-                        )}
-                      </div>
+                      )}
                     </div>
                   );
                 }) : (
@@ -213,12 +233,21 @@ const ClassDetailPage = () => {
                 <p className="text-sm text-accent font-medium mb-4">Save LKR {(cls.originalPrice - price).toLocaleString()}!</p>
               )}
 
-              {isEnrolled ? (
+              {enrollment ? (
                 <div className="space-y-3">
-                  <div className="bg-secondary/10 text-secondary text-center p-3 rounded-lg font-medium text-sm">✓ You're enrolled</div>
+                  <div className="bg-secondary/10 text-secondary p-4 rounded-lg space-y-1">
+                    <div className="flex items-center gap-2 font-medium text-sm">
+                      <span className="text-lg">✓</span> Enrolled
+                    </div>
+                    {enrollment.expires_at && (
+                      <p className="text-xs text-secondary/80">
+                        Expires: {new Date(enrollment.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                    )}
+                  </div>
                   {nextSession?.zoom_link && (
                     <a href={nextSession.zoom_link} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full gap-2" size="lg"><ExternalLink className="w-4 h-4" /> Join Next Class</Button>
+                      <Button className="w-full gap-2" size="lg"><Video className="w-4 h-4" /> Join Next Class</Button>
                     </a>
                   )}
                 </div>
