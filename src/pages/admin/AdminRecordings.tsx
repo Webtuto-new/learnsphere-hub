@@ -211,7 +211,7 @@ const AdminRecordings = () => {
                     </tr>
                   ))}
                   {videos.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No videos yet. Click "Add Video" to add episodes.</td></tr>
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No videos yet. Click "Add Video" to add lessons.</td></tr>
                   )}
                 </tbody>
               </table>
