@@ -165,10 +165,10 @@ const AdminRecordings = () => {
             <DialogContent>
               <DialogHeader><DialogTitle>{editingVid ? "Edit" : "Add"} Video</DialogTitle></DialogHeader>
               <div className="space-y-4">
-                <div className="space-y-2"><Label>Title</Label><Input value={vidForm.title} onChange={(e) => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Episode 1 - Introduction" /></div>
+                <div className="space-y-2"><Label>Title</Label><Input value={vidForm.title} onChange={(e) => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Lesson 1 - Introduction" /></div>
                 <FileOrLinkInput value={vidForm.video_url || null} onChange={(url) => setVidForm(f => ({ ...f, video_url: url || "" }))} bucket="videos" folder="recordings" accept="video/*" label="Video" linkPlaceholder="https://youtube.com/watch?v=... or direct video URL" uploadHint="Drag & drop a video file (up to 500MB)" previewType="video" />
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Episode #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
+                  <div className="space-y-2"><Label>Lesson #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
                   <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
                 </div>
                 <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Video</Button>
@@ -211,7 +211,7 @@ const AdminRecordings = () => {
                     </tr>
                   ))}
                   {videos.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No videos yet. Click "Add Video" to add episodes.</td></tr>
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No videos yet. Click "Add Video" to add lessons.</td></tr>
                   )}
                 </tbody>
               </table>

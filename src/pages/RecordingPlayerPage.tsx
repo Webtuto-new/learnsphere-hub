@@ -7,12 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Play, ArrowLeft, Clock, Lock, ListVideo, ChevronRight } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 
-interface Episode {
+interface Lesson {
   id: string;
   title: string;
   video_url: string;
   duration_minutes: number | null;
-  episode_number: number | null;
+  episode_number: number | null; // DB field name, displayed as lesson number
   is_active: boolean;
 }
 
@@ -21,8 +21,8 @@ const RecordingPlayerPage = () => {
   const { user } = useAuth();
   const [recording, setRecording] = useState<any>(null);
   const [hasAccess, setHasAccess] = useState(false);
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
-  const [activeEpisode, setActiveEpisode] = useState<Episode | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [related, setRelated] = useState<any[]>([]);
 
   useEffect(() => {
@@ -37,12 +37,12 @@ const RecordingPlayerPage = () => {
         }
       });
 
-    // Fetch episodes from recording_videos
+    // Fetch lessons from recording_videos
     supabase.from("recording_videos").select("*").eq("recording_id", id).eq("is_active", true).order("episode_number", { ascending: true })
       .then(({ data }) => {
-        const eps = data || [];
-        setEpisodes(eps);
-        if (eps.length > 0) setActiveEpisode(eps[0]);
+        const lessonsData = data || [];
+        setLessons(lessonsData);
+        if (lessonsData.length > 0) setActiveLesson(lessonsData[0]);
       });
 
     if (user) {
@@ -65,7 +65,7 @@ const RecordingPlayerPage = () => {
     );
   }
 
-  const totalDuration = episodes.reduce((sum, ep) => sum + (ep.duration_minutes || 0), 0);
+  const totalDuration = lessons.reduce((sum, lesson) => sum + (lesson.duration_minutes || 0), 0);
 
   return (
     <Layout>
@@ -82,13 +82,13 @@ const RecordingPlayerPage = () => {
               <div className="space-y-5">
                 {/* Video player */}
                 <div className="aspect-video bg-foreground rounded-2xl overflow-hidden relative shadow-lg">
-                  {activeEpisode ? (
+                  {activeLesson ? (
                     <video
-                      key={activeEpisode.id}
+                      key={activeLesson.id}
                       controls
                       autoPlay
                       className="w-full h-full object-contain bg-black"
-                      src={activeEpisode.video_url}
+                      src={activeLesson.video_url}
                       controlsList="nodownload"
                     >
                       Your browser does not support the video tag.
@@ -96,7 +96,7 @@ const RecordingPlayerPage = () => {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
                       <Play className="w-16 h-16 mb-2" />
-                      <p className="text-sm">No episodes available yet</p>
+                      <p className="text-sm">No lessons available yet</p>
                     </div>
                   )}
                 </div>
@@ -106,9 +106,9 @@ const RecordingPlayerPage = () => {
                   <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">
                     {recording.title}
                   </h1>
-                  {activeEpisode && (
+                  {activeLesson && (
                     <p className="text-primary font-medium text-sm">
-                      Now Playing: {activeEpisode.title}
+                      Now Playing: {activeLesson.title}
                     </p>
                   )}
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -119,7 +119,7 @@ const RecordingPlayerPage = () => {
                         {totalDuration} min total
                       </span>
                     )}
-                    <span>{episodes.length} episode{episodes.length !== 1 ? "s" : ""}</span>
+                    <span>{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</span>
                   </div>
                 </div>
 
@@ -127,22 +127,22 @@ const RecordingPlayerPage = () => {
                   <p className="text-muted-foreground leading-relaxed">{recording.description}</p>
                 )}
 
-                {/* Mobile episode list */}
+                {/* Mobile lesson list */}
                 <div className="lg:hidden">
-                  <EpisodeList
-                    episodes={episodes}
-                    activeEpisode={activeEpisode}
-                    onSelect={setActiveEpisode}
+                  <LessonList
+                    lessons={lessons}
+                    activeLesson={activeLesson}
+                    onSelect={setActiveLesson}
                   />
                 </div>
               </div>
 
-              {/* Sidebar episode list (desktop) */}
+              {/* Sidebar lesson list (desktop) */}
               <div className="hidden lg:block">
-                <EpisodeList
-                  episodes={episodes}
-                  activeEpisode={activeEpisode}
-                  onSelect={setActiveEpisode}
+                <LessonList
+                  lessons={lessons}
+                  activeLesson={activeLesson}
+                  onSelect={setActiveLesson}
                 />
               </div>
             </div>
@@ -152,14 +152,14 @@ const RecordingPlayerPage = () => {
               <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
                 <Lock className="w-12 h-12 text-muted-foreground/40 mb-3" />
-                <p className="text-muted-foreground text-sm">Purchase to unlock all episodes</p>
+                <p className="text-muted-foreground text-sm">Purchase to unlock all lessons</p>
               </div>
               <div className="space-y-3">
                 <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground">{recording.title}</h1>
                 {recording.description && <p className="text-muted-foreground">{recording.description}</p>}
                 <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                   {recording.teachers?.name && <span>{recording.teachers.name}</span>}
-                  {episodes.length > 0 && <span>{episodes.length} episode{episodes.length !== 1 ? "s" : ""}</span>}
+                  {lessons.length > 0 && <span>{lessons.length} lesson{lessons.length !== 1 ? "s" : ""}</span>}
                 </div>
               </div>
               <div className="max-w-sm mx-auto">
@@ -173,22 +173,22 @@ const RecordingPlayerPage = () => {
               </div>
               <p className="text-xs text-muted-foreground">Access for {recording.access_duration_days || 365} days after purchase.</p>
 
-              {/* Episode preview list */}
-              {episodes.length > 0 && (
+              {/* Lesson preview list */}
+              {lessons.length > 0 && (
                 <div className="text-left mt-8">
                   <h3 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                     <ListVideo className="w-5 h-5 text-primary" /> Course Content
                   </h3>
                   <div className="space-y-2">
-                    {episodes.map((ep, i) => (
-                      <div key={ep.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
+                    {lessons.map((lesson, i) => (
+                      <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
                         <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
-                          {ep.episode_number || i + 1}
+                          {lesson.episode_number || i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{ep.title}</p>
-                          {ep.duration_minutes && (
-                            <p className="text-xs text-muted-foreground">{ep.duration_minutes} min</p>
+                          <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
+                          {lesson.duration_minutes && (
+                            <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>
                           )}
                         </div>
                         <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
@@ -222,30 +222,30 @@ const RecordingPlayerPage = () => {
   );
 };
 
-/* Episode list sidebar component */
-const EpisodeList = ({
-  episodes,
-  activeEpisode,
+/* Lesson list sidebar component */
+const LessonList = ({
+  lessons,
+  activeLesson,
   onSelect,
 }: {
-  episodes: Episode[];
-  activeEpisode: Episode | null;
-  onSelect: (ep: Episode) => void;
+  lessons: Lesson[];
+  activeLesson: Lesson | null;
+  onSelect: (lesson: Lesson) => void;
 }) => (
   <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
     <div className="p-4 border-b border-border/60">
       <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
         <ListVideo className="w-4 h-4 text-primary" />
-        Episodes ({episodes.length})
+        Lessons ({lessons.length})
       </h3>
     </div>
     <div className="max-h-[60vh] overflow-y-auto divide-y divide-border/40">
-      {episodes.map((ep, i) => {
-        const isActive = activeEpisode?.id === ep.id;
+      {lessons.map((lesson, i) => {
+        const isActive = activeLesson?.id === lesson.id;
         return (
           <button
-            key={ep.id}
-            onClick={() => onSelect(ep)}
+            key={lesson.id}
+            onClick={() => onSelect(lesson)}
             className={`w-full flex items-center gap-3 p-3.5 text-left transition-colors hover:bg-muted/60 ${
               isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
             }`}
@@ -253,23 +253,23 @@ const EpisodeList = ({
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
               isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}>
-              {isActive ? <Play className="w-3.5 h-3.5" /> : (ep.episode_number || i + 1)}
+              {isActive ? <Play className="w-3.5 h-3.5" /> : (lesson.episode_number || i + 1)}
             </div>
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
-                {ep.title}
+                {lesson.title}
               </p>
-              {ep.duration_minutes && (
-                <p className="text-xs text-muted-foreground">{ep.duration_minutes} min</p>
+              {lesson.duration_minutes && (
+                <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>
               )}
             </div>
             <ChevronRight className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground/40"}`} />
           </button>
         );
       })}
-      {episodes.length === 0 && (
+      {lessons.length === 0 && (
         <div className="p-6 text-center text-sm text-muted-foreground">
-          No episodes added yet.
+          No lessons added yet.
         </div>
       )}
     </div>
