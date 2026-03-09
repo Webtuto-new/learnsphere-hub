@@ -65,7 +65,7 @@ const RecordingPlayerPage = () => {
     );
   }
 
-  const totalDuration = episodes.reduce((sum, ep) => sum + (ep.duration_minutes || 0), 0);
+  const totalDuration = lessons.reduce((sum, lesson) => sum + (lesson.duration_minutes || 0), 0);
 
   return (
     <Layout>
