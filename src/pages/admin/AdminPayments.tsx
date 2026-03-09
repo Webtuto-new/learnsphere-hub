@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,15 +22,53 @@ const AdminPayments = () => {
   const [filter, setFilter] = useState("all");
   const { toast } = useToast();
 
+  // NOTE: payments.user_id is not currently defined as a FK to profiles.id in the DB,
+  // so PostgREST cannot embed profiles(...) here; we enrich the rows client-side.
+  const profilesById = useMemo(() => {
+    const map: Record<string, any> = {};
+    for (const p of profiles) map[p.id] = p;
+    return map;
+  }, [profiles]);
+
+  const paymentsWithProfiles = useMemo(
+    () =>
+      payments.map((p) => ({
+        ...p,
+        profiles: profilesById[p.user_id] ?? null,
+      })),
+    [payments, profilesById]
+  );
+
   const fetchPayments = async () => {
-    const { data } = await supabase.from("payments").select("*, profiles(full_name, admission_number)").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("payments").select("*").order("created_at", { ascending: false });
+    if (error) {
+      toast({ title: "Couldn't load payments", description: error.message, variant: "destructive" });
+      setPayments([]);
+      return;
+    }
     setPayments(data || []);
   };
 
   useEffect(() => {
     fetchPayments();
-    supabase.from("profiles").select("id, full_name, admission_number").order("full_name").then(({ data }) => setProfiles(data || []));
-    supabase.from("enrollments").select("id, class_id, recording_id, classes(title), recordings(title)").order("enrolled_at", { ascending: false }).then(({ data }) => setEnrollments(data || []));
+
+    supabase
+      .from("profiles")
+      .select("id, full_name, admission_number")
+      .order("full_name")
+      .then(({ data, error }) => {
+        if (error) toast({ title: "Couldn't load students", description: error.message, variant: "destructive" });
+        setProfiles(data || []);
+      });
+
+    supabase
+      .from("enrollments")
+      .select("id, class_id, recording_id, classes(title), recordings(title)")
+      .order("enrolled_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) toast({ title: "Couldn't load enrollments", description: error.message, variant: "destructive" });
+        setEnrollments(data || []);
+      });
   }, []);
 
   const handleSave = async () => {
@@ -52,7 +90,8 @@ const AdminPayments = () => {
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else {
       toast({ title: editing ? "Updated!" : "Payment added!" });
-      setOpen(false); setEditing(null);
+      setOpen(false);
+      setEditing(null);
       setForm({ user_id: "", amount: "", currency: "LKR", payment_method: "", payment_status: "pending", transaction_ref: "", enrollment_id: "" });
       fetchPayments();
     }
@@ -75,7 +114,10 @@ const AdminPayments = () => {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("payments").delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Deleted" }); fetchPayments(); }
+    else {
+      toast({ title: "Deleted" });
+      fetchPayments();
+    }
   };
 
   const handleApprove = async (payment: any) => {
@@ -113,16 +155,19 @@ const AdminPayments = () => {
     fetchPayments();
   };
 
-  const filtered = payments.filter(p => {
+  const filtered = paymentsWithProfiles.filter((p) => {
     if (filter !== "all" && p.payment_status !== filter) return false;
     if (!search) return true;
     const q = search.toLowerCase();
-    return (p.profiles?.full_name || "").toLowerCase().includes(q) ||
+    return (
+      (p.profiles?.full_name || "").toLowerCase().includes(q) ||
       (p.profiles?.admission_number || "").toLowerCase().includes(q) ||
-      (p.transaction_ref || "").toLowerCase().includes(q);
+      (p.transaction_ref || "").toLowerCase().includes(q)
+    );
   });
 
-  const pendingCount = payments.filter(p => p.payment_status === "pending").length;
+  const pendingCount = paymentsWithProfiles.filter((p) => p.payment_status === "pending").length;
+
 
   return (
     <div className="space-y-6">
