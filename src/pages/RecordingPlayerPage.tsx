@@ -152,7 +152,7 @@ const RecordingPlayerPage = () => {
               <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
                 <Lock className="w-12 h-12 text-muted-foreground/40 mb-3" />
-                <p className="text-muted-foreground text-sm">Purchase to unlock all episodes</p>
+                <p className="text-muted-foreground text-sm">Purchase to unlock all lessons</p>
               </div>
               <div className="space-y-3">
                 <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground">{recording.title}</h1>
