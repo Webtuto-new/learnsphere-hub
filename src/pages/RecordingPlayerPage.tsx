@@ -180,10 +180,17 @@ const RecordingPlayerPage = () => {
                       key={activeLesson.id}
                       controls
                       autoPlay
+                      playsInline
+                      muted
                       className="w-full h-full object-contain bg-background"
                       src={activeUrl}
                       controlsList="nodownload"
                       onEnded={handleVideoEnded}
+                      onCanPlay={(e) => {
+                        // Unmute after autoplay starts (user can adjust volume)
+                        const video = e.currentTarget;
+                        video.muted = false;
+                      }}
                       onError={() =>
                         setPlayerError(
                           "The video URL is invalid, blocked, or the storage bucket is not public (please re-upload or paste a direct URL)."
