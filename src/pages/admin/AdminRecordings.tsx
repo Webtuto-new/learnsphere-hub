@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
 
 const AdminRecordings = () => {
   const [recordings, setRecordings] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
+  const [teachers, setTeachers] = useState<any[]>([]);
   const [selectedRecording, setSelectedRecording] = useState<any>(null);
   const [recOpen, setRecOpen] = useState(false);
   const [vidOpen, setVidOpen] = useState(false);
   const [editingRec, setEditingRec] = useState<any>(null);
   const [editingVid, setEditingVid] = useState<any>(null);
-  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365" });
+  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
 
@@ -33,7 +35,12 @@ const AdminRecordings = () => {
     setVideos(data || []);
   };
 
-  useEffect(() => { fetchRecordings(); }, []);
+  const fetchTeachers = async () => {
+    const { data } = await supabase.from("teachers").select("id, name").eq("is_active", true).order("name");
+    setTeachers(data || []);
+  };
+
+  useEffect(() => { fetchRecordings(); fetchTeachers(); }, []);
 
   useEffect(() => {
     if (selectedRecording) fetchVideos(selectedRecording.id);
@@ -42,13 +49,15 @@ const AdminRecordings = () => {
 
   // Recording CRUD
   const handleSaveRecording = async () => {
-    const payload = {
+    const payload: any = {
       title: recForm.title,
       description: recForm.description || null,
-      video_url: "collection", // placeholder since column is NOT NULL
+      video_url: "collection",
       thumbnail_url: recForm.thumbnail_url || null,
       price: parseFloat(recForm.price) || 0,
       access_duration_days: parseInt(recForm.access_duration_days) || 365,
+      teacher_id: recForm.teacher_id || null,
+      free_preview_url: recForm.free_preview_url || null,
     };
     let error;
     if (editingRec) {
@@ -62,7 +71,7 @@ const AdminRecordings = () => {
       toast({ title: editingRec ? "Updated!" : "Created!" });
       setRecOpen(false);
       setEditingRec(null);
-      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365" });
+      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
       fetchRecordings();
     }
   };
@@ -75,19 +84,19 @@ const AdminRecordings = () => {
       thumbnail_url: r.thumbnail_url || "",
       price: r.price?.toString() || "",
       access_duration_days: r.access_duration_days?.toString() || "365",
+      teacher_id: r.teacher_id || "",
+      free_preview_url: (r as any).free_preview_url || "",
     });
     setRecOpen(true);
   };
 
   const deleteRecording = async (id: string) => {
-    // Delete related enrollments' payments first
     const { data: enrollments } = await supabase.from("enrollments").select("id").eq("recording_id", id);
     const enrollmentIds = (enrollments || []).map(e => e.id);
     if (enrollmentIds.length > 0) {
       await supabase.from("payments").delete().in("enrollment_id", enrollmentIds);
     }
     await supabase.from("enrollments").delete().eq("recording_id", id);
-    // recording_videos cascade automatically
     const { error } = await supabase.from("recordings").delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Deleted" }); if (selectedRecording?.id === id) setSelectedRecording(null); fetchRecordings(); }
@@ -151,19 +160,19 @@ const AdminRecordings = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">{selectedRecording.title}</h1>
-            <p className="text-sm text-muted-foreground">LKR {selectedRecording.price} · {videos.length} videos</p>
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{selectedRecording.title}</h1>
+            <p className="text-sm text-muted-foreground">LKR {selectedRecording.price} · {videos.length} lessons</p>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">Videos</h2>
+          <h2 className="text-lg font-semibold text-foreground">Lessons</h2>
           <Dialog open={vidOpen} onOpenChange={(v) => { setVidOpen(v); if (!v) setEditingVid(null); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Video</Button>
+              <Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Lesson</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editingVid ? "Edit" : "Add"} Video</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{editingVid ? "Edit" : "Add"} Lesson</DialogTitle></DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2"><Label>Title</Label><Input value={vidForm.title} onChange={(e) => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Lesson 1 - Introduction" /></div>
                 <FileOrLinkInput value={vidForm.video_url || null} onChange={(url) => setVidForm(f => ({ ...f, video_url: url || "" }))} bucket="videos" folder="recordings" accept="video/*" label="Video" linkPlaceholder="https://youtube.com/watch?v=... or direct video URL" uploadHint="Drag & drop a video file (up to 500MB)" previewType="video" />
@@ -171,7 +180,7 @@ const AdminRecordings = () => {
                   <div className="space-y-2"><Label>Lesson #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
                   <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
                 </div>
-                <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Video</Button>
+                <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Lesson</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -183,35 +192,37 @@ const AdminRecordings = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-4 font-medium text-muted-foreground w-12">#</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Title</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Duration</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Active</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                    <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground w-12">#</th>
+                    <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground">Title</th>
+                    <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground hidden sm:table-cell">Duration</th>
+                    <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground">Active</th>
+                    <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {videos.map((v: any) => (
                     <tr key={v.id} className={`border-b border-border last:border-0 ${!v.is_active ? "opacity-50" : ""}`}>
-                      <td className="p-4 text-muted-foreground">{v.episode_number || "—"}</td>
-                      <td className="p-4">
+                      <td className="p-3 sm:p-4 text-muted-foreground">{v.episode_number || "—"}</td>
+                      <td className="p-3 sm:p-4">
                         <div className="flex items-center gap-2">
-                          <Video className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-medium text-foreground">{v.title}</span>
+                          <Video className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span className="font-medium text-foreground truncate max-w-[120px] sm:max-w-none">{v.title}</span>
                         </div>
                       </td>
-                      <td className="p-4 text-muted-foreground">{v.duration_minutes ? `${v.duration_minutes}min` : "—"}</td>
-                      <td className="p-4">
+                      <td className="p-3 sm:p-4 text-muted-foreground hidden sm:table-cell">{v.duration_minutes ? `${v.duration_minutes}min` : "—"}</td>
+                      <td className="p-3 sm:p-4">
                         <Switch checked={v.is_active} onCheckedChange={() => toggleVideoActive(v)} />
                       </td>
-                      <td className="p-4 flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEditVideo(v)}><Pencil className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => deleteVideo(v.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <td className="p-3 sm:p-4">
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => openEditVideo(v)}><Pencil className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={() => deleteVideo(v.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                   {videos.length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No videos yet. Click "Add Video" to add lessons.</td></tr>
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No lessons yet. Click "Add Lesson" to get started.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -225,21 +236,39 @@ const AdminRecordings = () => {
   // List view
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-foreground">Manage Recordings</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Manage Recordings</h1>
         <Dialog open={recOpen} onOpenChange={(v) => { setRecOpen(v); if (!v) setEditingRec(null); }}>
           <DialogTrigger asChild>
-            <Button className="gap-1"><Plus className="w-4 h-4" /> Add Recording</Button>
+            <Button className="gap-1 w-full sm:w-auto"><Plus className="w-4 h-4" /> Add Recording</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editingRec ? "Edit" : "New"} Recording</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <ThumbnailUpload value={recForm.thumbnail_url || null} onChange={(url) => setRecForm(f => ({ ...f, thumbnail_url: url || "" }))} title={recForm.title} folder="recordings" />
               <div className="space-y-2"><Label>Title</Label><Input value={recForm.title} onChange={(e) => setRecForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Physics Grade 11 - Complete Course" /></div>
+              <div className="space-y-2">
+                <Label>Teacher</Label>
+                <Select value={recForm.teacher_id} onValueChange={(v) => setRecForm(f => ({ ...f, teacher_id: v }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a teacher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teachers.map(t => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2"><Label>Description</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={3} value={recForm.description} onChange={(e) => setRecForm(f => ({ ...f, description: e.target.value }))} /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={recForm.price} onChange={(e) => setRecForm(f => ({ ...f, price: e.target.value }))} /></div>
                 <div className="space-y-2"><Label>Access (days)</Label><Input type="number" value={recForm.access_duration_days} onChange={(e) => setRecForm(f => ({ ...f, access_duration_days: e.target.value }))} /></div>
+              </div>
+              <div className="space-y-2">
+                <Label>Free Preview Video (optional)</Label>
+                <Input value={recForm.free_preview_url} onChange={(e) => setRecForm(f => ({ ...f, free_preview_url: e.target.value }))} placeholder="https://youtube.com/watch?v=... (free sample for non-buyers)" />
+                <p className="text-xs text-muted-foreground">Users who haven't purchased can watch this preview video</p>
               </div>
               <Button onClick={handleSaveRecording} className="w-full">{editingRec ? "Update" : "Create"}</Button>
             </div>
@@ -247,7 +276,7 @@ const AdminRecordings = () => {
         </Dialog>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {recordings.map(r => (
           <Card key={r.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedRecording(r)}>
             {r.thumbnail_url && (
@@ -259,6 +288,11 @@ const AdminRecordings = () => {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-foreground truncate">{r.title}</h3>
+                  {r.teachers?.name && (
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <User className="w-3 h-3" /> {r.teachers.name}
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground mt-1">LKR {r.price}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
@@ -272,7 +306,7 @@ const AdminRecordings = () => {
               </div>
               <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
                 <Video className="w-3 h-3" />
-                <span>Click to manage videos</span>
+                <span>Click to manage lessons</span>
                 <ChevronRight className="w-3 h-3 ml-auto" />
               </div>
             </CardContent>

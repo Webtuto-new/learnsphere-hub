@@ -704,6 +704,7 @@ export type Database = {
           curriculum_id: string | null
           description: string | null
           duration_minutes: number | null
+          free_preview_url: string | null
           grade_id: string | null
           id: string
           is_active: boolean
@@ -721,6 +722,7 @@ export type Database = {
           curriculum_id?: string | null
           description?: string | null
           duration_minutes?: number | null
+          free_preview_url?: string | null
           grade_id?: string | null
           id?: string
           is_active?: boolean
@@ -738,6 +740,7 @@ export type Database = {
           curriculum_id?: string | null
           description?: string | null
           duration_minutes?: number | null
+          free_preview_url?: string | null
           grade_id?: string | null
           id?: string
           is_active?: boolean
