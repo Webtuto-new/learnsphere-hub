@@ -75,14 +75,14 @@ const Index = () => {
       </section>
 
       {/* Stats */}
-      <section className="relative -mt-10 z-10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="relative -mt-8 sm:-mt-10 z-10">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="bg-card rounded-xl p-5 text-center card-elevated">
-                <stat.icon className="w-6 h-6 text-accent mx-auto mb-2" />
-                <div className="font-display font-bold text-2xl text-foreground">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div key={stat.label} className="bg-card rounded-xl p-3 sm:p-5 text-center card-elevated">
+                <stat.icon className="w-5 sm:w-6 h-5 sm:h-6 text-accent mx-auto mb-1.5 sm:mb-2" />
+                <div className="font-display font-bold text-xl sm:text-2xl text-foreground">{stat.value}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
