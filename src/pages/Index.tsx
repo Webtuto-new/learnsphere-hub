@@ -39,33 +39,33 @@ const Index = () => {
     <Layout>
       <SEOHead title="Webtuto" description="Sri Lanka's #1 online learning platform. Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses." path="/" />
       {/* Hero */}
-      <section className="hero-gradient relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
+      <section className="hero-gradient relative overflow-hidden pt-24 pb-14 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-28">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-secondary/10 blur-[100px]" />
-          <div className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-accent/8 blur-[120px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[150px]" />
+          <div className="absolute top-20 left-10 w-48 sm:w-72 h-48 sm:h-72 rounded-full bg-secondary/10 blur-[80px] sm:blur-[100px]" />
+          <div className="absolute bottom-10 right-10 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 rounded-full bg-accent/8 blur-[100px] sm:blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-primary/5 blur-[120px] sm:blur-[150px]" />
         </div>
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm text-primary-foreground/80 border border-primary-foreground/10">
-              <Zap className="w-4 h-4 text-accent" />
+          <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6">
+            <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm text-primary-foreground/80 border border-primary-foreground/10">
+              <Zap className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent" />
               Sri Lanka's #1 Online Learning Platform
             </div>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight tracking-tight">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight tracking-tight">
               Learn Smarter with{" "}
               <span className="text-gradient-gold">Webtuto.LK</span>
             </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/60 max-w-2xl mx-auto leading-relaxed">
-              Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses. Join thousands of students excelling in their studies.
+            <p className="text-base sm:text-lg md:text-xl text-primary-foreground/60 max-w-2xl mx-auto leading-relaxed">
+              Live classes, expert tutors, and comprehensive courses for National, Cambridge & Edexcel syllabuses.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 sm:pt-4">
               <Link to="/curriculum">
-                <Button variant="hero" size="lg" className="text-base gap-2">
+                <Button variant="hero" size="lg" className="text-sm sm:text-base gap-2 w-full sm:w-auto">
                   Explore Courses <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button variant="hero-outline" size="lg" className="text-base">
+                <Button variant="hero-outline" size="lg" className="text-sm sm:text-base w-full sm:w-auto">
                   Get Started Free
                 </Button>
               </Link>
