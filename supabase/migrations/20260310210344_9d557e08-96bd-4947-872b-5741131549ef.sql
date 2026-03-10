@@ -1,0 +1,1 @@
+ALTER TABLE public.recordings ADD COLUMN IF NOT EXISTS free_preview_url text DEFAULT NULL;
