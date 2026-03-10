@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, Clock, ExternalLink, ListVideo, Lock, Play } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock, ExternalLink, Eye, ListVideo, Lock, Play, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
@@ -36,6 +36,37 @@ const isPlayableLesson = (lesson: Lesson) => {
   if (!url) return false;
   if (getYouTubeId(url)) return true;
   return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:");
+};
+
+const VideoPlayer = ({ url, title, onEnded, onError }: { url: string; title: string; onEnded?: () => void; onError?: () => void }) => {
+  const youtubeId = getYouTubeId(url);
+  if (youtubeId) {
+    return (
+      <iframe
+        className="w-full h-full"
+        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+    );
+  }
+  return (
+    <video
+      controls
+      autoPlay
+      playsInline
+      muted
+      className="w-full h-full object-contain bg-background"
+      src={url}
+      controlsList="nodownload"
+      onEnded={onEnded}
+      onCanPlay={(e) => { e.currentTarget.muted = false; }}
+      onError={onError}
+    >
+      Your browser does not support the video tag.
+    </video>
+  );
 };
 
 const RecordingPlayerPage = () => {
@@ -105,7 +136,6 @@ const RecordingPlayerPage = () => {
   );
 
   const activeUrl = normalizeVideoUrl(activeLesson?.video_url);
-  const activeYouTubeId = activeUrl ? getYouTubeId(activeUrl) : null;
 
   const handleVideoEnded = () => {
     if (!activeLesson) return;
@@ -151,35 +181,37 @@ const RecordingPlayerPage = () => {
     );
   }
 
+  const freePreviewUrl = normalizeVideoUrl((recording as any).free_preview_url);
+
   return (
     <Layout>
-      <div className="pt-24 pb-20 min-h-screen">
-        <div className="container mx-auto px-4">
+      <div className="pt-20 sm:pt-24 pb-16 sm:pb-20 min-h-screen">
+        <div className="container mx-auto px-3 sm:px-4">
           <Link
             to="/recordings"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 sm:mb-6 group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Recordings
           </Link>
 
           {hasAccess ? (
-            <div className="grid lg:grid-cols-[1fr_360px] gap-6">
-              <div className="space-y-5">
-                <div className="aspect-video bg-card rounded-2xl overflow-hidden relative shadow-lg border border-border/60">
+            <div className="grid lg:grid-cols-[1fr_360px] gap-4 sm:gap-6">
+              <div className="space-y-4 sm:space-y-5">
+                <div className="aspect-video bg-card rounded-xl sm:rounded-2xl overflow-hidden relative shadow-lg border border-border/60">
                   {!activeLesson ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
-                      <Play className="w-16 h-16 mb-2" />
+                      <Play className="w-12 sm:w-16 h-12 sm:h-16 mb-2" />
                       <p className="text-sm">No lessons available yet</p>
                     </div>
                   ) : !activeUrl ? (
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-6 text-center">
-                      <Play className="w-12 h-12 mb-3 opacity-60" />
-                      <p className="text-sm font-medium text-foreground">This lesson doesn’t have a playable video link yet.</p>
-                      <p className="text-xs text-muted-foreground mt-1">Please ask the admin to add a valid video URL in Admin → Recordings.</p>
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-4 sm:px-6 text-center">
+                      <Play className="w-10 sm:w-12 h-10 sm:h-12 mb-3 opacity-60" />
+                      <p className="text-sm font-medium text-foreground">This lesson doesn't have a playable video link yet.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Please ask the admin to add a valid video URL.</p>
                     </div>
                   ) : playerError ? (
-                    <div className="flex flex-col items-center justify-center h-full px-6 text-center bg-muted/30">
-                      <Play className="w-12 h-12 mb-3 opacity-60" />
+                    <div className="flex flex-col items-center justify-center h-full px-4 sm:px-6 text-center bg-muted/30">
+                      <Play className="w-10 sm:w-12 h-10 sm:h-12 mb-3 opacity-60" />
                       <p className="text-sm font-medium text-foreground">Video failed to load</p>
                       <p className="text-xs text-muted-foreground mt-1">{playerError}</p>
                       <div className="mt-4">
@@ -190,53 +222,30 @@ const RecordingPlayerPage = () => {
                         </Button>
                       </div>
                     </div>
-                  ) : activeYouTubeId ? (
-                    <iframe
-                      key={activeLesson.id}
-                      className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${activeYouTubeId}?autoplay=1&rel=0&modestbranding=1`}
-                      title={activeLesson.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
                   ) : (
-                    <video
+                    <VideoPlayer
                       key={activeLesson.id}
-                      controls
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-contain bg-background"
-                      src={activeUrl}
-                      controlsList="nodownload"
+                      url={activeUrl}
+                      title={activeLesson.title}
                       onEnded={handleVideoEnded}
-                      onCanPlay={(e) => {
-                        // Unmute after autoplay starts (user can adjust volume)
-                        const video = e.currentTarget;
-                        video.muted = false;
-                      }}
                       onError={() =>
-                        setPlayerError(
-                          "The video URL is invalid, blocked, or the storage bucket is not public (please re-upload or paste a direct URL)."
-                        )
+                        setPlayerError("The video URL is invalid, blocked, or the storage bucket is not public.")
                       }
-                    >
-                      Your browser does not support the video tag.
-                    </video>
+                    />
                   )}
                 </div>
 
                 {/* Navigation buttons */}
                 {activeLesson && lessons.length > 1 && (
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handlePrevLesson}
                       disabled={lessons.findIndex((l) => l.id === activeLesson.id) === 0}
-                      className="gap-1.5"
+                      className="gap-1 text-xs sm:text-sm"
                     >
-                      <ChevronLeft className="w-4 h-4" /> Previous
+                      <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
                     </Button>
                     <span className="text-xs text-muted-foreground">
                       {lessons.findIndex((l) => l.id === activeLesson.id) + 1} / {lessons.length}
@@ -246,7 +255,7 @@ const RecordingPlayerPage = () => {
                       size="sm"
                       onClick={handleNextLesson}
                       disabled={lessons.findIndex((l) => l.id === activeLesson.id) === lessons.length - 1}
-                      className="gap-1.5"
+                      className="gap-1 text-xs sm:text-sm"
                     >
                       Next <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -254,10 +263,14 @@ const RecordingPlayerPage = () => {
                 )}
 
                 <div className="space-y-2">
-                  <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
-                  {activeLesson && <p className="text-primary font-medium text-sm">Now Playing: {activeLesson.title}</p>}
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    {recording.teachers?.name && <span>{recording.teachers.name}</span>}
+                  <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
+                  {activeLesson && <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {activeLesson.title}</p>}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+                    {recording.teachers?.name && (
+                      <span className="flex items-center gap-1">
+                        <User className="w-3.5 h-3.5" /> {recording.teachers.name}
+                      </span>
+                    )}
                     {totalDuration > 0 && (
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
@@ -270,7 +283,7 @@ const RecordingPlayerPage = () => {
                   </div>
                 </div>
 
-                {recording.description && <p className="text-muted-foreground leading-relaxed">{recording.description}</p>}
+                {recording.description && <p className="text-sm text-muted-foreground leading-relaxed">{recording.description}</p>}
 
                 <div className="lg:hidden">
                   <LessonList
@@ -296,17 +309,34 @@ const RecordingPlayerPage = () => {
               </div>
             </div>
           ) : (
-            <div className="max-w-2xl mx-auto text-center space-y-6">
-              <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
-                <Lock className="w-12 h-12 text-muted-foreground/40 mb-3" />
-                <p className="text-muted-foreground text-sm">Purchase to unlock all lessons</p>
-              </div>
-              <div className="space-y-3">
-                <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground">{recording.title}</h1>
-                {recording.description && <p className="text-muted-foreground">{recording.description}</p>}
-                <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
-                  {recording.teachers?.name && <span>{recording.teachers.name}</span>}
+            <div className="max-w-2xl mx-auto space-y-6">
+              {/* Free Preview Video */}
+              {freePreviewUrl ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                    <Eye className="w-4 h-4" /> Free Preview
+                  </div>
+                  <div className="aspect-video bg-card rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-border/60">
+                    <VideoPlayer url={freePreviewUrl} title={`${recording.title} - Preview`} />
+                  </div>
+                </div>
+              ) : (
+                <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
+                  <Lock className="w-10 sm:w-12 h-10 sm:h-12 text-muted-foreground/40 mb-3" />
+                  <p className="text-muted-foreground text-sm">Purchase to unlock all lessons</p>
+                </div>
+              )}
+
+              <div className="space-y-3 text-center">
+                <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{recording.title}</h1>
+                {recording.description && <p className="text-sm text-muted-foreground">{recording.description}</p>}
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+                  {recording.teachers?.name && (
+                    <span className="flex items-center gap-1">
+                      <User className="w-3.5 h-3.5" /> {recording.teachers.name}
+                    </span>
+                  )}
                   {lessons.length > 0 && (
                     <span>
                       {lessons.length} lesson{lessons.length !== 1 ? "s" : ""}
@@ -323,21 +353,21 @@ const RecordingPlayerPage = () => {
                   thumbnail_url={recording.thumbnail_url}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Access for {recording.access_duration_days || 365} days after purchase.</p>
+              <p className="text-xs text-muted-foreground text-center">Access for {recording.access_duration_days || 365} days after purchase.</p>
 
               {lessons.length > 0 && (
-                <div className="text-left mt-8">
-                  <h3 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                <div className="text-left mt-6 sm:mt-8">
+                  <h3 className="font-display text-base sm:text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                     <ListVideo className="w-5 h-5 text-primary" /> Course Content
                   </h3>
                   <div className="space-y-2">
                     {lessons.map((lesson, i) => (
-                      <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                      <div key={lesson.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-muted/50 border border-border/50">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
                           {lesson.episode_number || i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
+                          <p className="text-xs sm:text-sm font-medium text-foreground truncate">{lesson.title}</p>
                           {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
                         </div>
                         <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
@@ -350,14 +380,14 @@ const RecordingPlayerPage = () => {
           )}
 
           {related.length > 0 && (
-            <div className="mt-16">
-              <h2 className="font-display text-xl font-bold text-foreground mb-5">Related Recordings</h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mt-12 sm:mt-16">
+              <h2 className="font-display text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-5">Related Recordings</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {related.map((r) => (
                   <Link key={r.id} to={`/recording/${r.id}`}>
                     <Card className="overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 border-border/50">
-                      <CardContent className="p-4">
-                        <p className="font-medium text-foreground text-sm">{r.title}</p>
+                      <CardContent className="p-3 sm:p-4">
+                        <p className="font-medium text-foreground text-xs sm:text-sm line-clamp-2">{r.title}</p>
                       </CardContent>
                     </Card>
                   </Link>
@@ -380,34 +410,34 @@ const LessonList = ({
   activeLesson: Lesson | null;
   onSelect: (lesson: Lesson) => void;
 }) => (
-  <div className="bg-card border border-border/60 rounded-2xl overflow-hidden shadow-sm">
-    <div className="p-4 border-b border-border/60">
-      <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
+  <div className="bg-card border border-border/60 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm">
+    <div className="p-3 sm:p-4 border-b border-border/60">
+      <h3 className="font-display font-semibold text-foreground flex items-center gap-2 text-sm sm:text-base">
         <ListVideo className="w-4 h-4 text-primary" />
         Lessons ({lessons.length})
       </h3>
     </div>
-    <div className="max-h-[60vh] overflow-y-auto divide-y divide-border/40">
+    <div className="max-h-[50vh] sm:max-h-[60vh] overflow-y-auto divide-y divide-border/40">
       {lessons.map((lesson, i) => {
         const isActive = activeLesson?.id === lesson.id;
         return (
           <button
             key={lesson.id}
             onClick={() => onSelect(lesson)}
-            className={`w-full flex items-center gap-3 p-3.5 text-left transition-colors hover:bg-muted/60 ${
+            className={`w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3.5 text-left transition-colors hover:bg-muted/60 ${
               isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
             }`}
             type="button"
           >
             <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
                 isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
               }`}
             >
-              {isActive ? <Play className="w-3.5 h-3.5" /> : lesson.episode_number || i + 1}
+              {isActive ? <Play className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> : lesson.episode_number || i + 1}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
+              <p className={`text-xs sm:text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
                 {lesson.title}
               </p>
               {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
