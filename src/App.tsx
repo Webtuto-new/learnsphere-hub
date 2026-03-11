@@ -60,6 +60,7 @@ import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBundles from "./pages/admin/AdminBundles";
+import AdminAdmins from "./pages/admin/AdminAdmins";
 
 const queryClient = new QueryClient();
 
@@ -321,6 +322,15 @@ const App = () => (
                   element={
                     <AdminWrapper>
                       <AdminAnalytics />
+                    </AdminWrapper>
+                  }
+                />
+
+                <Route
+                  path="/admin/admins"
+                  element={
+                    <AdminWrapper>
+                      <AdminAdmins />
                     </AdminWrapper>
                   }
                 />

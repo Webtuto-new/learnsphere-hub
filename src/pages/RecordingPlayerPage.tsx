@@ -79,6 +79,7 @@ const RecordingPlayerPage = () => {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [related, setRelated] = useState<any[]>([]);
   const [playerError, setPlayerError] = useState<string | null>(null);
+  const [showLessons, setShowLessons] = useState(false);
 
   useEffect(() => {
     setPlayerError(null);
@@ -170,10 +171,10 @@ const RecordingPlayerPage = () => {
   if (!recording) {
     return (
       <Layout>
-        <div className="pt-28 pb-20 text-center text-muted-foreground">
-          <div className="animate-pulse space-y-4 max-w-3xl mx-auto px-4">
-            <div className="aspect-video bg-muted rounded-2xl" />
-            <div className="h-8 bg-muted rounded-lg w-1/2 mx-auto" />
+        <div className="pt-20 pb-16 text-center text-muted-foreground">
+          <div className="animate-pulse space-y-4 max-w-3xl mx-auto px-3">
+            <div className="aspect-video bg-muted rounded-xl" />
+            <div className="h-6 bg-muted rounded-lg w-1/2 mx-auto" />
             <div className="h-4 bg-muted rounded w-1/3 mx-auto" />
           </div>
         </div>
@@ -182,42 +183,44 @@ const RecordingPlayerPage = () => {
   }
 
   const freePreviewUrl = normalizeVideoUrl((recording as any).free_preview_url);
+  const currentIndex = activeLesson ? lessons.findIndex((l) => l.id === activeLesson.id) : -1;
 
   return (
     <Layout>
-      <div className="pt-20 sm:pt-24 pb-16 sm:pb-20 min-h-screen">
+      <div className="pt-16 sm:pt-20 pb-12 sm:pb-16 min-h-screen">
         <div className="container mx-auto px-3 sm:px-4">
+          {/* Back button */}
           <Link
             to="/recordings"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 sm:mb-6 group"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 sm:mb-5 group"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back to Recordings
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-0.5 transition-transform" /> Back
           </Link>
 
           {hasAccess ? (
-            <div className="grid lg:grid-cols-[1fr_360px] gap-4 sm:gap-6">
-              <div className="space-y-4 sm:space-y-5">
-                <div className="aspect-video bg-card rounded-xl sm:rounded-2xl overflow-hidden relative shadow-lg border border-border/60">
+            <>
+              {/* Video player - full width on mobile */}
+              <div className="space-y-3 sm:space-y-4">
+                <div className="aspect-video bg-card rounded-lg sm:rounded-xl overflow-hidden relative shadow-lg border border-border/60">
                   {!activeLesson ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
-                      <Play className="w-12 sm:w-16 h-12 sm:h-16 mb-2" />
-                      <p className="text-sm">No lessons available yet</p>
+                      <Play className="w-10 h-10 sm:w-14 sm:h-14 mb-2" />
+                      <p className="text-xs sm:text-sm">No lessons available yet</p>
                     </div>
                   ) : !activeUrl ? (
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-4 sm:px-6 text-center">
-                      <Play className="w-10 sm:w-12 h-10 sm:h-12 mb-3 opacity-60" />
-                      <p className="text-sm font-medium text-foreground">This lesson doesn't have a playable video link yet.</p>
-                      <p className="text-xs text-muted-foreground mt-1">Please ask the admin to add a valid video URL.</p>
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-4 text-center">
+                      <Play className="w-8 h-8 sm:w-10 sm:h-10 mb-2 opacity-60" />
+                      <p className="text-xs sm:text-sm font-medium text-foreground">No playable video link yet.</p>
                     </div>
                   ) : playerError ? (
-                    <div className="flex flex-col items-center justify-center h-full px-4 sm:px-6 text-center bg-muted/30">
-                      <Play className="w-10 sm:w-12 h-10 sm:h-12 mb-3 opacity-60" />
-                      <p className="text-sm font-medium text-foreground">Video failed to load</p>
-                      <p className="text-xs text-muted-foreground mt-1">{playerError}</p>
-                      <div className="mt-4">
-                        <Button asChild variant="outline" size="sm" className="gap-2">
+                    <div className="flex flex-col items-center justify-center h-full px-4 text-center bg-muted/30">
+                      <Play className="w-8 h-8 sm:w-10 sm:h-10 mb-2 opacity-60" />
+                      <p className="text-xs sm:text-sm font-medium text-foreground">Video failed to load</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">{playerError}</p>
+                      <div className="mt-3">
+                        <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
                           <a href={activeUrl} target="_blank" rel="noreferrer">
-                            Open video link <ExternalLink className="w-4 h-4" />
+                            Open link <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         </Button>
                       </div>
@@ -237,44 +240,47 @@ const RecordingPlayerPage = () => {
 
                 {/* Navigation buttons */}
                 {activeLesson && lessons.length > 1 && (
-                  <div className="flex items-center justify-between gap-2 sm:gap-3">
+                  <div className="flex items-center justify-between gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handlePrevLesson}
-                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === 0}
-                      className="gap-1 text-xs sm:text-sm"
+                      disabled={currentIndex === 0}
+                      className="gap-1 text-xs h-8"
                     >
-                      <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
+                      <ChevronLeft className="w-3.5 h-3.5" /> Prev
                     </Button>
                     <span className="text-xs text-muted-foreground">
-                      {lessons.findIndex((l) => l.id === activeLesson.id) + 1} / {lessons.length}
+                      {currentIndex + 1} / {lessons.length}
                     </span>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleNextLesson}
-                      disabled={lessons.findIndex((l) => l.id === activeLesson.id) === lessons.length - 1}
-                      className="gap-1 text-xs sm:text-sm"
+                      disabled={currentIndex === lessons.length - 1}
+                      className="gap-1 text-xs h-8"
                     >
-                      Next <ChevronRight className="w-4 h-4" />
+                      Next <ChevronRight className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{recording.title}</h1>
-                  {activeLesson && <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {activeLesson.title}</p>}
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+                {/* Title & meta */}
+                <div className="space-y-1.5">
+                  <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground leading-tight">{recording.title}</h1>
+                  {activeLesson && (
+                    <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {activeLesson.title}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {recording.teachers?.name && (
                       <span className="flex items-center gap-1">
-                        <User className="w-3.5 h-3.5" /> {recording.teachers.name}
+                        <User className="w-3 h-3" /> {recording.teachers.name}
                       </span>
                     )}
                     {totalDuration > 0 && (
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {totalDuration} min total
+                        <Clock className="w-3 h-3" />
+                        {totalDuration} min
                       </span>
                     )}
                     <span>
@@ -283,58 +289,89 @@ const RecordingPlayerPage = () => {
                   </div>
                 </div>
 
-                {recording.description && <p className="text-sm text-muted-foreground leading-relaxed">{recording.description}</p>}
+                {recording.description && (
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{recording.description}</p>
+                )}
 
-                <div className="lg:hidden">
-                  <LessonList
-                    lessons={lessons}
-                    activeLesson={activeLesson}
-                    onSelect={(l) => {
-                      setPlayerError(null);
-                      setActiveLesson(l);
-                    }}
-                  />
-                </div>
+                {/* Lessons list - collapsible on mobile */}
+                {lessons.length > 0 && (
+                  <div className="bg-card border border-border/60 rounded-lg sm:rounded-xl overflow-hidden shadow-sm">
+                    <button
+                      onClick={() => setShowLessons(!showLessons)}
+                      className="w-full p-3 flex items-center justify-between sm:cursor-default"
+                      type="button"
+                    >
+                      <h3 className="font-display font-semibold text-foreground flex items-center gap-2 text-sm">
+                        <ListVideo className="w-4 h-4 text-primary" />
+                        Lessons ({lessons.length})
+                      </h3>
+                      <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform sm:hidden ${showLessons ? "rotate-90" : ""}`} />
+                    </button>
+                    <div className={`${showLessons ? "block" : "hidden"} sm:block max-h-[50vh] overflow-y-auto divide-y divide-border/40 border-t border-border/60`}>
+                      {lessons.map((lesson, i) => {
+                        const isActive = activeLesson?.id === lesson.id;
+                        return (
+                          <button
+                            key={lesson.id}
+                            onClick={() => {
+                              setPlayerError(null);
+                              setActiveLesson(lesson);
+                              setShowLessons(false);
+                            }}
+                            className={`w-full flex items-center gap-2 p-2.5 sm:p-3 text-left transition-colors hover:bg-muted/60 ${
+                              isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
+                            }`}
+                            type="button"
+                          >
+                            <div
+                              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
+                                isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {isActive ? <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : lesson.episode_number || i + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs sm:text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
+                                {lesson.title}
+                              </p>
+                              {lesson.duration_minutes && <p className="text-[10px] sm:text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div className="hidden lg:block">
-                <LessonList
-                  lessons={lessons}
-                  activeLesson={activeLesson}
-                  onSelect={(l) => {
-                    setPlayerError(null);
-                    setActiveLesson(l);
-                  }}
-                />
-              </div>
-            </div>
+            </>
           ) : (
-            <div className="max-w-2xl mx-auto space-y-6">
+            /* Non-purchased view */
+            <div className="space-y-4 sm:space-y-6">
               {/* Free Preview Video */}
               {freePreviewUrl ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-primary font-medium">
-                    <Eye className="w-4 h-4" /> Free Preview
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm text-primary font-medium">
+                    <Eye className="w-3.5 h-3.5" /> Free Preview
                   </div>
-                  <div className="aspect-video bg-card rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-border/60">
+                  <div className="aspect-video bg-card rounded-lg sm:rounded-xl overflow-hidden shadow-lg border border-border/60">
                     <VideoPlayer url={freePreviewUrl} title={`${recording.title} - Preview`} />
                   </div>
                 </div>
               ) : (
-                <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-foreground/5 to-foreground/10 rounded-lg sm:rounded-xl flex flex-col items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
-                  <Lock className="w-10 sm:w-12 h-10 sm:h-12 text-muted-foreground/40 mb-3" />
-                  <p className="text-muted-foreground text-sm">Purchase to unlock all lessons</p>
+                  <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground/40 mb-2" />
+                  <p className="text-muted-foreground text-xs sm:text-sm">Purchase to unlock all lessons</p>
                 </div>
               )}
 
-              <div className="space-y-3 text-center">
-                <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{recording.title}</h1>
-                {recording.description && <p className="text-sm text-muted-foreground">{recording.description}</p>}
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+              <div className="space-y-2 text-center">
+                <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground">{recording.title}</h1>
+                {recording.description && <p className="text-xs sm:text-sm text-muted-foreground">{recording.description}</p>}
+                <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
                   {recording.teachers?.name && (
                     <span className="flex items-center gap-1">
-                      <User className="w-3.5 h-3.5" /> {recording.teachers.name}
+                      <User className="w-3 h-3" /> {recording.teachers.name}
                     </span>
                   )}
                   {lessons.length > 0 && (
@@ -344,7 +381,8 @@ const RecordingPlayerPage = () => {
                   )}
                 </div>
               </div>
-              <div className="max-w-sm mx-auto">
+
+              <div className="max-w-xs mx-auto">
                 <PurchaseButton
                   type="recording"
                   itemId={recording.id}
@@ -353,24 +391,24 @@ const RecordingPlayerPage = () => {
                   thumbnail_url={recording.thumbnail_url}
                 />
               </div>
-              <p className="text-xs text-muted-foreground text-center">Access for {recording.access_duration_days || 365} days after purchase.</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground text-center">Access for {recording.access_duration_days || 365} days after purchase.</p>
 
               {lessons.length > 0 && (
-                <div className="text-left mt-6 sm:mt-8">
-                  <h3 className="font-display text-base sm:text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <ListVideo className="w-5 h-5 text-primary" /> Course Content
+                <div className="mt-4">
+                  <h3 className="font-display text-sm sm:text-base font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <ListVideo className="w-4 h-4 text-primary" /> Course Content
                   </h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {lessons.map((lesson, i) => (
-                      <div key={lesson.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-muted/50 border border-border/50">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                      <div key={lesson.id} className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg bg-muted/50 border border-border/50">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-muted flex items-center justify-center text-[10px] sm:text-xs font-semibold text-muted-foreground shrink-0">
                           {lesson.episode_number || i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs sm:text-sm font-medium text-foreground truncate">{lesson.title}</p>
-                          {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
+                          {lesson.duration_minutes && <p className="text-[10px] sm:text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
                         </div>
-                        <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                        <Lock className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
                       </div>
                     ))}
                   </div>
@@ -380,13 +418,13 @@ const RecordingPlayerPage = () => {
           )}
 
           {related.length > 0 && (
-            <div className="mt-12 sm:mt-16">
-              <h2 className="font-display text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-5">Related Recordings</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="mt-8 sm:mt-12">
+              <h2 className="font-display text-base sm:text-lg font-bold text-foreground mb-3 sm:mb-4">Related Recordings</h2>
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                 {related.map((r) => (
                   <Link key={r.id} to={`/recording/${r.id}`}>
                     <Card className="overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 border-border/50">
-                      <CardContent className="p-3 sm:p-4">
+                      <CardContent className="p-2.5 sm:p-3">
                         <p className="font-medium text-foreground text-xs sm:text-sm line-clamp-2">{r.title}</p>
                       </CardContent>
                     </Card>
@@ -400,55 +438,5 @@ const RecordingPlayerPage = () => {
     </Layout>
   );
 };
-
-const LessonList = ({
-  lessons,
-  activeLesson,
-  onSelect,
-}: {
-  lessons: Lesson[];
-  activeLesson: Lesson | null;
-  onSelect: (lesson: Lesson) => void;
-}) => (
-  <div className="bg-card border border-border/60 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm">
-    <div className="p-3 sm:p-4 border-b border-border/60">
-      <h3 className="font-display font-semibold text-foreground flex items-center gap-2 text-sm sm:text-base">
-        <ListVideo className="w-4 h-4 text-primary" />
-        Lessons ({lessons.length})
-      </h3>
-    </div>
-    <div className="max-h-[50vh] sm:max-h-[60vh] overflow-y-auto divide-y divide-border/40">
-      {lessons.map((lesson, i) => {
-        const isActive = activeLesson?.id === lesson.id;
-        return (
-          <button
-            key={lesson.id}
-            onClick={() => onSelect(lesson)}
-            className={`w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3.5 text-left transition-colors hover:bg-muted/60 ${
-              isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
-            }`}
-            type="button"
-          >
-            <div
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {isActive ? <Play className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> : lesson.episode_number || i + 1}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-xs sm:text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
-                {lesson.title}
-              </p>
-              {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
-            </div>
-            <ChevronRight className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground/40"}`} />
-          </button>
-        );
-      })}
-      {lessons.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">No lessons added yet.</div>}
-    </div>
-  </div>
-);
 
 export default RecordingPlayerPage;

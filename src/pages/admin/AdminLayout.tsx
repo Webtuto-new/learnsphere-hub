@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, BookOpen, Users, GraduationCap, Play, CreditCard,
-  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package, Building2
+  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package, Building2, Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -25,6 +25,7 @@ const adminMenu = [
   { label: "Coupons", path: "/admin/coupons", icon: Tag },
   { label: "Announcements", path: "/admin/announcements", icon: Megaphone },
   { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { label: "Admin Management", path: "/admin/admins", icon: Shield },
 ];
 
 interface Props { children: ReactNode }
