@@ -25,6 +25,7 @@ const adminMenu = [
   { label: "Coupons", path: "/admin/coupons", icon: Tag },
   { label: "Announcements", path: "/admin/announcements", icon: Megaphone },
   { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { label: "Admin Management", path: "/admin/admins", icon: Shield },
 ];
 
 interface Props { children: ReactNode }

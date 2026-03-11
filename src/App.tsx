@@ -326,6 +326,15 @@ const App = () => (
                   }
                 />
 
+                <Route
+                  path="/admin/admins"
+                  element={
+                    <AdminWrapper>
+                      <AdminAdmins />
+                    </AdminWrapper>
+                  }
+                />
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>
