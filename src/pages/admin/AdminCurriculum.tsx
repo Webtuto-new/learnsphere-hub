@@ -181,7 +181,57 @@ const AdminCurriculum = () => {
     }
   };
 
-  const selectedCurriculumName = curriculums.find(c => c.id === selectedCurriculum)?.name;
+  // Mass add: add one subject to multiple grades at once
+  const openMassAdd = (prefillName = "") => {
+    setMassSubjectName(prefillName);
+    // Select all grades by default
+    setMassSelectedGrades(grades.map(g => g.id));
+    setMassAddDialog(true);
+  };
+
+  const toggleMassGrade = (gradeId: string) => {
+    setMassSelectedGrades(prev =>
+      prev.includes(gradeId) ? prev.filter(id => id !== gradeId) : [...prev, gradeId]
+    );
+  };
+
+  const selectAllGrades = () => setMassSelectedGrades(grades.map(g => g.id));
+  const deselectAllGrades = () => setMassSelectedGrades([]);
+
+  const handleMassAdd = async () => {
+    const name = massSubjectName.trim();
+    if (!name) {
+      toast({ title: "Subject name is required", variant: "destructive" });
+      return;
+    }
+    if (massSelectedGrades.length === 0) {
+      toast({ title: "Select at least one grade", variant: "destructive" });
+      return;
+    }
+    const slug = generateSlug(name);
+    // Filter out grades that already have this subject
+    const existingGradeIds = subjects
+      .filter(s => s.name.toLowerCase() === name.toLowerCase())
+      .map(s => s.grade_id);
+    const toInsert = massSelectedGrades
+      .filter(gId => !existingGradeIds.includes(gId))
+      .map(gId => ({ name, slug, grade_id: gId }));
+
+    if (toInsert.length === 0) {
+      toast({ title: "Subject already exists in all selected grades" });
+      setMassAddDialog(false);
+      return;
+    }
+    const { error } = await supabase.from("subjects").insert(toInsert);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `"${name}" added to ${toInsert.length} grade(s)!` });
+      setMassAddDialog(false);
+      fetchAll();
+    }
+  };
+
   const selectedGradeName = grades.find(g => g.id === selectedGrade)?.name;
 
   // All grades across all curriculums (for copy from)
