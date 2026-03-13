@@ -332,6 +332,89 @@ const AdminCurriculum = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Mass Add Subject Dialog */}
+      <Dialog open={massAddDialog} onOpenChange={setMassAddDialog}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary" /> Add Subject to Multiple Grades
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Type a subject name once and it will be created in all selected grades across all curriculums.
+            </p>
+            <div className="space-y-2">
+              <Label>Subject Name</Label>
+              <Input
+                value={massSubjectName}
+                onChange={(e) => setMassSubjectName(e.target.value)}
+                placeholder="e.g. Mathematics"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Select Grades</Label>
+                <div className="flex gap-2">
+                  <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={selectAllGrades}>
+                    Select All
+                  </Button>
+                  <span className="text-muted-foreground text-xs">|</span>
+                  <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={deselectAllGrades}>
+                    Deselect All
+                  </Button>
+                </div>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto space-y-3 border border-border rounded-lg p-3">
+                {curriculums.filter(c => c.is_active).map(curr => {
+                  const currGrades = grades.filter(g => g.curriculum_id === curr.id);
+                  if (currGrades.length === 0) return null;
+                  const alreadyHas = (gId: string) =>
+                    subjects.some(s => s.grade_id === gId && s.name.toLowerCase() === massSubjectName.trim().toLowerCase());
+                  return (
+                    <div key={curr.id} className="space-y-1.5">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wide">{curr.name}</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                        {currGrades.map(g => {
+                          const exists = alreadyHas(g.id);
+                          return (
+                            <label
+                              key={g.id}
+                              className={`flex items-center gap-2 p-2 rounded-md text-xs cursor-pointer transition-colors border ${
+                                exists
+                                  ? "bg-muted/50 border-border text-muted-foreground"
+                                  : massSelectedGrades.includes(g.id)
+                                  ? "bg-primary/10 border-primary/30 text-primary"
+                                  : "bg-background border-border hover:border-primary/20"
+                              }`}
+                            >
+                              <Checkbox
+                                checked={massSelectedGrades.includes(g.id)}
+                                onCheckedChange={() => toggleMassGrade(g.id)}
+                                disabled={exists}
+                              />
+                              <span>{g.name}</span>
+                              {exists && <span className="text-[10px] text-muted-foreground ml-auto">✓</span>}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {massSelectedGrades.length} grade(s) selected
+                {massSubjectName.trim() && ` • Already exists in ${subjects.filter(s => s.name.toLowerCase() === massSubjectName.trim().toLowerCase()).length} grade(s)`}
+              </p>
+            </div>
+            <Button onClick={handleMassAdd} disabled={!massSubjectName.trim() || massSelectedGrades.length === 0} className="w-full gap-1">
+              <Zap className="w-4 h-4" /> Add "{massSubjectName.trim() || '...'}" to {massSelectedGrades.length} Grade(s)
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Curriculums */}
         <Card>
