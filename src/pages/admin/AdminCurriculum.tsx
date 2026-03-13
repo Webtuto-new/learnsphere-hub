@@ -22,6 +22,9 @@ const AdminCurriculum = () => {
   const [dialog, setDialog] = useState<{ type: string; editing: any } | null>(null);
   const [form, setForm] = useState({ name: "", slug: "" });
   const [bulkDialog, setBulkDialog] = useState(false);
+  const [massAddDialog, setMassAddDialog] = useState(false);
+  const [massSubjectName, setMassSubjectName] = useState("");
+  const [massSelectedGrades, setMassSelectedGrades] = useState<string[]>([]);
   const { toast } = useToast();
 
   const fetchAll = async () => {
