@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Copy, Zap } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Trash2, ChevronRight, Copy } from "lucide-react";
 
 const generateSlug = (name: string) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -22,9 +21,6 @@ const AdminCurriculum = () => {
   const [dialog, setDialog] = useState<{ type: string; editing: any } | null>(null);
   const [form, setForm] = useState({ name: "", slug: "" });
   const [bulkDialog, setBulkDialog] = useState(false);
-  const [massAddDialog, setMassAddDialog] = useState(false);
-  const [massSubjectName, setMassSubjectName] = useState("");
-  const [massSelectedGrades, setMassSelectedGrades] = useState<string[]>([]);
   const { toast } = useToast();
 
   const fetchAll = async () => {
@@ -181,57 +177,6 @@ const AdminCurriculum = () => {
     }
   };
 
-  // Mass add: add one subject to multiple grades at once
-  const openMassAdd = (prefillName = "") => {
-    setMassSubjectName(prefillName);
-    // Select all grades by default
-    setMassSelectedGrades(grades.map(g => g.id));
-    setMassAddDialog(true);
-  };
-
-  const toggleMassGrade = (gradeId: string) => {
-    setMassSelectedGrades(prev =>
-      prev.includes(gradeId) ? prev.filter(id => id !== gradeId) : [...prev, gradeId]
-    );
-  };
-
-  const selectAllGrades = () => setMassSelectedGrades(grades.map(g => g.id));
-  const deselectAllGrades = () => setMassSelectedGrades([]);
-
-  const handleMassAdd = async () => {
-    const name = massSubjectName.trim();
-    if (!name) {
-      toast({ title: "Subject name is required", variant: "destructive" });
-      return;
-    }
-    if (massSelectedGrades.length === 0) {
-      toast({ title: "Select at least one grade", variant: "destructive" });
-      return;
-    }
-    const slug = generateSlug(name);
-    // Filter out grades that already have this subject
-    const existingGradeIds = subjects
-      .filter(s => s.name.toLowerCase() === name.toLowerCase())
-      .map(s => s.grade_id);
-    const toInsert = massSelectedGrades
-      .filter(gId => !existingGradeIds.includes(gId))
-      .map(gId => ({ name, slug, grade_id: gId }));
-
-    if (toInsert.length === 0) {
-      toast({ title: "Subject already exists in all selected grades" });
-      setMassAddDialog(false);
-      return;
-    }
-    const { error } = await supabase.from("subjects").insert(toInsert);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: `"${name}" added to ${toInsert.length} grade(s)!` });
-      setMassAddDialog(false);
-      fetchAll();
-    }
-  };
-
   const selectedCurriculumName = curriculums.find(c => c.id === selectedCurriculum)?.name;
   const selectedGradeName = grades.find(g => g.id === selectedGrade)?.name;
 
@@ -240,12 +185,7 @@ const AdminCurriculum = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <h1 className="font-display text-2xl font-bold text-foreground">Curriculum Management</h1>
-        <Button size="sm" variant="outline" onClick={() => openMassAdd()} className="gap-1.5">
-          <Zap className="w-3.5 h-3.5" /> Add Subject to All Grades
-        </Button>
-      </div>
+      <h1 className="font-display text-2xl font-bold text-foreground">Curriculum Management</h1>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
@@ -332,89 +272,6 @@ const AdminCurriculum = () => {
             </div>
             <Button onClick={handleBulkCopy} disabled={!copyFromGradeId} className="w-full gap-1">
               <Copy className="w-4 h-4" /> Copy Subjects
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Mass Add Subject Dialog */}
-      <Dialog open={massAddDialog} onOpenChange={setMassAddDialog}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-primary" /> Add Subject to Multiple Grades
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Type a subject name once and it will be created in all selected grades across all curriculums.
-            </p>
-            <div className="space-y-2">
-              <Label>Subject Name</Label>
-              <Input
-                value={massSubjectName}
-                onChange={(e) => setMassSubjectName(e.target.value)}
-                placeholder="e.g. Mathematics"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Select Grades</Label>
-                <div className="flex gap-2">
-                  <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={selectAllGrades}>
-                    Select All
-                  </Button>
-                  <span className="text-muted-foreground text-xs">|</span>
-                  <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={deselectAllGrades}>
-                    Deselect All
-                  </Button>
-                </div>
-              </div>
-              <div className="max-h-[300px] overflow-y-auto space-y-3 border border-border rounded-lg p-3">
-                {curriculums.filter(c => c.is_active).map(curr => {
-                  const currGrades = grades.filter(g => g.curriculum_id === curr.id);
-                  if (currGrades.length === 0) return null;
-                  const alreadyHas = (gId: string) =>
-                    subjects.some(s => s.grade_id === gId && s.name.toLowerCase() === massSubjectName.trim().toLowerCase());
-                  return (
-                    <div key={curr.id} className="space-y-1.5">
-                      <p className="text-xs font-semibold text-foreground uppercase tracking-wide">{curr.name}</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                        {currGrades.map(g => {
-                          const exists = alreadyHas(g.id);
-                          return (
-                            <label
-                              key={g.id}
-                              className={`flex items-center gap-2 p-2 rounded-md text-xs cursor-pointer transition-colors border ${
-                                exists
-                                  ? "bg-muted/50 border-border text-muted-foreground"
-                                  : massSelectedGrades.includes(g.id)
-                                  ? "bg-primary/10 border-primary/30 text-primary"
-                                  : "bg-background border-border hover:border-primary/20"
-                              }`}
-                            >
-                              <Checkbox
-                                checked={massSelectedGrades.includes(g.id)}
-                                onCheckedChange={() => toggleMassGrade(g.id)}
-                                disabled={exists}
-                              />
-                              <span>{g.name}</span>
-                              {exists && <span className="text-[10px] text-muted-foreground ml-auto">✓</span>}
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {massSelectedGrades.length} grade(s) selected
-                {massSubjectName.trim() && ` • Already exists in ${subjects.filter(s => s.name.toLowerCase() === massSubjectName.trim().toLowerCase()).length} grade(s)`}
-              </p>
-            </div>
-            <Button onClick={handleMassAdd} disabled={!massSubjectName.trim() || massSelectedGrades.length === 0} className="w-full gap-1">
-              <Zap className="w-4 h-4" /> Add "{massSubjectName.trim() || '...'}" to {massSelectedGrades.length} Grade(s)
             </Button>
           </div>
         </DialogContent>
