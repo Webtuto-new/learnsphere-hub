@@ -240,7 +240,12 @@ const AdminCurriculum = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-2xl font-bold text-foreground">Curriculum Management</h1>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 className="font-display text-2xl font-bold text-foreground">Curriculum Management</h1>
+        <Button size="sm" variant="outline" onClick={() => openMassAdd()} className="gap-1.5">
+          <Zap className="w-3.5 h-3.5" /> Add Subject to All Grades
+        </Button>
+      </div>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
