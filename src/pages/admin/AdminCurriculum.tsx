@@ -232,7 +232,7 @@ const AdminCurriculum = () => {
     }
   };
 
-  const selectedGradeName = grades.find(g => g.id === selectedGrade)?.name;
+  const selectedCurriculumName = curriculums.find(c => c.id === selectedCurriculum)?.name;
 
   // All grades across all curriculums (for copy from)
   const allOtherGrades = grades.filter(g => g.id !== selectedGrade);
