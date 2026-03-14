@@ -76,7 +76,7 @@ const CurriculumPage = () => {
 
           {curriculums.length > 0 ? (
             <>
-              <div className="flex justify-center gap-2 mb-12">
+              <div className={`flex gap-2 mb-12 ${curriculums.length <= 2 ? 'justify-center' : 'justify-center flex-wrap'}`}>
                 {curriculums.map((cur) => (
                   <button key={cur.id} onClick={() => { setActiveTab(cur.id); setSelectedGrade(null); searchParams.delete("grade"); setSearchParams(searchParams); }}
                     className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-colors ${
