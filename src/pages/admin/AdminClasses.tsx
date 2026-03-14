@@ -202,6 +202,7 @@ const AdminClasses = () => {
 
   const handleEdit = (cls: any) => {
     setEditing(cls);
+    skipResetRef.current = true;
     setForm({
       title: cls.title,
       description: cls.description || "",
