@@ -165,10 +165,33 @@ const AdminClasses = () => {
   };
 
   const handleSave = async () => {
+    // Auto-generate description if empty
+    const teacherName = teachers.find(t => t.id === form.teacher_id)?.name || "";
+    const currName = curriculums.find(c => c.id === form.curriculum_id)?.name || "";
+    const gradeName = grades.find(g => g.id === form.grade_id)?.name || "";
+    const subjectName = subjects.find(s => s.id === form.subject_id)?.name || "";
+    
+    let autoDesc = form.description;
+    if (!autoDesc?.trim()) {
+      const parts = [form.title];
+      if (subjectName) parts.push(`Subject: ${subjectName}`);
+      if (gradeName) parts.push(`Grade: ${gradeName}`);
+      if (currName) parts.push(`Curriculum: ${currName}`);
+      if (teacherName) parts.push(`Teacher: ${teacherName}`);
+      if (form.schedule_day) parts.push(`Schedule: ${form.schedule_day}${form.schedule_time ? ` at ${form.schedule_time}` : ""}`);
+      if (form.duration_minutes) parts.push(`Duration: ${form.duration_minutes} minutes`);
+      autoDesc = parts.join(". ") + ".";
+    }
+
+    let autoShortDesc = form.short_description;
+    if (!autoShortDesc?.trim()) {
+      autoShortDesc = [subjectName, gradeName, currName].filter(Boolean).join(" · ") || form.title;
+    }
+
     const payload = {
       title: form.title,
-      description: form.description,
-      short_description: form.short_description,
+      description: autoDesc,
+      short_description: autoShortDesc,
       class_type: form.class_type,
       price: parseFloat(form.price) || 0,
       schedule_day: form.schedule_day,
