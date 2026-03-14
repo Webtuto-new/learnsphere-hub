@@ -56,7 +56,7 @@ const AdminClasses = () => {
     supabase.from("curriculums").select("id, name").eq("is_active", true).then(({ data }) => setCurriculums(data || []));
   }, []);
 
-  const skipResetRef = { current: false };
+  const skipResetRef = useRef(false);
 
   // Load grades when curriculum changes (single form)
   useEffect(() => {
