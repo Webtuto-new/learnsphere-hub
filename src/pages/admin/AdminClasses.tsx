@@ -549,6 +549,50 @@ const AdminClasses = () => {
         </div>
       </div>
 
+      {/* Manual Enrollment Dialog */}
+      <Dialog open={enrollOpen} onOpenChange={setEnrollOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Enroll Student — {enrollClassName}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Search Student</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input className="pl-10" placeholder="Name, email, or admission #..." value={studentSearch} onChange={(e) => searchStudents(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Access Duration (days)</Label>
+              <Input type="number" value={enrollDays} onChange={(e) => setEnrollDays(e.target.value)} />
+            </div>
+            {studentResults.length > 0 && (
+              <div className="border border-border rounded-md max-h-48 overflow-y-auto divide-y divide-border">
+                {studentResults.map(s => (
+                  <div key={s.id} className="flex items-center justify-between p-3 hover:bg-muted/50">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{s.full_name || "No name"}</p>
+                      <p className="text-xs text-muted-foreground">{s.email} · {s.admission_number || "—"}</p>
+                    </div>
+                    <Button size="sm" disabled={enrolling} onClick={() => handleManualEnroll(s.id)}>
+                      <UserPlus className="w-3 h-3 mr-1" /> Enroll
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {studentSearch.length >= 2 && studentResults.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">No students found</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Search bar */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input className="pl-10" placeholder="Search classes..." value={classSearch} onChange={(e) => setClassSearch(e.target.value)} />
+      </div>
+
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -558,24 +602,32 @@ const AdminClasses = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Teacher</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Visible</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody>
-                {classes.map((c) => (
-                  <tr key={c.id} className="border-b border-border last:border-0">
-                    <td className="p-4 font-medium text-foreground">{c.title}</td>
+                {filteredClasses.map((c) => (
+                  <tr key={c.id} className={`border-b border-border last:border-0 ${!c.is_active ? "opacity-60" : ""}`}>
+                    <td className="p-4 font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        {c.title}
+                        {!c.is_active && <Badge variant="secondary" className="text-xs">Hidden</Badge>}
+                      </div>
+                    </td>
                     <td className="p-4 text-muted-foreground capitalize">{c.class_type}</td>
                     <td className="p-4 text-muted-foreground">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-foreground">LKR {c.price}</td>
-                    <td className="p-4 text-muted-foreground">{c.teachers?.name || "—"}</td>
+                    <td className="p-4">
+                      <Switch checked={c.is_active} onCheckedChange={() => handleToggleActive(c.id, c.is_active)} />
+                    </td>
                     <td className="p-4 flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEnrollDialog(c.id, c.title)} title="Enroll Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
                     </td>
                   </tr>
                 ))}
-                {classes.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No classes yet.</td></tr>}
+                {filteredClasses.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No classes found.</td></tr>}
               </tbody>
             </table>
           </div>
