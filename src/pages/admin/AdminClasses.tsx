@@ -56,6 +56,8 @@ const AdminClasses = () => {
     supabase.from("curriculums").select("id, name").eq("is_active", true).then(({ data }) => setCurriculums(data || []));
   }, []);
 
+  const skipResetRef = { current: false };
+
   // Load grades when curriculum changes (single form)
   useEffect(() => {
     if (form.curriculum_id) {
@@ -65,8 +67,10 @@ const AdminClasses = () => {
     } else {
       setGrades([]);
     }
-    setForm(f => ({ ...f, grade_id: "", subject_id: "" }));
-    setSubjects([]);
+    if (!skipResetRef.current) {
+      setForm(f => ({ ...f, grade_id: "", subject_id: "" }));
+      setSubjects([]);
+    }
   }, [form.curriculum_id]);
 
   // Load subjects when grade changes
@@ -77,7 +81,11 @@ const AdminClasses = () => {
     } else {
       setSubjects([]);
     }
-    setForm(f => ({ ...f, subject_id: "" }));
+    if (!skipResetRef.current) {
+      setForm(f => ({ ...f, subject_id: "" }));
+    } else {
+      skipResetRef.current = false;
+    }
   }, [form.grade_id]);
 
   // Bulk: load grades when curriculum changes
