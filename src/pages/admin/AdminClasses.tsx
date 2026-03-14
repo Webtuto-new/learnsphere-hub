@@ -45,6 +45,16 @@ const AdminClasses = () => {
   const [bulkTime, setBulkTime] = useState("");
   const [bulkDuration, setBulkDuration] = useState("60");
   const [bulkCreating, setBulkCreating] = useState(false);
+  const [classSearch, setClassSearch] = useState("");
+
+  // Manual enrollment state
+  const [enrollOpen, setEnrollOpen] = useState(false);
+  const [enrollClassId, setEnrollClassId] = useState("");
+  const [enrollClassName, setEnrollClassName] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [enrollDays, setEnrollDays] = useState("30");
+  const [enrolling, setEnrolling] = useState(false);
 
   const fetchClasses = () => {
     supabase.from("classes")
