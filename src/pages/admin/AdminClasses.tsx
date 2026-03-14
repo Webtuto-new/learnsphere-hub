@@ -287,6 +287,65 @@ const AdminClasses = () => {
     }
   };
 
+  const handleToggleActive = async (id: string, currentActive: boolean) => {
+    const { error } = await supabase.from("classes").update({ is_active: !currentActive }).eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: !currentActive ? "Class visible in store" : "Class hidden from store" });
+      fetchClasses();
+    }
+  };
+
+  const openEnrollDialog = (classId: string, className: string) => {
+    setEnrollClassId(classId);
+    setEnrollClassName(className);
+    setStudentSearch("");
+    setStudentResults([]);
+    setEnrollDays("30");
+    setEnrollOpen(true);
+  };
+
+  const searchStudents = async (q: string) => {
+    setStudentSearch(q);
+    if (q.length < 2) { setStudentResults([]); return; }
+    const { data } = await supabase.from("profiles").select("id, full_name, email, admission_number")
+      .or(`full_name.ilike.%${q}%,email.ilike.%${q}%,admission_number.ilike.%${q}%`)
+      .limit(10);
+    setStudentResults(data || []);
+  };
+
+  const handleManualEnroll = async (studentId: string) => {
+    setEnrolling(true);
+    try {
+      // Check if already enrolled
+      const { data: existing } = await supabase.from("enrollments")
+        .select("id").eq("user_id", studentId).eq("class_id", enrollClassId).eq("status", "active").maybeSingle();
+      if (existing) {
+        toast({ title: "Already enrolled", description: "This student is already enrolled in this class", variant: "destructive" });
+        setEnrolling(false);
+        return;
+      }
+      const expiresAt = addDays(new Date(), parseInt(enrollDays) || 30).toISOString();
+      const { error } = await supabase.from("enrollments").insert({
+        user_id: studentId, class_id: enrollClassId, status: "active", expires_at: expiresAt,
+      });
+      if (error) throw error;
+      toast({ title: "Student enrolled successfully!" });
+      setEnrollOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const filteredClasses = classes.filter(c => {
+    if (!classSearch) return true;
+    const q = classSearch.toLowerCase();
+    return c.title.toLowerCase().includes(q) || (c.subjects?.name || "").toLowerCase().includes(q) || (c.teachers?.name || "").toLowerCase().includes(q);
+  });
+
   const sel = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
   return (
