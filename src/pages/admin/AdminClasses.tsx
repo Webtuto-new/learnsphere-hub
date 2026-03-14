@@ -6,9 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Zap } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Eye, EyeOff, UserPlus, Search } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { format, addDays } from "date-fns";
 
 const emptyForm = {
   title: "", description: "", short_description: "", class_type: "monthly",
