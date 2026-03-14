@@ -25,7 +25,15 @@ const CurriculumPage = () => {
         }
       });
     supabase.from("grades").select("*").eq("is_active", true).order("sort_order")
-      .then(({ data }) => setGrades(data || []));
+      .then(({ data }) => {
+        const sorted = (data || []).sort((a, b) => {
+          const aMatch = a.name.match(/(\d+)/);
+          const bMatch = b.name.match(/(\d+)/);
+          if (aMatch && bMatch) return parseInt(aMatch[1]) - parseInt(bMatch[1]);
+          return a.name.localeCompare(b.name);
+        });
+        setGrades(sorted);
+      });
     supabase.from("subjects").select("*").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubjects(data || []));
   }, []);
