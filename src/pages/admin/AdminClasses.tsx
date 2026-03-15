@@ -140,8 +140,13 @@ const AdminClasses = () => {
         const { data: matchingSub } = await supabase.from("subjects")
           .select("id").eq("grade_id", gradeId).ilike("name", bulkSubjectName.trim()).maybeSingle();
 
+        const teacherName = teachers.find(t => t.id === bulkTeacher)?.name || "";
+        const currName = curriculums.find(c => c.id === bulkCurriculum)?.name || "";
+
         inserts.push({
           title: `${bulkSubjectName.trim()} - ${grade?.name || ""}`,
+          description: `${bulkSubjectName.trim()} class for ${grade?.name || ""}. ${currName ? `Curriculum: ${currName}.` : ""} ${teacherName ? `Teacher: ${teacherName}.` : ""} ${bulkDay ? `Schedule: ${bulkDay}${bulkTime ? ` at ${bulkTime}` : ""}.` : ""} Duration: ${bulkDuration || 60} minutes.`,
+          short_description: [bulkSubjectName.trim(), grade?.name, currName].filter(Boolean).join(" · "),
           curriculum_id: bulkCurriculum,
           grade_id: gradeId,
           subject_id: matchingSub?.id || null,
