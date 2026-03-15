@@ -629,7 +629,7 @@ const AdminClasses = () => {
                     </td>
                   </tr>
                 ))}
-                {filteredClasses.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No classes found.</td></tr>}
+                {filteredClasses.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No classes found.</td></tr>}
               </tbody>
             </table>
           </div>
