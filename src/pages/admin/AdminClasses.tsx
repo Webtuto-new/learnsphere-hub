@@ -615,6 +615,7 @@ const AdminClasses = () => {
                         {!c.is_active && <Badge variant="secondary" className="text-xs">Hidden</Badge>}
                       </div>
                     </td>
+                    <td className="p-4 text-muted-foreground">{c.teachers?.name || <span className="italic text-muted-foreground/50">No teacher</span>}</td>
                     <td className="p-4 text-muted-foreground capitalize">{c.class_type}</td>
                     <td className="p-4 text-muted-foreground">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-foreground">LKR {c.price}</td>
