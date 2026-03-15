@@ -373,6 +373,44 @@ const AdminRecordings = () => {
           </div>
         )}
       </div>
+
+      {/* Manual Enrollment Dialog */}
+      <Dialog open={enrollOpen} onOpenChange={setEnrollOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Enroll Student — {enrollRecordingName}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Search Student</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input className="pl-10" placeholder="Name, email, or admission #..." value={studentSearch} onChange={(e) => searchStudentsRec(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Access Duration (days)</Label>
+              <Input type="number" value={enrollDays} onChange={(e) => setEnrollDays(e.target.value)} />
+            </div>
+            {studentResults.length > 0 && (
+              <div className="border border-border rounded-md max-h-48 overflow-y-auto divide-y divide-border">
+                {studentResults.map(s => (
+                  <div key={s.id} className="flex items-center justify-between p-3 hover:bg-muted/50">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{s.full_name || "No name"}</p>
+                      <p className="text-xs text-muted-foreground">{s.email} · {s.admission_number || "—"}</p>
+                    </div>
+                    <Button size="sm" disabled={enrolling} onClick={() => handleManualEnrollRec(s.id)}>
+                      <UserPlus className="w-3 h-3 mr-1" /> Enroll
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {studentSearch.length >= 2 && studentResults.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">No students found</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
