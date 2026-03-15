@@ -599,6 +599,7 @@ const AdminClasses = () => {
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border">
                 <th className="text-left p-4 font-medium text-muted-foreground">Title</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Teacher</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
