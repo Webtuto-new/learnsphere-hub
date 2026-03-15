@@ -155,7 +155,47 @@ const AdminRecordings = () => {
     fetchVideos(selectedRecording.id);
   };
 
-  const deleteVideo = async (id: string) => {
+  const openEnrollDialog = (recId: string, recName: string) => {
+    setEnrollRecordingId(recId);
+    setEnrollRecordingName(recName);
+    setStudentSearch("");
+    setStudentResults([]);
+    setEnrollDays("365");
+    setEnrollOpen(true);
+  };
+
+  const searchStudentsRec = async (q: string) => {
+    setStudentSearch(q);
+    if (q.length < 2) { setStudentResults([]); return; }
+    const { data } = await supabase.from("profiles").select("id, full_name, email, admission_number")
+      .or(`full_name.ilike.%${q}%,email.ilike.%${q}%,admission_number.ilike.%${q}%`)
+      .limit(10);
+    setStudentResults(data || []);
+  };
+
+  const handleManualEnrollRec = async (studentId: string) => {
+    setEnrolling(true);
+    try {
+      const { data: existing } = await supabase.from("enrollments")
+        .select("id").eq("user_id", studentId).eq("recording_id", enrollRecordingId).eq("status", "active").maybeSingle();
+      if (existing) {
+        toast({ title: "Already enrolled", description: "This student already has access to this recording", variant: "destructive" });
+        setEnrolling(false);
+        return;
+      }
+      const expiresAt = addDays(new Date(), parseInt(enrollDays) || 365).toISOString();
+      const { error } = await supabase.from("enrollments").insert({
+        user_id: studentId, recording_id: enrollRecordingId, status: "active", expires_at: expiresAt,
+      });
+      if (error) throw error;
+      toast({ title: "Student enrolled successfully!" });
+      setEnrollOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setEnrolling(false);
+    }
+  };
     const { error } = await supabase.from("recording_videos" as any).delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Deleted" }); fetchVideos(selectedRecording.id); }
