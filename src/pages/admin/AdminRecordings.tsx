@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
+import { addDays } from "date-fns";
 
 const AdminRecordings = () => {
   const [recordings, setRecordings] = useState<any[]>([]);
@@ -24,6 +25,15 @@ const AdminRecordings = () => {
   const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
+
+  // Manual enrollment state
+  const [enrollOpen, setEnrollOpen] = useState(false);
+  const [enrollRecordingId, setEnrollRecordingId] = useState("");
+  const [enrollRecordingName, setEnrollRecordingName] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [enrollDays, setEnrollDays] = useState("365");
+  const [enrolling, setEnrolling] = useState(false);
 
   const fetchRecordings = async () => {
     const { data } = await supabase.from("recordings").select("*, teachers(name)").order("created_at", { ascending: false });
@@ -143,6 +153,48 @@ const AdminRecordings = () => {
   const toggleVideoActive = async (v: any) => {
     await supabase.from("recording_videos" as any).update({ is_active: !v.is_active }).eq("id", v.id);
     fetchVideos(selectedRecording.id);
+  };
+
+  const openEnrollDialog = (recId: string, recName: string) => {
+    setEnrollRecordingId(recId);
+    setEnrollRecordingName(recName);
+    setStudentSearch("");
+    setStudentResults([]);
+    setEnrollDays("365");
+    setEnrollOpen(true);
+  };
+
+  const searchStudentsRec = async (q: string) => {
+    setStudentSearch(q);
+    if (q.length < 2) { setStudentResults([]); return; }
+    const { data } = await supabase.from("profiles").select("id, full_name, email, admission_number")
+      .or(`full_name.ilike.%${q}%,email.ilike.%${q}%,admission_number.ilike.%${q}%`)
+      .limit(10);
+    setStudentResults(data || []);
+  };
+
+  const handleManualEnrollRec = async (studentId: string) => {
+    setEnrolling(true);
+    try {
+      const { data: existing } = await supabase.from("enrollments")
+        .select("id").eq("user_id", studentId).eq("recording_id", enrollRecordingId).eq("status", "active").maybeSingle();
+      if (existing) {
+        toast({ title: "Already enrolled", description: "This student already has access to this recording", variant: "destructive" });
+        setEnrolling(false);
+        return;
+      }
+      const expiresAt = addDays(new Date(), parseInt(enrollDays) || 365).toISOString();
+      const { error } = await supabase.from("enrollments").insert({
+        user_id: studentId, recording_id: enrollRecordingId, status: "active", expires_at: expiresAt,
+      });
+      if (error) throw error;
+      toast({ title: "Student enrolled successfully!" });
+      setEnrollOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setEnrolling(false);
+    }
   };
 
   const deleteVideo = async (id: string) => {
@@ -296,6 +348,9 @@ const AdminRecordings = () => {
                   <p className="text-sm text-muted-foreground mt-1">LKR {r.price}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEnrollDialog(r.id, r.title); }} title="Enroll Student">
+                    <UserPlus className="w-3 h-3" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEditRecording(r); }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
@@ -318,6 +373,44 @@ const AdminRecordings = () => {
           </div>
         )}
       </div>
+
+      {/* Manual Enrollment Dialog */}
+      <Dialog open={enrollOpen} onOpenChange={setEnrollOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Enroll Student — {enrollRecordingName}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Search Student</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input className="pl-10" placeholder="Name, email, or admission #..." value={studentSearch} onChange={(e) => searchStudentsRec(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Access Duration (days)</Label>
+              <Input type="number" value={enrollDays} onChange={(e) => setEnrollDays(e.target.value)} />
+            </div>
+            {studentResults.length > 0 && (
+              <div className="border border-border rounded-md max-h-48 overflow-y-auto divide-y divide-border">
+                {studentResults.map(s => (
+                  <div key={s.id} className="flex items-center justify-between p-3 hover:bg-muted/50">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{s.full_name || "No name"}</p>
+                      <p className="text-xs text-muted-foreground">{s.email} · {s.admission_number || "—"}</p>
+                    </div>
+                    <Button size="sm" disabled={enrolling} onClick={() => handleManualEnrollRec(s.id)}>
+                      <UserPlus className="w-3 h-3 mr-1" /> Enroll
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {studentSearch.length >= 2 && studentResults.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">No students found</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

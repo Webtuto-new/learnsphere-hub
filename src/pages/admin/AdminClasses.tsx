@@ -140,8 +140,13 @@ const AdminClasses = () => {
         const { data: matchingSub } = await supabase.from("subjects")
           .select("id").eq("grade_id", gradeId).ilike("name", bulkSubjectName.trim()).maybeSingle();
 
+        const teacherName = teachers.find(t => t.id === bulkTeacher)?.name || "";
+        const currName = curriculums.find(c => c.id === bulkCurriculum)?.name || "";
+
         inserts.push({
           title: `${bulkSubjectName.trim()} - ${grade?.name || ""}`,
+          description: `${bulkSubjectName.trim()} class for ${grade?.name || ""}. ${currName ? `Curriculum: ${currName}.` : ""} ${teacherName ? `Teacher: ${teacherName}.` : ""} ${bulkDay ? `Schedule: ${bulkDay}${bulkTime ? ` at ${bulkTime}` : ""}.` : ""} Duration: ${bulkDuration || 60} minutes.`,
+          short_description: [bulkSubjectName.trim(), grade?.name, currName].filter(Boolean).join(" · "),
           curriculum_id: bulkCurriculum,
           grade_id: gradeId,
           subject_id: matchingSub?.id || null,
@@ -486,8 +491,11 @@ const AdminClasses = () => {
               <div className="space-y-4">
                 <ThumbnailUpload value={form.thumbnail_url} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url }))} title={form.title} folder="classes" />
                 <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>Short Description</Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>Description</Label><textarea className={sel} rows={3} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>Short Description <span className="text-xs text-muted-foreground font-normal">(auto-generated if empty)</span></Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} placeholder="Brief one-liner about this class" /></div>
+                <div className="space-y-2">
+                  <Label>Description <span className="text-xs text-muted-foreground font-normal">(auto-generated if empty)</span></Label>
+                  <textarea className={`${sel} min-h-[100px] resize-y`} rows={4} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed description of what students will learn..." />
+                </div>
 
                 <div className="space-y-2">
                   <Label>Curriculum</Label>
@@ -599,6 +607,7 @@ const AdminClasses = () => {
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border">
                 <th className="text-left p-4 font-medium text-muted-foreground">Title</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Teacher</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
@@ -614,6 +623,7 @@ const AdminClasses = () => {
                         {!c.is_active && <Badge variant="secondary" className="text-xs">Hidden</Badge>}
                       </div>
                     </td>
+                    <td className="p-4 text-muted-foreground">{c.teachers?.name || <span className="italic text-muted-foreground/50">No teacher</span>}</td>
                     <td className="p-4 text-muted-foreground capitalize">{c.class_type}</td>
                     <td className="p-4 text-muted-foreground">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-foreground">LKR {c.price}</td>
@@ -627,7 +637,7 @@ const AdminClasses = () => {
                     </td>
                   </tr>
                 ))}
-                {filteredClasses.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No classes found.</td></tr>}
+                {filteredClasses.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No classes found.</td></tr>}
               </tbody>
             </table>
           </div>
