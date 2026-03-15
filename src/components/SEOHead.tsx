@@ -4,9 +4,10 @@ interface SEOHeadProps {
   title: string;
   description?: string;
   path?: string;
+  image?: string;
 }
 
-const SEOHead = ({ title, description, path }: SEOHeadProps) => {
+const SEOHead = ({ title, description, path, image }: SEOHeadProps) => {
   useEffect(() => {
     const fullTitle = title === "Webtuto" ? "Webtuto — Sri Lanka's #1 Online Learning Platform" : `${title} | Webtuto`;
     document.title = fullTitle;
@@ -32,7 +33,11 @@ const SEOHead = ({ title, description, path }: SEOHeadProps) => {
     setMeta("twitter:card", "summary_large_image");
     setMeta("twitter:title", fullTitle);
     setMeta("twitter:description", desc);
-  }, [title, description, path]);
+    if (image) {
+      setMeta("og:image", image);
+      setMeta("twitter:image", image);
+    }
+  }, [title, description, path, image]);
 
   return null;
 };

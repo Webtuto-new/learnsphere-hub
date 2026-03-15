@@ -486,8 +486,11 @@ const AdminClasses = () => {
               <div className="space-y-4">
                 <ThumbnailUpload value={form.thumbnail_url} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url }))} title={form.title} folder="classes" />
                 <div className="space-y-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>Short Description</Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>Description</Label><textarea className={sel} rows={3} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>Short Description <span className="text-xs text-muted-foreground font-normal">(auto-generated if empty)</span></Label><Input value={form.short_description} onChange={(e) => setForm(f => ({ ...f, short_description: e.target.value }))} placeholder="Brief one-liner about this class" /></div>
+                <div className="space-y-2">
+                  <Label>Description <span className="text-xs text-muted-foreground font-normal">(auto-generated if empty)</span></Label>
+                  <textarea className={`${sel} min-h-[100px] resize-y`} rows={4} value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed description of what students will learn..." />
+                </div>
 
                 <div className="space-y-2">
                   <Label>Curriculum</Label>
