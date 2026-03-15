@@ -348,6 +348,9 @@ const AdminRecordings = () => {
                   <p className="text-sm text-muted-foreground mt-1">LKR {r.price}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEnrollDialog(r.id, r.title); }} title="Enroll Student">
+                    <UserPlus className="w-3 h-3" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEditRecording(r); }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
