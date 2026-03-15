@@ -26,6 +26,15 @@ const AdminRecordings = () => {
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
 
+  // Manual enrollment state
+  const [enrollOpen, setEnrollOpen] = useState(false);
+  const [enrollRecordingId, setEnrollRecordingId] = useState("");
+  const [enrollRecordingName, setEnrollRecordingName] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [enrollDays, setEnrollDays] = useState("365");
+  const [enrolling, setEnrolling] = useState(false);
+
   const fetchRecordings = async () => {
     const { data } = await supabase.from("recordings").select("*, teachers(name)").order("created_at", { ascending: false });
     setRecordings(data || []);
