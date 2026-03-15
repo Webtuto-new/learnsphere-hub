@@ -196,6 +196,8 @@ const AdminRecordings = () => {
       setEnrolling(false);
     }
   };
+
+  const deleteVideo = async (id: string) => {
     const { error } = await supabase.from("recording_videos" as any).delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Deleted" }); fetchVideos(selectedRecording.id); }
