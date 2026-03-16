@@ -25,7 +25,7 @@ const AdminBundles = () => {
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("classes").select("id, title, teachers(name)").eq("is_active", true).order("title");
     setClasses(data || []);
   };
 
@@ -112,6 +112,7 @@ const AdminBundles = () => {
                     <label key={c.id} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-sm">
                       <input type="checkbox" checked={bundleClasses.includes(c.id)} onChange={() => toggleClass(c.id)} className="rounded" />
                       <span className="text-foreground">{c.title}</span>
+                      {(c as any).teachers?.name && <span className="text-xs text-muted-foreground">— {(c as any).teachers.name}</span>}
                     </label>
                   ))}
                   {classes.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">No active classes.</p>}

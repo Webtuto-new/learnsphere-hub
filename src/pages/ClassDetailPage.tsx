@@ -71,18 +71,38 @@ const ClassDetailPage = () => {
   const totalHours = hoursPerWeek * classesPerWeek;
   const calculatedPrice = isHourly ? basePrice * totalHours : basePrice;
 
+  const teacherName = teacher?.name || "Tutor";
+  const curriculum = dbClass.curriculums?.name || "";
+  const grade = dbClass.grades?.name || "";
+  const subject = dbClass.subjects?.name || "";
+  const sessionCount = sessions.length || 4;
+  const duration = dbClass.duration_minutes ? `${dbClass.duration_minutes} min` : "2 hrs";
+
+  // Auto-generate a rich description if none exists
+  const generateAutoDescription = () => {
+    const parts: string[] = [];
+    parts.push(`Join ${teacherName} for an engaging ${dbClass.class_type === "monthly" ? "monthly" : dbClass.class_type} class on ${dbClass.title}.`);
+    if (subject) parts.push(`This ${subject} class${grade ? ` for ${grade}` : ""}${curriculum ? ` (${curriculum} curriculum)` : ""} is designed to help students build a strong foundation and excel in their studies.`);
+    if (sessions.length > 0) parts.push(`The course includes ${sessions.length} interactive sessions, each ${duration} long, with live instruction and Q&A.`);
+    parts.push("Enrolled students get access to session recordings, downloadable notes, and dedicated teacher support.");
+    if (dbClass.has_free_trial) parts.push("A free trial session is available so you can experience the class before enrolling.");
+    return parts.join(" ");
+  };
+
+  const description = dbClass.description || dbClass.short_description || generateAutoDescription();
+
   const cls = {
     title: dbClass.title,
-    description: dbClass.description || dbClass.short_description || "",
-    curriculum: dbClass.curriculums?.name || "—",
-    grade: dbClass.grades?.name || "—",
-    subject: dbClass.subjects?.name || "—",
-    teacherName: teacher?.name || "Tutor",
+    description,
+    curriculum: curriculum || "—",
+    grade: grade || "—",
+    subject: subject || "—",
+    teacherName,
     price: calculatedPrice,
     basePrice: basePrice,
     originalPrice: dbClass.original_price ? Number(dbClass.original_price) : undefined,
-    sessionCount: sessions.length || 4,
-    duration: dbClass.duration_minutes ? `${dbClass.duration_minutes} min` : "2 hrs",
+    sessionCount,
+    duration,
     isLive: dbClass.is_live,
     classType: dbClass.class_type,
     thumbnail: dbClass.thumbnail_url,
@@ -143,7 +163,34 @@ const ClassDetailPage = () => {
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-semibold text-foreground mb-3">About this class</h2>
-                  <p className="text-muted-foreground leading-relaxed">{cls.description}</p>
+                  <div className="text-muted-foreground leading-relaxed space-y-3">
+                    {cls.description.split(". ").reduce((acc: string[][], sentence, i, arr) => {
+                      const last = acc[acc.length - 1];
+                      if (last && last.join(". ").length + sentence.length < 200) {
+                        last.push(sentence);
+                      } else {
+                        acc.push([sentence]);
+                      }
+                      return acc;
+                    }, [] as string[][]).map((group, i) => (
+                      <p key={i}>{group.join(". ")}{group[group.length - 1]?.endsWith(".") ? "" : "."}</p>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Curriculum", value: cls.curriculum },
+                    { label: "Grade", value: cls.grade },
+                    { label: "Subject", value: cls.subject },
+                    { label: "Teacher", value: cls.teacherName },
+                    { label: "Sessions", value: `${cls.sessionCount} sessions` },
+                    { label: "Duration", value: cls.duration },
+                  ].filter(item => item.value !== "—").map(item => (
+                    <div key={item.label} className="bg-muted/40 rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
+                      <p className="text-sm font-medium text-foreground">{item.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -180,14 +227,18 @@ const ClassDetailPage = () => {
                             </a>
                           )}
                           {session.recording_url && (
-                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer">
+                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer" onClick={() => {
+                              if (user) supabase.from("student_activity" as any).insert({ user_id: user.id, activity_type: "recording_view", resource_id: session.id, resource_title: session.title } as any);
+                            }}>
                               <Button size="sm" variant="outline" className="gap-1.5">
                                 <Video className="w-3.5 h-3.5" /> Recording
                               </Button>
                             </a>
                           )}
                           {session.notes_url && (
-                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer">
+                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer" onClick={() => {
+                              if (user) supabase.from("student_activity" as any).insert({ user_id: user.id, activity_type: "note_download", resource_id: session.id, resource_title: session.title } as any);
+                            }}>
                               <Button size="sm" variant="outline" className="gap-1.5">
                                 <ExternalLink className="w-3.5 h-3.5" /> Notes
                               </Button>
