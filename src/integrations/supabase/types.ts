@@ -859,6 +859,33 @@ export type Database = {
           },
         ]
       }
+      student_activity: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          resource_id: string | null
+          resource_title: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          resource_id?: string | null
+          resource_title?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          resource_id?: string | null
+          resource_title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           created_at: string
