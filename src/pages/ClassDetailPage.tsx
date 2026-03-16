@@ -163,7 +163,34 @@ const ClassDetailPage = () => {
               <div className="space-y-6">
                 <div>
                   <h2 className="font-display text-xl font-semibold text-foreground mb-3">About this class</h2>
-                  <p className="text-muted-foreground leading-relaxed">{cls.description}</p>
+                  <div className="text-muted-foreground leading-relaxed space-y-3">
+                    {cls.description.split(". ").reduce((acc: string[][], sentence, i, arr) => {
+                      const last = acc[acc.length - 1];
+                      if (last && last.join(". ").length + sentence.length < 200) {
+                        last.push(sentence);
+                      } else {
+                        acc.push([sentence]);
+                      }
+                      return acc;
+                    }, [] as string[][]).map((group, i) => (
+                      <p key={i}>{group.join(". ")}{group[group.length - 1]?.endsWith(".") ? "" : "."}</p>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Curriculum", value: cls.curriculum },
+                    { label: "Grade", value: cls.grade },
+                    { label: "Subject", value: cls.subject },
+                    { label: "Teacher", value: cls.teacherName },
+                    { label: "Sessions", value: `${cls.sessionCount} sessions` },
+                    { label: "Duration", value: cls.duration },
+                  ].filter(item => item.value !== "—").map(item => (
+                    <div key={item.label} className="bg-muted/40 rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
+                      <p className="text-sm font-medium text-foreground">{item.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
