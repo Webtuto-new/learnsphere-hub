@@ -227,14 +227,18 @@ const ClassDetailPage = () => {
                             </a>
                           )}
                           {session.recording_url && (
-                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer">
+                            <a href={session.recording_url} target="_blank" rel="noopener noreferrer" onClick={() => {
+                              if (user) supabase.from("student_activity" as any).insert({ user_id: user.id, activity_type: "recording_view", resource_id: session.id, resource_title: session.title } as any);
+                            }}>
                               <Button size="sm" variant="outline" className="gap-1.5">
                                 <Video className="w-3.5 h-3.5" /> Recording
                               </Button>
                             </a>
                           )}
                           {session.notes_url && (
-                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer">
+                            <a href={session.notes_url} target="_blank" rel="noopener noreferrer" onClick={() => {
+                              if (user) supabase.from("student_activity" as any).insert({ user_id: user.id, activity_type: "note_download", resource_id: session.id, resource_title: session.title } as any);
+                            }}>
                               <Button size="sm" variant="outline" className="gap-1.5">
                                 <ExternalLink className="w-3.5 h-3.5" /> Notes
                               </Button>
