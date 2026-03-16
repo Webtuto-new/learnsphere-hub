@@ -71,18 +71,38 @@ const ClassDetailPage = () => {
   const totalHours = hoursPerWeek * classesPerWeek;
   const calculatedPrice = isHourly ? basePrice * totalHours : basePrice;
 
+  const teacherName = teacher?.name || "Tutor";
+  const curriculum = dbClass.curriculums?.name || "";
+  const grade = dbClass.grades?.name || "";
+  const subject = dbClass.subjects?.name || "";
+  const sessionCount = sessions.length || 4;
+  const duration = dbClass.duration_minutes ? `${dbClass.duration_minutes} min` : "2 hrs";
+
+  // Auto-generate a rich description if none exists
+  const generateAutoDescription = () => {
+    const parts: string[] = [];
+    parts.push(`Join ${teacherName} for an engaging ${dbClass.class_type === "monthly" ? "monthly" : dbClass.class_type} class on ${dbClass.title}.`);
+    if (subject) parts.push(`This ${subject} class${grade ? ` for ${grade}` : ""}${curriculum ? ` (${curriculum} curriculum)` : ""} is designed to help students build a strong foundation and excel in their studies.`);
+    if (sessions.length > 0) parts.push(`The course includes ${sessions.length} interactive sessions, each ${duration} long, with live instruction and Q&A.`);
+    parts.push("Enrolled students get access to session recordings, downloadable notes, and dedicated teacher support.");
+    if (dbClass.has_free_trial) parts.push("A free trial session is available so you can experience the class before enrolling.");
+    return parts.join(" ");
+  };
+
+  const description = dbClass.description || dbClass.short_description || generateAutoDescription();
+
   const cls = {
     title: dbClass.title,
-    description: dbClass.description || dbClass.short_description || "",
-    curriculum: dbClass.curriculums?.name || "—",
-    grade: dbClass.grades?.name || "—",
-    subject: dbClass.subjects?.name || "—",
-    teacherName: teacher?.name || "Tutor",
+    description,
+    curriculum: curriculum || "—",
+    grade: grade || "—",
+    subject: subject || "—",
+    teacherName,
     price: calculatedPrice,
     basePrice: basePrice,
     originalPrice: dbClass.original_price ? Number(dbClass.original_price) : undefined,
-    sessionCount: sessions.length || 4,
-    duration: dbClass.duration_minutes ? `${dbClass.duration_minutes} min` : "2 hrs",
+    sessionCount,
+    duration,
     isLive: dbClass.is_live,
     classType: dbClass.class_type,
     thumbnail: dbClass.thumbnail_url,
