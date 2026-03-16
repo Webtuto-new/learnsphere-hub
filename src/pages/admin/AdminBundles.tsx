@@ -25,7 +25,7 @@ const AdminBundles = () => {
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, title").eq("is_active", true).order("title");
+    const { data } = await supabase.from("classes").select("id, title, teachers(name)").eq("is_active", true).order("title");
     setClasses(data || []);
   };
 
