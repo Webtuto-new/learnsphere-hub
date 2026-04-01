@@ -359,6 +359,14 @@ const App = () => (
                   }
                 />
 
+                {/* Teacher Dashboard */}
+                <Route path="/teacher" element={<TeacherWrapper><TeacherDashboard /></TeacherWrapper>} />
+                <Route path="/teacher/classes" element={<TeacherWrapper><TeacherClasses /></TeacherWrapper>} />
+                <Route path="/teacher/sessions" element={<TeacherWrapper><TeacherSessions /></TeacherWrapper>} />
+                <Route path="/teacher/students" element={<TeacherWrapper><TeacherStudents /></TeacherWrapper>} />
+                <Route path="/teacher/recordings" element={<TeacherWrapper><TeacherRecordings /></TeacherWrapper>} />
+                <Route path="/teacher/earnings" element={<TeacherWrapper><TeacherEarnings /></TeacherWrapper>} />
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>
