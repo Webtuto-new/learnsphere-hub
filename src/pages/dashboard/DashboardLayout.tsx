@@ -29,7 +29,7 @@ const studentMore = [
 interface Props { children: ReactNode }
 
 const DashboardLayout = ({ children }: Props) => {
-  const { profile, signOut, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin, isTutor } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
