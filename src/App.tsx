@@ -61,6 +61,16 @@ import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBundles from "./pages/admin/AdminBundles";
 import AdminAdmins from "./pages/admin/AdminAdmins";
+import AdminTeacherProfile from "./pages/admin/AdminTeacherProfile";
+
+// Teacher pages
+import TeacherLayout from "./pages/teacher/TeacherLayout";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherClasses from "./pages/teacher/TeacherClasses";
+import TeacherSessions from "./pages/teacher/TeacherSessions";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
+import TeacherRecordings from "./pages/teacher/TeacherRecordings";
+import TeacherEarnings from "./pages/teacher/TeacherEarnings";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +83,12 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => (
 const AdminWrapper = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute requireAdmin>
     <AdminLayout>{children}</AdminLayout>
+  </ProtectedRoute>
+);
+
+const TeacherWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute requireTutor>
+    <TeacherLayout>{children}</TeacherLayout>
   </ProtectedRoute>
 );
 
