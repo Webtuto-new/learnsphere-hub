@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Calendar, BookOpen, Play, FileText, CreditCard,
   User, Award, Users, Gift, Wrench, LogOut, Menu, X, Sun, Moon,
-  ChevronRight, Bell, Heart, Clock
+  ChevronRight, Bell, Heart, Clock, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
