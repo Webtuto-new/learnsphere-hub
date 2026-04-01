@@ -254,6 +254,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/admin/teachers/:id"
+                  element={
+                    <AdminWrapper>
+                      <AdminTeacherProfile />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
                   path="/admin/applications"
                   element={
                     <AdminWrapper>
