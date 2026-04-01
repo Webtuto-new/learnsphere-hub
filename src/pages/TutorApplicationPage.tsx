@@ -149,6 +149,7 @@ const TutorApplicationPage = () => {
             {/* File uploads */}
             <div className="space-y-4 border-t border-border pt-6">
               <h3 className="font-display font-semibold text-foreground">Upload Documents</h3>
+              {!user && <p className="text-sm text-amber-600">Please log in to upload files, or paste a link instead.</p>}
               <FileOrLinkInput
                 value={cvUrl}
                 onChange={setCvUrl}
