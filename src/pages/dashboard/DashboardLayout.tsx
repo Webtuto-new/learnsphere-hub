@@ -73,6 +73,18 @@ const DashboardLayout = ({ children }: Props) => {
         {studentMenu.map((item) => <NavItem key={item.path} item={item} />)}
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">More</p>
         {studentMore.map((item) => <NavItem key={item.path} item={item} />)}
+        {isTutor && (
+          <>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">Teacher</p>
+            <Link
+              to="/teacher"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <GraduationCap className="w-4 h-4" /> Teacher Panel
+            </Link>
+          </>
+        )}
         {isAdmin && (
           <>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">Admin</p>
