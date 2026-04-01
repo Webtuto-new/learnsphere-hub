@@ -1,20 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, UserPlus, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 
 const AdminTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [loginTeacher, setLoginTeacher] = useState<any>(null);
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [loginLoading, setLoginLoading] = useState(false);
   const [form, setForm] = useState({ name: "", bio: "", qualifications: "", avatar_url: "" });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchTeachers = () => {
     supabase.from("teachers").select("*").order("created_at", { ascending: false })
@@ -41,9 +48,43 @@ const AdminTeachers = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Delete this teacher?")) return;
     const { error } = await supabase.from("teachers").delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Deleted" }); fetchTeachers(); }
+  };
+
+  const handleCreateLogin = async () => {
+    if (!loginTeacher || !loginForm.email || !loginForm.password) return;
+    setLoginLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("create-teacher-account", {
+        body: {
+          email: loginForm.email,
+          password: loginForm.password,
+          teacher_id: loginTeacher.id,
+          full_name: loginTeacher.name,
+        },
+      });
+      if (res.error) throw new Error(res.error.message || "Failed to create account");
+      if (res.data?.error) throw new Error(res.data.error);
+      toast({ title: "Teacher login created!", description: `Email: ${loginForm.email}` });
+      setLoginOpen(false);
+      setLoginTeacher(null);
+      setLoginForm({ email: "", password: "" });
+      fetchTeachers();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const openLoginDialog = (t: any) => {
+    setLoginTeacher(t);
+    setLoginForm({ email: "", password: "" });
+    setLoginOpen(true);
   };
 
   return (
@@ -64,6 +105,22 @@ const AdminTeachers = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Create Login Dialog */}
+      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Create Login for {loginTeacher?.name}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">This will create a user account with tutor permissions. Share the credentials with the teacher.</p>
+            <div className="space-y-2"><Label>Email</Label><Input value={loginForm.email} onChange={(e) => setLoginForm(f => ({ ...f, email: e.target.value }))} placeholder="teacher@example.com" /></div>
+            <div className="space-y-2"><Label>Temporary Password</Label><Input value={loginForm.password} onChange={(e) => setLoginForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" /></div>
+            <Button onClick={handleCreateLogin} className="w-full" disabled={loginLoading || !loginForm.email || !loginForm.password}>
+              {loginLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : "Create Login"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -71,22 +128,35 @@ const AdminTeachers = () => {
               <thead><tr className="border-b border-border">
                 <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Qualifications</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Login</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody>
                 {teachers.map((t) => (
                   <tr key={t.id} className="border-b border-border last:border-0">
-                    <td className="p-4 font-medium text-foreground">{t.name}</td>
+                    <td className="p-4 font-medium text-foreground cursor-pointer hover:text-primary" onClick={() => navigate(`/admin/teachers/${t.id}`)}>{t.name}</td>
                     <td className="p-4 text-muted-foreground">{t.qualifications || "—"}</td>
+                    <td className="p-4">
+                      {t.user_id ? (
+                        <Badge variant="default" className="text-xs">Has Login</Badge>
+                      ) : (
+                        <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => openLoginDialog(t)}>
+                          <UserPlus className="w-3 h-3" /> Create Login
+                        </Button>
+                      )}
+                    </td>
                     <td className="p-4"><span className={`text-xs px-2 py-1 rounded-full ${t.is_active ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"}`}>{t.is_active ? "Active" : "Inactive"}</span></td>
-                    <td className="p-4 flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(t)}><Pencil className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(t.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                    <td className="p-4">
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/admin/teachers/${t.id}`)}><Eye className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(t)}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(t.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
-                {teachers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No teachers yet.</td></tr>}
+                {teachers.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No teachers yet.</td></tr>}
               </tbody>
             </table>
           </div>

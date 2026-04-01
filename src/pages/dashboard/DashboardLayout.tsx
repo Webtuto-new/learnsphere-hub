@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Calendar, BookOpen, Play, FileText, CreditCard,
   User, Award, Users, Gift, Wrench, LogOut, Menu, X, Sun, Moon,
-  ChevronRight, Bell, Heart, Clock
+  ChevronRight, Bell, Heart, Clock, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -29,7 +29,7 @@ const studentMore = [
 interface Props { children: ReactNode }
 
 const DashboardLayout = ({ children }: Props) => {
-  const { profile, signOut, isAdmin } = useAuth();
+  const { profile, signOut, isAdmin, isTutor } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -73,6 +73,18 @@ const DashboardLayout = ({ children }: Props) => {
         {studentMenu.map((item) => <NavItem key={item.path} item={item} />)}
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">More</p>
         {studentMore.map((item) => <NavItem key={item.path} item={item} />)}
+        {isTutor && (
+          <>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">Teacher</p>
+            <Link
+              to="/teacher"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <GraduationCap className="w-4 h-4" /> Teacher Panel
+            </Link>
+          </>
+        )}
         {isAdmin && (
           <>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-4">Admin</p>
