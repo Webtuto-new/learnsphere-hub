@@ -7,9 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Eye, UserPlus, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, UserPlus, Loader2, Copy, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+
+const generatePassword = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let pass = '';
+  for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+  return pass;
+};
 
 const AdminTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
@@ -19,6 +26,7 @@ const AdminTeachers = () => {
   const [loginTeacher, setLoginTeacher] = useState<any>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginLoading, setLoginLoading] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string; name: string } | null>(null);
   const [form, setForm] = useState({ name: "", bio: "", qualifications: "", avatar_url: "" });
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -70,6 +78,7 @@ const AdminTeachers = () => {
       if (res.error) throw new Error(res.error.message || "Failed to create account");
       if (res.data?.error) throw new Error(res.data.error);
       toast({ title: "Teacher login created!", description: `Email: ${loginForm.email}` });
+      setCreatedCredentials({ email: loginForm.email, password: loginForm.password, name: loginTeacher.name });
       setLoginOpen(false);
       setLoginTeacher(null);
       setLoginForm({ email: "", password: "" });
@@ -83,8 +92,30 @@ const AdminTeachers = () => {
 
   const openLoginDialog = (t: any) => {
     setLoginTeacher(t);
-    setLoginForm({ email: "", password: "" });
+    setLoginForm({ email: "", password: generatePassword() });
     setLoginOpen(true);
+  };
+
+  const siteUrl = window.location.origin;
+
+  const getCopyMessage = () => {
+    if (!createdCredentials) return "";
+    return `Hi ${createdCredentials.name}! 👋
+
+Your teacher account has been created on WebTuto Academy.
+
+🔗 Login here: ${siteUrl}/login
+📧 Email: ${createdCredentials.email}
+🔑 Password: ${createdCredentials.password}
+
+After logging in, click "Teacher Panel" in your dashboard sidebar to access your teacher dashboard where you can manage your classes, sessions, and students.
+
+Please change your password after your first login.`;
+  };
+
+  const copyMessage = () => {
+    navigator.clipboard.writeText(getCopyMessage());
+    toast({ title: "Copied to clipboard!" });
   };
 
   return (
@@ -113,9 +144,33 @@ const AdminTeachers = () => {
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">This will create a user account with tutor permissions. Share the credentials with the teacher.</p>
             <div className="space-y-2"><Label>Email</Label><Input value={loginForm.email} onChange={(e) => setLoginForm(f => ({ ...f, email: e.target.value }))} placeholder="teacher@example.com" /></div>
-            <div className="space-y-2"><Label>Temporary Password</Label><Input value={loginForm.password} onChange={(e) => setLoginForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" /></div>
+            <div className="space-y-2">
+              <Label>Auto-Generated Password</Label>
+              <div className="flex gap-2">
+                <Input value={loginForm.password} onChange={(e) => setLoginForm(f => ({ ...f, password: e.target.value }))} className="font-mono" />
+                <Button variant="outline" size="icon" onClick={() => setLoginForm(f => ({ ...f, password: generatePassword() }))} title="Regenerate">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
             <Button onClick={handleCreateLogin} className="w-full" disabled={loginLoading || !loginForm.email || !loginForm.password}>
               {loginLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : "Create Login"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Credentials Share Dialog */}
+      <Dialog open={!!createdCredentials} onOpenChange={(v) => { if (!v) setCreatedCredentials(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Login Created Successfully ✅</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Copy the message below and share it with the teacher via WhatsApp, email, or any messenger.</p>
+            <div className="bg-muted rounded-lg p-4 text-sm whitespace-pre-wrap font-mono text-foreground border border-border">
+              {getCopyMessage()}
+            </div>
+            <Button onClick={copyMessage} className="w-full gap-2">
+              <Copy className="w-4 h-4" /> Copy Message
             </Button>
           </div>
         </DialogContent>
