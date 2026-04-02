@@ -144,9 +144,33 @@ Please change your password after your first login.`;
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">This will create a user account with tutor permissions. Share the credentials with the teacher.</p>
             <div className="space-y-2"><Label>Email</Label><Input value={loginForm.email} onChange={(e) => setLoginForm(f => ({ ...f, email: e.target.value }))} placeholder="teacher@example.com" /></div>
-            <div className="space-y-2"><Label>Temporary Password</Label><Input value={loginForm.password} onChange={(e) => setLoginForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" /></div>
+            <div className="space-y-2">
+              <Label>Auto-Generated Password</Label>
+              <div className="flex gap-2">
+                <Input value={loginForm.password} onChange={(e) => setLoginForm(f => ({ ...f, password: e.target.value }))} className="font-mono" />
+                <Button variant="outline" size="icon" onClick={() => setLoginForm(f => ({ ...f, password: generatePassword() }))} title="Regenerate">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
             <Button onClick={handleCreateLogin} className="w-full" disabled={loginLoading || !loginForm.email || !loginForm.password}>
               {loginLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating...</> : "Create Login"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Credentials Share Dialog */}
+      <Dialog open={!!createdCredentials} onOpenChange={(v) => { if (!v) setCreatedCredentials(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Login Created Successfully ✅</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Copy the message below and share it with the teacher via WhatsApp, email, or any messenger.</p>
+            <div className="bg-muted rounded-lg p-4 text-sm whitespace-pre-wrap font-mono text-foreground border border-border">
+              {getCopyMessage()}
+            </div>
+            <Button onClick={copyMessage} className="w-full gap-2">
+              <Copy className="w-4 h-4" /> Copy Message
             </Button>
           </div>
         </DialogContent>
