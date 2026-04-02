@@ -262,6 +262,7 @@ export type Database = {
       }
       classes: {
         Row: {
+          approval_status: string
           class_type: string
           created_at: string
           currency: string
@@ -288,6 +289,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approval_status?: string
           class_type?: string
           created_at?: string
           currency?: string
@@ -314,6 +316,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approval_status?: string
           class_type?: string
           created_at?: string
           currency?: string
