@@ -78,6 +78,7 @@ const AdminTeachers = () => {
       if (res.error) throw new Error(res.error.message || "Failed to create account");
       if (res.data?.error) throw new Error(res.data.error);
       toast({ title: "Teacher login created!", description: `Email: ${loginForm.email}` });
+      setCreatedCredentials({ email: loginForm.email, password: loginForm.password, name: loginTeacher.name });
       setLoginOpen(false);
       setLoginTeacher(null);
       setLoginForm({ email: "", password: "" });
