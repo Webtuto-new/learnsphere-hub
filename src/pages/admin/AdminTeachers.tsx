@@ -11,6 +11,13 @@ import { Plus, Pencil, Trash2, Eye, UserPlus, Loader2, Copy, RefreshCw } from "l
 import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 
+const generatePassword = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let pass = '';
+  for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+  return pass;
+};
+
 const AdminTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
@@ -19,6 +26,7 @@ const AdminTeachers = () => {
   const [loginTeacher, setLoginTeacher] = useState<any>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginLoading, setLoginLoading] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string; name: string } | null>(null);
   const [form, setForm] = useState({ name: "", bio: "", qualifications: "", avatar_url: "" });
   const { toast } = useToast();
   const navigate = useNavigate();
