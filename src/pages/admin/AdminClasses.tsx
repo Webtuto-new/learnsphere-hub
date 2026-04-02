@@ -611,7 +611,7 @@ const AdminClasses = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Subject</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
-                <th className="text-left p-4 font-medium text-muted-foreground">Visible</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr></thead>
               <tbody>
@@ -628,9 +628,23 @@ const AdminClasses = () => {
                     <td className="p-4 text-muted-foreground">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-foreground">LKR {c.price}</td>
                     <td className="p-4">
-                      <Switch checked={c.is_active} onCheckedChange={() => handleToggleActive(c.id, c.is_active)} />
+                      <div className="flex items-center gap-2">
+                        {c.approval_status === 'pending' ? (
+                          <Badge variant="outline" className="border-amber-500 text-amber-600">Pending</Badge>
+                        ) : c.approval_status === 'rejected' ? (
+                          <Badge variant="destructive">Rejected</Badge>
+                        ) : (
+                          <Switch checked={c.is_active} onCheckedChange={() => handleToggleActive(c.id, c.is_active)} />
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 flex gap-1">
+                      {c.approval_status === 'pending' && (
+                        <>
+                          <Button variant="ghost" size="sm" className="text-green-600" title="Approve" onClick={async () => { await supabase.from("classes").update({ approval_status: 'approved' }).eq("id", c.id); fetchClasses(); }}><Eye className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" className="text-destructive" title="Reject" onClick={async () => { await supabase.from("classes").update({ approval_status: 'rejected' }).eq("id", c.id); fetchClasses(); }}><EyeOff className="w-4 h-4" /></Button>
+                        </>
+                      )}
                       <Button variant="ghost" size="sm" onClick={() => openEnrollDialog(c.id, c.title)} title="Enroll Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>

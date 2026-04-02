@@ -83,6 +83,7 @@ const TeacherClasses = () => {
       max_students: form.max_students ? parseInt(form.max_students) : null,
       has_free_trial: form.has_free_trial,
       teacher_id: teacher.id,
+      ...(editing ? {} : { approval_status: 'pending' }),
     };
 
     let error;
@@ -94,7 +95,7 @@ const TeacherClasses = () => {
 
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else {
-      toast({ title: editing ? "Class updated!" : "Class created!" });
+      toast({ title: editing ? "Class updated!" : "Class submitted for approval!" });
       setOpen(false);
       setEditing(null);
       resetForm();
@@ -204,7 +205,15 @@ const TeacherClasses = () => {
                     <td className="p-4 font-medium text-foreground">{c.title}</td>
                     <td className="p-4 text-muted-foreground hidden md:table-cell">{c.subjects?.name || "—"}</td>
                     <td className="p-4 text-muted-foreground">{c.currency} {c.price}</td>
-                    <td className="p-4"><Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Visible" : "Hidden"}</Badge></td>
+                    <td className="p-4">
+                      {c.approval_status === 'pending' ? (
+                        <Badge variant="outline" className="border-amber-500 text-amber-600">Pending Approval</Badge>
+                      ) : c.approval_status === 'rejected' ? (
+                        <Badge variant="destructive">Rejected</Badge>
+                      ) : (
+                        <Badge variant={c.is_active ? "default" : "secondary"}>{c.is_active ? "Visible" : "Hidden"}</Badge>
+                      )}
+                    </td>
                     <td className="p-4 flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => toggleVisibility(c)}>{c.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</Button>
