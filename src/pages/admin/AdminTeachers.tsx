@@ -92,8 +92,30 @@ const AdminTeachers = () => {
 
   const openLoginDialog = (t: any) => {
     setLoginTeacher(t);
-    setLoginForm({ email: "", password: "" });
+    setLoginForm({ email: "", password: generatePassword() });
     setLoginOpen(true);
+  };
+
+  const siteUrl = window.location.origin;
+
+  const getCopyMessage = () => {
+    if (!createdCredentials) return "";
+    return `Hi ${createdCredentials.name}! 👋
+
+Your teacher account has been created on WebTuto Academy.
+
+🔗 Login here: ${siteUrl}/login
+📧 Email: ${createdCredentials.email}
+🔑 Password: ${createdCredentials.password}
+
+After logging in, click "Teacher Panel" in your dashboard sidebar to access your teacher dashboard where you can manage your classes, sessions, and students.
+
+Please change your password after your first login.`;
+  };
+
+  const copyMessage = () => {
+    navigator.clipboard.writeText(getCopyMessage());
+    toast({ title: "Copied to clipboard!" });
   };
 
   return (
