@@ -1,25 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Search, Play, User, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const RecordingsPage = () => {
   const [recordings, setRecordings] = useState<any[]>([]);
   const [query, setQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("All");
 
   useEffect(() => {
     supabase.from("recordings").select("*, teachers(name)").eq("is_active", true).order("created_at", { ascending: false })
       .then(({ data }) => setRecordings(data || []));
   }, []);
 
-  const filtered = recordings.filter(r =>
-    !query || r.title.toLowerCase().includes(query.toLowerCase())
-  );
+  // Build dynamic tabs from recording_type values
+  const tabs = useMemo(() => {
+    const types = new Set<string>();
+    types.add("All");
+    types.add("Recording");
+    recordings.forEach(r => {
+      if ((r as any).recording_type) types.add((r as any).recording_type);
+    });
+    return Array.from(types);
+  }, [recordings]);
+
+  const filtered = recordings.filter(r => {
+    const matchesQuery = !query || r.title.toLowerCase().includes(query.toLowerCase());
+    const type = (r as any).recording_type || "Recording";
+    const matchesTab = activeTab === "All" || type === activeTab;
+    return matchesQuery && matchesTab;
+  });
 
   return (
     <Layout>
@@ -31,15 +47,33 @@ const RecordingsPage = () => {
             <p className="text-sm sm:text-base text-muted-foreground">Purchase and watch class recordings at your own pace</p>
           </div>
 
-          <div className="relative max-w-md mb-6 sm:mb-8">
+          <div className="relative max-w-md mb-4 sm:mb-6">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input className="pl-10" placeholder="Search recordings..." value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
+
+          {/* Filter tabs */}
+          {tabs.length > 2 && (
+            <div className="flex gap-1 mb-6 sm:mb-8 overflow-x-auto pb-1">
+              {tabs.map(tab => (
+                <Button
+                  key={tab}
+                  variant={activeTab === tab ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs shrink-0"
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </Button>
+              ))}
+            </div>
+          )}
 
           {filtered.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filtered.map(r => {
                 const hasPreview = !!(r as any).free_preview_url;
+                const typeLabel = (r as any).recording_type || "Recording";
                 return (
                   <Link key={r.id} to={`/recording/${r.id}`} className="block group">
                     <Card className="overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 border-border/50">
@@ -58,7 +92,7 @@ const RecordingsPage = () => {
                         )}
                       </div>
                       <CardContent className="p-3 sm:p-4">
-                        <span className="badge-recording mb-2 inline-block text-[10px] sm:text-xs">Recording</span>
+                        <Badge variant="outline" className="mb-2 text-[10px]">{typeLabel}</Badge>
                         <h3 className="font-display font-semibold text-foreground mb-1 line-clamp-2 text-sm sm:text-base group-hover:text-primary transition-colors">{r.title}</h3>
                         {r.teachers?.name && (
                           <p className="text-xs sm:text-sm text-muted-foreground mb-1 flex items-center gap-1">
