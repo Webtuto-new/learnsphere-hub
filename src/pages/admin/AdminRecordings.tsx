@@ -324,6 +324,66 @@ const AdminRecordings = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Notes Section */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">Notes & Materials ({notes.length})</h2>
+          <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Note</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add Note / Material</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2"><Label>Title</Label><Input value={noteForm.title} onChange={(e) => setNoteForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Chapter 1 Notes" /></div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={noteForm.file_type} onChange={(e) => setNoteForm(f => ({ ...f, file_type: e.target.value }))}>
+                    <option value="pdf">PDF</option>
+                    <option value="doc">Document</option>
+                    <option value="image">Image</option>
+                    <option value="link">External Link</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <FileOrLinkInput
+                  value={noteForm.file_url || null}
+                  onChange={(url) => setNoteForm(f => ({ ...f, file_url: url || "" }))}
+                  bucket="thumbnails"
+                  folder="recording-notes"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
+                  label="File"
+                  linkPlaceholder="https://drive.google.com/... or any URL"
+                  uploadHint="Drag & drop a file (PDF, Doc, etc.)"
+                />
+                <Button onClick={handleAddNote} className="w-full">Add Note</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            {notes.length === 0 ? (
+              <p className="p-8 text-center text-sm text-muted-foreground">No notes yet. Add PDFs, documents, or other materials for students.</p>
+            ) : (
+              <div className="divide-y divide-border">
+                {notes.map((n: any) => (
+                  <div key={n.id} className="flex items-center gap-3 p-4">
+                    <FileText className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-foreground">{n.title}</p>
+                      <p className="text-xs text-muted-foreground">{n.file_type?.toUpperCase()} · {new Date(n.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <a href={n.file_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline shrink-0">Open</a>
+                    <Button variant="ghost" size="sm" onClick={() => deleteNote(n.id)} className="text-destructive shrink-0">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }
