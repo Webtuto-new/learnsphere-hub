@@ -447,6 +447,7 @@ const AdminRecordings = () => {
             <CardContent className={`${r.thumbnail_url ? "pt-4" : "pt-6"} pb-4`}>
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
+                  <Badge variant="outline" className="text-[10px] mb-1">{(r as any).recording_type || "Recording"}</Badge>
                   <h3 className="font-semibold text-foreground truncate">{r.title}</h3>
                   {r.teachers?.name && (
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
