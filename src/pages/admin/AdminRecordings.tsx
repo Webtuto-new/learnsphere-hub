@@ -87,7 +87,7 @@ const AdminRecordings = () => {
       toast({ title: editingRec ? "Updated!" : "Created!" });
       setRecOpen(false);
       setEditingRec(null);
-      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
+      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", recording_type: "" });
       fetchRecordings();
     }
   };
