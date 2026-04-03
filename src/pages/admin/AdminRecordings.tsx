@@ -329,16 +329,11 @@ const AdminRecordings = () => {
                 <Input value={recForm.free_preview_url} onChange={(e) => setRecForm(f => ({ ...f, free_preview_url: e.target.value }))} placeholder="https://youtube.com/watch?v=... (free sample for non-buyers)" />
                 <p className="text-xs text-muted-foreground">Users who haven't purchased can watch this preview video</p>
               </div>
-              <FileOrLinkInput
-                value={recForm.notes_url || null}
-                onChange={(url) => setRecForm(f => ({ ...f, notes_url: url || "" }))}
-                bucket="thumbnails"
-                folder="recording-notes"
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
-                label="Notes / Materials (optional)"
-                linkPlaceholder="https://drive.google.com/... or any URL"
-                uploadHint="Drag & drop notes file (PDF, Doc, etc.)"
-              />
+              <div className="space-y-2">
+                <Label>Type Label (optional)</Label>
+                <Input value={recForm.recording_type} onChange={(e) => setRecForm(f => ({ ...f, recording_type: e.target.value }))} placeholder="e.g. Workshop, Course, Masterclass (leave blank for 'Recording')" />
+                <p className="text-xs text-muted-foreground">Custom label shown as a badge — leave empty to show "Recording"</p>
+              </div>
               <Button onClick={handleSaveRecording} className="w-full">{editingRec ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
