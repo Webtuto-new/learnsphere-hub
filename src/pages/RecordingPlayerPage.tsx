@@ -403,9 +403,10 @@ const RecordingPlayerPage = () => {
                     </span>
                   )}
                 </div>
-              </div>
+                </div>
 
-              <div className="max-w-xs mx-auto">
+                <ShareButtons url={shareLink} title={recording.title} />
+
                 <PurchaseButton
                   type="recording"
                   itemId={recording.id}
