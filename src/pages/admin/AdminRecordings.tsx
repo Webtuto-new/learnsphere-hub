@@ -102,7 +102,7 @@ const AdminRecordings = () => {
       access_duration_days: r.access_duration_days?.toString() || "365",
       teacher_id: r.teacher_id || "",
       free_preview_url: (r as any).free_preview_url || "",
-      notes_url: (r as any).notes_url || "",
+      recording_type: (r as any).recording_type || "",
     });
     setRecOpen(true);
   };
