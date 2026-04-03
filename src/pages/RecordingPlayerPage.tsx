@@ -187,8 +187,16 @@ const RecordingPlayerPage = () => {
   const freePreviewUrl = normalizeVideoUrl((recording as any).free_preview_url);
   const currentIndex = activeLesson ? lessons.findIndex((l) => l.id === activeLesson.id) : -1;
 
+  const shareLink = `${window.location.origin}/recording/${id}`;
+
   return (
     <Layout>
+      <SEOHead 
+        title={recording.title} 
+        description={recording.description || `Watch ${recording.title} on Webtuto`} 
+        path={`/recording/${id}`} 
+        image={recording.thumbnail_url || undefined} 
+      />
       <div className="pt-16 sm:pt-20 pb-12 sm:pb-16 min-h-screen">
         <div className="container mx-auto px-3 sm:px-4">
           {/* Back button */}
