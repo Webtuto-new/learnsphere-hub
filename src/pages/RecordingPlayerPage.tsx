@@ -303,6 +303,19 @@ const RecordingPlayerPage = () => {
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{recording.description}</p>
                 )}
 
+                {/* Notes & Share */}
+                <div className="flex flex-wrap gap-2">
+                  {(recording as any).notes_url && (
+                    <a href={(recording as any).notes_url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                        <Download className="w-3.5 h-3.5" /> Download Notes
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                <ShareButtons url={shareLink} title={recording.title} />
+
                 {/* Lessons list - collapsible on mobile */}
                 {lessons.length > 0 && (
                   <div className="bg-card border border-border/60 rounded-lg sm:rounded-xl overflow-hidden shadow-sm">
