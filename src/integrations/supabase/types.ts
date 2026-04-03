@@ -711,6 +711,7 @@ export type Database = {
           grade_id: string | null
           id: string
           is_active: boolean
+          notes_url: string | null
           price: number
           subject_id: string | null
           teacher_id: string | null
@@ -729,6 +730,7 @@ export type Database = {
           grade_id?: string | null
           id?: string
           is_active?: boolean
+          notes_url?: string | null
           price?: number
           subject_id?: string | null
           teacher_id?: string | null
@@ -747,6 +749,7 @@ export type Database = {
           grade_id?: string | null
           id?: string
           is_active?: boolean
+          notes_url?: string | null
           price?: number
           subject_id?: string | null
           teacher_id?: string | null

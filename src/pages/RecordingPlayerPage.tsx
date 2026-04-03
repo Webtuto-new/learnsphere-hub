@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, Clock, ExternalLink, Eye, ListVideo, Lock, Play, User } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock, Download, ExternalLink, Eye, FileText, ListVideo, Lock, Play, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
+import ShareButtons from "@/components/ShareButtons";
 import PurchaseButton from "@/components/PurchaseButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -185,8 +187,16 @@ const RecordingPlayerPage = () => {
   const freePreviewUrl = normalizeVideoUrl((recording as any).free_preview_url);
   const currentIndex = activeLesson ? lessons.findIndex((l) => l.id === activeLesson.id) : -1;
 
+  const shareLink = `${window.location.origin}/recording/${id}`;
+
   return (
     <Layout>
+      <SEOHead 
+        title={recording.title} 
+        description={recording.description || `Watch ${recording.title} on Webtuto`} 
+        path={`/recording/${id}`} 
+        image={recording.thumbnail_url || undefined} 
+      />
       <div className="pt-16 sm:pt-20 pb-12 sm:pb-16 min-h-screen">
         <div className="container mx-auto px-3 sm:px-4">
           {/* Back button */}
@@ -293,6 +303,19 @@ const RecordingPlayerPage = () => {
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{recording.description}</p>
                 )}
 
+                {/* Notes & Share */}
+                <div className="flex flex-wrap gap-2">
+                  {(recording as any).notes_url && (
+                    <a href={(recording as any).notes_url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                        <Download className="w-3.5 h-3.5" /> Download Notes
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                <ShareButtons url={shareLink} title={recording.title} />
+
                 {/* Lessons list - collapsible on mobile */}
                 {lessons.length > 0 && (
                   <div className="bg-card border border-border/60 rounded-lg sm:rounded-xl overflow-hidden shadow-sm">
@@ -381,6 +404,8 @@ const RecordingPlayerPage = () => {
                   )}
                 </div>
               </div>
+
+              <ShareButtons url={shareLink} title={recording.title} />
 
               <div className="max-w-xs mx-auto">
                 <PurchaseButton

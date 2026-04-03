@@ -93,6 +93,11 @@ const TeacherSessions = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-2xl font-bold text-foreground">Sessions & Zoom</h1>
+        {selectedClassId && classes.length > 0 && (
+          <p className="text-sm text-muted-foreground">
+            Class: <span className="font-medium text-foreground">{classes.find(c => c.id === selectedClassId)?.title}</span>
+          </p>
+        )}
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild><Button className="gap-1" disabled={!selectedClassId}><Plus className="w-4 h-4" /> Add Session</Button></DialogTrigger>
           <DialogContent className="max-w-lg">

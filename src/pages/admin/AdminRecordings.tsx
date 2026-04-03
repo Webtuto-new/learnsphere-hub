@@ -22,7 +22,7 @@ const AdminRecordings = () => {
   const [vidOpen, setVidOpen] = useState(false);
   const [editingRec, setEditingRec] = useState<any>(null);
   const [editingVid, setEditingVid] = useState<any>(null);
-  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
+  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
 
@@ -68,6 +68,7 @@ const AdminRecordings = () => {
       access_duration_days: parseInt(recForm.access_duration_days) || 365,
       teacher_id: recForm.teacher_id || null,
       free_preview_url: recForm.free_preview_url || null,
+      notes_url: recForm.notes_url || null,
     };
     let error;
     if (editingRec) {
@@ -81,7 +82,7 @@ const AdminRecordings = () => {
       toast({ title: editingRec ? "Updated!" : "Created!" });
       setRecOpen(false);
       setEditingRec(null);
-      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
+      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
       fetchRecordings();
     }
   };
@@ -96,6 +97,7 @@ const AdminRecordings = () => {
       access_duration_days: r.access_duration_days?.toString() || "365",
       teacher_id: r.teacher_id || "",
       free_preview_url: (r as any).free_preview_url || "",
+      notes_url: (r as any).notes_url || "",
     });
     setRecOpen(true);
   };
@@ -322,6 +324,16 @@ const AdminRecordings = () => {
                 <Input value={recForm.free_preview_url} onChange={(e) => setRecForm(f => ({ ...f, free_preview_url: e.target.value }))} placeholder="https://youtube.com/watch?v=... (free sample for non-buyers)" />
                 <p className="text-xs text-muted-foreground">Users who haven't purchased can watch this preview video</p>
               </div>
+              <FileOrLinkInput
+                value={recForm.notes_url || null}
+                onChange={(url) => setRecForm(f => ({ ...f, notes_url: url || "" }))}
+                bucket="thumbnails"
+                folder="recording-notes"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
+                label="Notes / Materials (optional)"
+                linkPlaceholder="https://drive.google.com/... or any URL"
+                uploadHint="Drag & drop notes file (PDF, Doc, etc.)"
+              />
               <Button onClick={handleSaveRecording} className="w-full">{editingRec ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
