@@ -82,6 +82,7 @@ const RecordingPlayerPage = () => {
   const [related, setRelated] = useState<any[]>([]);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [showLessons, setShowLessons] = useState(false);
+  const [recordingNotes, setRecordingNotes] = useState<any[]>([]);
 
   useEffect(() => {
     setPlayerError(null);
