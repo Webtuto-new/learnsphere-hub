@@ -110,6 +110,13 @@ const RecordingPlayerPage = () => {
       });
 
     supabase
+      .from("recording_notes")
+      .select("*")
+      .eq("recording_id", id)
+      .order("created_at")
+      .then(({ data }) => setRecordingNotes(data || []));
+
+    supabase
       .from("recording_videos")
       .select("*")
       .eq("recording_id", id)
