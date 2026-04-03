@@ -58,9 +58,45 @@ const AdminRecordings = () => {
   useEffect(() => { fetchRecordings(); fetchTeachers(); }, []);
 
   useEffect(() => {
-    if (selectedRecording) fetchVideos(selectedRecording.id);
-    else setVideos([]);
+    if (selectedRecording) {
+      fetchVideos(selectedRecording.id);
+      fetchNotes(selectedRecording.id);
+    } else {
+      setVideos([]);
+      setNotes([]);
+    }
   }, [selectedRecording]);
+
+  const fetchNotes = async (recordingId: string) => {
+    const { data } = await supabase.from("recording_notes" as any).select("*").eq("recording_id", recordingId).order("created_at");
+    setNotes(data || []);
+  };
+
+  const handleAddNote = async () => {
+    if (!selectedRecording || !noteForm.title || !noteForm.file_url) {
+      toast({ title: "Title and file are required", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("recording_notes" as any).insert({
+      recording_id: selectedRecording.id,
+      title: noteForm.title,
+      file_url: noteForm.file_url,
+      file_type: noteForm.file_type,
+    } as any);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Note added!" });
+      setNoteOpen(false);
+      setNoteForm({ title: "", file_url: "", file_type: "pdf" });
+      fetchNotes(selectedRecording.id);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    await supabase.from("recording_notes" as any).delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetchNotes(selectedRecording.id);
+  };
 
   // Recording CRUD
   const handleSaveRecording = async () => {
