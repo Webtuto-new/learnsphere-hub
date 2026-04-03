@@ -23,7 +23,11 @@ const AdminRecordings = () => {
   const [vidOpen, setVidOpen] = useState(false);
   const [editingRec, setEditingRec] = useState<any>(null);
   const [editingVid, setEditingVid] = useState<any>(null);
-  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
+  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", recording_type: "" });
+  // Notes state
+  const [notes, setNotes] = useState<any[]>([]);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteForm, setNoteForm] = useState({ title: "", file_url: "", file_type: "pdf" });
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
 
