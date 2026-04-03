@@ -658,6 +658,41 @@ export type Database = {
         }
         Relationships: []
       }
+      recording_notes: {
+        Row: {
+          created_at: string
+          file_type: string | null
+          file_url: string
+          id: string
+          recording_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          recording_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          recording_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recording_notes_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recording_videos: {
         Row: {
           created_at: string
@@ -713,6 +748,7 @@ export type Database = {
           is_active: boolean
           notes_url: string | null
           price: number
+          recording_type: string | null
           subject_id: string | null
           teacher_id: string | null
           thumbnail_url: string | null
@@ -732,6 +768,7 @@ export type Database = {
           is_active?: boolean
           notes_url?: string | null
           price?: number
+          recording_type?: string | null
           subject_id?: string | null
           teacher_id?: string | null
           thumbnail_url?: string | null
@@ -751,6 +788,7 @@ export type Database = {
           is_active?: boolean
           notes_url?: string | null
           price?: number
+          recording_type?: string | null
           subject_id?: string | null
           teacher_id?: string | null
           thumbnail_url?: string | null

@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
 import { addDays } from "date-fns";
@@ -22,7 +23,11 @@ const AdminRecordings = () => {
   const [vidOpen, setVidOpen] = useState(false);
   const [editingRec, setEditingRec] = useState<any>(null);
   const [editingVid, setEditingVid] = useState<any>(null);
-  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
+  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", recording_type: "" });
+  // Notes state
+  const [notes, setNotes] = useState<any[]>([]);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteForm, setNoteForm] = useState({ title: "", file_url: "", file_type: "pdf" });
   const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
   const { toast } = useToast();
 
@@ -53,9 +58,45 @@ const AdminRecordings = () => {
   useEffect(() => { fetchRecordings(); fetchTeachers(); }, []);
 
   useEffect(() => {
-    if (selectedRecording) fetchVideos(selectedRecording.id);
-    else setVideos([]);
+    if (selectedRecording) {
+      fetchVideos(selectedRecording.id);
+      fetchNotes(selectedRecording.id);
+    } else {
+      setVideos([]);
+      setNotes([]);
+    }
   }, [selectedRecording]);
+
+  const fetchNotes = async (recordingId: string) => {
+    const { data } = await supabase.from("recording_notes" as any).select("*").eq("recording_id", recordingId).order("created_at");
+    setNotes(data || []);
+  };
+
+  const handleAddNote = async () => {
+    if (!selectedRecording || !noteForm.title || !noteForm.file_url) {
+      toast({ title: "Title and file are required", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("recording_notes" as any).insert({
+      recording_id: selectedRecording.id,
+      title: noteForm.title,
+      file_url: noteForm.file_url,
+      file_type: noteForm.file_type,
+    } as any);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Note added!" });
+      setNoteOpen(false);
+      setNoteForm({ title: "", file_url: "", file_type: "pdf" });
+      fetchNotes(selectedRecording.id);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    await supabase.from("recording_notes" as any).delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetchNotes(selectedRecording.id);
+  };
 
   // Recording CRUD
   const handleSaveRecording = async () => {
@@ -68,7 +109,7 @@ const AdminRecordings = () => {
       access_duration_days: parseInt(recForm.access_duration_days) || 365,
       teacher_id: recForm.teacher_id || null,
       free_preview_url: recForm.free_preview_url || null,
-      notes_url: recForm.notes_url || null,
+      recording_type: recForm.recording_type || null,
     };
     let error;
     if (editingRec) {
@@ -82,7 +123,7 @@ const AdminRecordings = () => {
       toast({ title: editingRec ? "Updated!" : "Created!" });
       setRecOpen(false);
       setEditingRec(null);
-      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
+      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", recording_type: "" });
       fetchRecordings();
     }
   };
@@ -97,7 +138,7 @@ const AdminRecordings = () => {
       access_duration_days: r.access_duration_days?.toString() || "365",
       teacher_id: r.teacher_id || "",
       free_preview_url: (r as any).free_preview_url || "",
-      notes_url: (r as any).notes_url || "",
+      recording_type: (r as any).recording_type || "",
     });
     setRecOpen(true);
   };
@@ -283,6 +324,66 @@ const AdminRecordings = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Notes Section */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">Notes & Materials ({notes.length})</h2>
+          <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Note</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add Note / Material</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2"><Label>Title</Label><Input value={noteForm.title} onChange={(e) => setNoteForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Chapter 1 Notes" /></div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={noteForm.file_type} onChange={(e) => setNoteForm(f => ({ ...f, file_type: e.target.value }))}>
+                    <option value="pdf">PDF</option>
+                    <option value="doc">Document</option>
+                    <option value="image">Image</option>
+                    <option value="link">External Link</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <FileOrLinkInput
+                  value={noteForm.file_url || null}
+                  onChange={(url) => setNoteForm(f => ({ ...f, file_url: url || "" }))}
+                  bucket="thumbnails"
+                  folder="recording-notes"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
+                  label="File"
+                  linkPlaceholder="https://drive.google.com/... or any URL"
+                  uploadHint="Drag & drop a file (PDF, Doc, etc.)"
+                />
+                <Button onClick={handleAddNote} className="w-full">Add Note</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            {notes.length === 0 ? (
+              <p className="p-8 text-center text-sm text-muted-foreground">No notes yet. Add PDFs, documents, or other materials for students.</p>
+            ) : (
+              <div className="divide-y divide-border">
+                {notes.map((n: any) => (
+                  <div key={n.id} className="flex items-center gap-3 p-4">
+                    <FileText className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-foreground">{n.title}</p>
+                      <p className="text-xs text-muted-foreground">{n.file_type?.toUpperCase()} · {new Date(n.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <a href={n.file_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline shrink-0">Open</a>
+                    <Button variant="ghost" size="sm" onClick={() => deleteNote(n.id)} className="text-destructive shrink-0">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -324,16 +425,11 @@ const AdminRecordings = () => {
                 <Input value={recForm.free_preview_url} onChange={(e) => setRecForm(f => ({ ...f, free_preview_url: e.target.value }))} placeholder="https://youtube.com/watch?v=... (free sample for non-buyers)" />
                 <p className="text-xs text-muted-foreground">Users who haven't purchased can watch this preview video</p>
               </div>
-              <FileOrLinkInput
-                value={recForm.notes_url || null}
-                onChange={(url) => setRecForm(f => ({ ...f, notes_url: url || "" }))}
-                bucket="thumbnails"
-                folder="recording-notes"
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
-                label="Notes / Materials (optional)"
-                linkPlaceholder="https://drive.google.com/... or any URL"
-                uploadHint="Drag & drop notes file (PDF, Doc, etc.)"
-              />
+              <div className="space-y-2">
+                <Label>Type Label (optional)</Label>
+                <Input value={recForm.recording_type} onChange={(e) => setRecForm(f => ({ ...f, recording_type: e.target.value }))} placeholder="e.g. Workshop, Course, Masterclass (leave blank for 'Recording')" />
+                <p className="text-xs text-muted-foreground">Custom label shown as a badge — leave empty to show "Recording"</p>
+              </div>
               <Button onClick={handleSaveRecording} className="w-full">{editingRec ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
@@ -351,6 +447,7 @@ const AdminRecordings = () => {
             <CardContent className={`${r.thumbnail_url ? "pt-4" : "pt-6"} pb-4`}>
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
+                  <Badge variant="outline" className="text-[10px] mb-1">{(r as any).recording_type || "Recording"}</Badge>
                   <h3 className="font-semibold text-foreground truncate">{r.title}</h3>
                   {r.teachers?.name && (
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
