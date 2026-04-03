@@ -68,6 +68,7 @@ const AdminRecordings = () => {
       access_duration_days: parseInt(recForm.access_duration_days) || 365,
       teacher_id: recForm.teacher_id || null,
       free_preview_url: recForm.free_preview_url || null,
+      notes_url: recForm.notes_url || null,
     };
     let error;
     if (editingRec) {
@@ -81,7 +82,7 @@ const AdminRecordings = () => {
       toast({ title: editingRec ? "Updated!" : "Created!" });
       setRecOpen(false);
       setEditingRec(null);
-      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "" });
+      setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", teacher_id: "", free_preview_url: "", notes_url: "" });
       fetchRecordings();
     }
   };
