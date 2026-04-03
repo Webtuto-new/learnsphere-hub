@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
 import { addDays } from "date-fns";
