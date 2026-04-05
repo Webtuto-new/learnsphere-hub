@@ -232,6 +232,20 @@ const TeacherClasses = () => {
           </div>
         </CardContent>
       </Card>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="class"
+        resourceId={studentsDialog.id}
+      />
+
+      <CreateStudentDialog
+        open={enrollDialog.open}
+        onOpenChange={(v) => setEnrollDialog(s => ({ ...s, open: v }))}
+        enrollInto={{ type: "class", id: enrollDialog.id, name: enrollDialog.title, days: "30" }}
+      />
     </div>
   );
 };
