@@ -47,6 +47,7 @@ const AdminClasses = () => {
   const [bulkDuration, setBulkDuration] = useState("60");
   const [bulkCreating, setBulkCreating] = useState(false);
   const [classSearch, setClassSearch] = useState("");
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
 
   // Manual enrollment state
   const [enrollOpen, setEnrollOpen] = useState(false);
