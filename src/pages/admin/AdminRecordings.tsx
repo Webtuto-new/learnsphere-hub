@@ -40,6 +40,7 @@ const AdminRecordings = () => {
   const [studentResults, setStudentResults] = useState<any[]>([]);
   const [enrollDays, setEnrollDays] = useState("365");
   const [enrolling, setEnrolling] = useState(false);
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
 
   const fetchRecordings = async () => {
     const { data } = await supabase.from("recordings").select("*, teachers(name)").order("created_at", { ascending: false });
