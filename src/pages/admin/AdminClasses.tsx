@@ -660,6 +660,14 @@ const AdminClasses = () => {
           </div>
         </CardContent>
       </Card>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="class"
+        resourceId={studentsDialog.id}
+      />
     </div>
   );
 };
