@@ -219,6 +219,8 @@ const TeacherClasses = () => {
                       )}
                     </td>
                     <td className="p-4 flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: c.id, title: c.title })} title="View Students"><Users className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => setEnrollDialog({ open: true, id: c.id, title: c.title })} title="Add Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => toggleVisibility(c)}>{c.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</Button>
                     </td>
