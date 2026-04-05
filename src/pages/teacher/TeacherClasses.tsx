@@ -25,6 +25,8 @@ const TeacherClasses = () => {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
+  const [enrollDialog, setEnrollDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
   const [form, setForm] = useState({
     title: "", description: "", short_description: "", price: "0", original_price: "",
     class_type: "monthly", schedule_day: "", schedule_time: "", duration_minutes: "60",
