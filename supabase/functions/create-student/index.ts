@@ -10,7 +10,6 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    // Verify the caller is an admin
     const authHeader = req.headers.get("Authorization")!;
     const anonClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -19,13 +18,14 @@ serve(async (req) => {
     const { data: { user: caller } } = await anonClient.auth.getUser(authHeader.replace("Bearer ", ""));
     if (!caller) throw new Error("Not authenticated");
 
-    const { data: roleCheck } = await anonClient.rpc("has_role", { _user_id: caller.id, _role: "admin" });
-    if (!roleCheck) throw new Error("Not authorized");
+    // Allow admins or tutors
+    const { data: isAdmin } = await anonClient.rpc("has_role", { _user_id: caller.id, _role: "admin" });
+    const { data: isTutor } = await anonClient.rpc("has_role", { _user_id: caller.id, _role: "tutor" });
+    if (!isAdmin && !isTutor) throw new Error("Not authorized");
 
     const { email, password, full_name, phone, address } = await req.json();
     if (!email || !password) throw new Error("Email and password required");
 
-    // Use service role to create user
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
