@@ -647,6 +647,7 @@ const AdminClasses = () => {
                           <Button variant="ghost" size="sm" className="text-destructive" title="Reject" onClick={async () => { await supabase.from("classes").update({ approval_status: 'rejected' }).eq("id", c.id); fetchClasses(); }}><EyeOff className="w-4 h-4" /></Button>
                         </>
                       )}
+                      <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: c.id, title: c.title })} title="View Students"><Users className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => openEnrollDialog(c.id, c.title)} title="Enroll Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
