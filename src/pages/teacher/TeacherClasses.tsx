@@ -10,8 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Eye, EyeOff, Users, UserPlus } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
+import CreateStudentDialog from "@/components/CreateStudentDialog";
 
 const TeacherClasses = () => {
   const { user } = useAuth();
