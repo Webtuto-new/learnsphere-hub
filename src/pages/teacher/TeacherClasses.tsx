@@ -10,8 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Eye, EyeOff, Users, UserPlus } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
+import CreateStudentDialog from "@/components/CreateStudentDialog";
 
 const TeacherClasses = () => {
   const { user } = useAuth();
@@ -23,6 +25,8 @@ const TeacherClasses = () => {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
+  const [enrollDialog, setEnrollDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
   const [form, setForm] = useState({
     title: "", description: "", short_description: "", price: "0", original_price: "",
     class_type: "monthly", schedule_day: "", schedule_time: "", duration_minutes: "60",
@@ -215,6 +219,8 @@ const TeacherClasses = () => {
                       )}
                     </td>
                     <td className="p-4 flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: c.id, title: c.title })} title="View Students"><Users className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => setEnrollDialog({ open: true, id: c.id, title: c.title })} title="Add Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => toggleVisibility(c)}>{c.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</Button>
                     </td>
@@ -226,6 +232,20 @@ const TeacherClasses = () => {
           </div>
         </CardContent>
       </Card>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="class"
+        resourceId={studentsDialog.id}
+      />
+
+      <CreateStudentDialog
+        open={enrollDialog.open}
+        onOpenChange={(v) => setEnrollDialog(s => ({ ...s, open: v }))}
+        enrollInto={{ type: "class", id: enrollDialog.id, name: enrollDialog.title, days: "30" }}
+      />
     </div>
   );
 };

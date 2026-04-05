@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Video, ArrowLeft, User, UserPlus, Search, FileText, Users } from "lucide-react";
+import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
@@ -39,6 +40,7 @@ const AdminRecordings = () => {
   const [studentResults, setStudentResults] = useState<any[]>([]);
   const [enrollDays, setEnrollDays] = useState("365");
   const [enrolling, setEnrolling] = useState(false);
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
 
   const fetchRecordings = async () => {
     const { data } = await supabase.from("recordings").select("*, teachers(name)").order("created_at", { ascending: false });
@@ -457,6 +459,9 @@ const AdminRecordings = () => {
                   <p className="text-sm text-muted-foreground mt-1">LKR {r.price}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setStudentsDialog({ open: true, id: r.id, title: r.title }); }} title="View Students">
+                    <Users className="w-3 h-3" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEnrollDialog(r.id, r.title); }} title="Enroll Student">
                     <UserPlus className="w-3 h-3" />
                   </Button>
@@ -520,6 +525,14 @@ const AdminRecordings = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="recording"
+        resourceId={studentsDialog.id}
+      />
     </div>
   );
 };

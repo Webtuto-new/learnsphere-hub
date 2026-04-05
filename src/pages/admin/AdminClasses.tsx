@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Zap, Eye, EyeOff, UserPlus, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Eye, EyeOff, UserPlus, Search, Users } from "lucide-react";
+import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -46,6 +47,7 @@ const AdminClasses = () => {
   const [bulkDuration, setBulkDuration] = useState("60");
   const [bulkCreating, setBulkCreating] = useState(false);
   const [classSearch, setClassSearch] = useState("");
+  const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
 
   // Manual enrollment state
   const [enrollOpen, setEnrollOpen] = useState(false);
@@ -645,6 +647,7 @@ const AdminClasses = () => {
                           <Button variant="ghost" size="sm" className="text-destructive" title="Reject" onClick={async () => { await supabase.from("classes").update({ approval_status: 'rejected' }).eq("id", c.id); fetchClasses(); }}><EyeOff className="w-4 h-4" /></Button>
                         </>
                       )}
+                      <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: c.id, title: c.title })} title="View Students"><Users className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => openEnrollDialog(c.id, c.title)} title="Enroll Student"><UserPlus className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}><Pencil className="w-4 h-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
@@ -657,6 +660,14 @@ const AdminClasses = () => {
           </div>
         </CardContent>
       </Card>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="class"
+        resourceId={studentsDialog.id}
+      />
     </div>
   );
 };
