@@ -525,6 +525,14 @@ const AdminRecordings = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <EnrolledStudentsDialog
+        open={studentsDialog.open}
+        onOpenChange={(v) => setStudentsDialog(s => ({ ...s, open: v }))}
+        title={studentsDialog.title}
+        resourceType="recording"
+        resourceId={studentsDialog.id}
+      />
     </div>
   );
 };
