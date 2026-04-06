@@ -264,6 +264,8 @@ const AdminClasses = () => {
       curriculum_id: cls.curriculum_id || "",
       grade_id: cls.grade_id || "",
       subject_id: cls.subject_id || "",
+      delivery_mode: cls.delivery_mode || "live",
+      access_duration_days: cls.access_duration_days ? String(cls.access_duration_days) : "365",
     });
     if (cls.curriculum_id) {
       supabase.from("grades").select("id, name").eq("curriculum_id", cls.curriculum_id).eq("is_active", true)
