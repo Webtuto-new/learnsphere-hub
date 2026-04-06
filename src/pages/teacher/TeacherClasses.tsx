@@ -126,6 +126,8 @@ const TeacherClasses = () => {
       curriculum_id: c.curriculum_id || "", grade_id: c.grade_id || "", subject_id: c.subject_id || "",
       thumbnail_url: c.thumbnail_url || "", max_students: c.max_students ? String(c.max_students) : "",
       has_free_trial: c.has_free_trial || false,
+      delivery_mode: c.delivery_mode || "live",
+      access_duration_days: c.access_duration_days ? String(c.access_duration_days) : "365",
     });
     if (c.curriculum_id) {
       const { data: g } = await supabase.from("grades").select("*").eq("curriculum_id", c.curriculum_id).eq("is_active", true).order("sort_order");
