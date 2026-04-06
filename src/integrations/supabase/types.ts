@@ -207,6 +207,82 @@ export type Database = {
           },
         ]
       }
+      class_lessons: {
+        Row: {
+          class_id: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          is_active: boolean
+          lesson_number: number | null
+          title: string
+          video_url: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          lesson_number?: number | null
+          title: string
+          video_url: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          lesson_number?: number | null
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_lessons_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_materials: {
+        Row: {
+          class_id: string
+          created_at: string
+          file_type: string | null
+          file_url: string
+          id: string
+          title: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          title: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_materials_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_sessions: {
         Row: {
           class_id: string
@@ -262,11 +338,13 @@ export type Database = {
       }
       classes: {
         Row: {
+          access_duration_days: number | null
           approval_status: string
           class_type: string
           created_at: string
           currency: string
           curriculum_id: string | null
+          delivery_mode: string
           description: string | null
           duration_minutes: number | null
           free_trial_duration_minutes: number | null
@@ -289,11 +367,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_duration_days?: number | null
           approval_status?: string
           class_type?: string
           created_at?: string
           currency?: string
           curriculum_id?: string | null
+          delivery_mode?: string
           description?: string | null
           duration_minutes?: number | null
           free_trial_duration_minutes?: number | null
@@ -316,11 +396,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_duration_days?: number | null
           approval_status?: string
           class_type?: string
           created_at?: string
           currency?: string
           curriculum_id?: string | null
+          delivery_mode?: string
           description?: string | null
           duration_minutes?: number | null
           free_trial_duration_minutes?: number | null
