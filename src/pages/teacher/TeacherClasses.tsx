@@ -87,6 +87,8 @@ const TeacherClasses = () => {
       max_students: form.max_students ? parseInt(form.max_students) : null,
       has_free_trial: form.has_free_trial,
       teacher_id: teacher.id,
+      delivery_mode: form.delivery_mode,
+      access_duration_days: form.delivery_mode !== "live" ? (parseInt(form.access_duration_days) || 365) : null,
       ...(editing ? {} : { approval_status: 'pending' }),
     };
 
