@@ -4,36 +4,323 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, UserPlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { Users, UserPlus, Plus, Pencil, ArrowLeft, Trash2, FileText, Video } from "lucide-react";
+import ThumbnailUpload from "@/components/ThumbnailUpload";
+import FileOrLinkInput from "@/components/FileOrLinkInput";
 import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import CreateStudentDialog from "@/components/CreateStudentDialog";
 
 const TeacherRecordings = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [teacher, setTeacher] = useState<any>(null);
   const [recordings, setRecordings] = useState<any[]>([]);
+  const [selectedRecording, setSelectedRecording] = useState<any>(null);
+  const [videos, setVideos] = useState<any[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
+
+  // Dialogs
+  const [recOpen, setRecOpen] = useState(false);
+  const [editingRec, setEditingRec] = useState<any>(null);
+  const [vidOpen, setVidOpen] = useState(false);
+  const [editingVid, setEditingVid] = useState<any>(null);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [studentsDialog, setStudentsDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
   const [enrollDialog, setEnrollDialog] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
 
+  // Forms
+  const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", free_preview_url: "", recording_type: "" });
+  const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+  const [noteForm, setNoteForm] = useState({ title: "", file_url: "", file_type: "pdf" });
+
   useEffect(() => {
     if (!user) return;
-    loadRecordings();
+    loadTeacher();
   }, [user]);
 
-  const loadRecordings = async () => {
-    const { data: t } = await supabase.from("teachers").select("id").eq("user_id", user!.id).single();
+  const loadTeacher = async () => {
+    const { data: t } = await supabase.from("teachers").select("*").eq("user_id", user!.id).single();
     if (!t) return;
-    const { data } = await supabase.from("recordings").select("*").eq("teacher_id", t.id).order("created_at", { ascending: false });
+    setTeacher(t);
+    fetchRecordings(t.id);
+  };
+
+  const fetchRecordings = async (teacherId: string) => {
+    const { data } = await supabase.from("recordings").select("*").eq("teacher_id", teacherId).order("created_at", { ascending: false });
     setRecordings(data || []);
   };
 
+  const fetchVideos = async (recordingId: string) => {
+    const { data } = await supabase.from("recording_videos" as any).select("*").eq("recording_id", recordingId).order("episode_number");
+    setVideos(data || []);
+  };
+
+  const fetchNotes = async (recordingId: string) => {
+    const { data } = await supabase.from("recording_notes" as any).select("*").eq("recording_id", recordingId).order("created_at");
+    setNotes(data || []);
+  };
+
+  useEffect(() => {
+    if (selectedRecording) {
+      fetchVideos(selectedRecording.id);
+      fetchNotes(selectedRecording.id);
+    } else {
+      setVideos([]);
+      setNotes([]);
+    }
+  }, [selectedRecording]);
+
+  // Recording CRUD
+  const resetRecForm = () => setRecForm({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", free_preview_url: "", recording_type: "" });
+
+  const handleSaveRecording = async () => {
+    if (!teacher) return;
+    const payload: any = {
+      title: recForm.title,
+      description: recForm.description || null,
+      video_url: "collection",
+      thumbnail_url: recForm.thumbnail_url || null,
+      price: parseFloat(recForm.price) || 0,
+      access_duration_days: parseInt(recForm.access_duration_days) || 365,
+      teacher_id: teacher.id,
+      free_preview_url: recForm.free_preview_url || null,
+      recording_type: recForm.recording_type || null,
+    };
+    let error;
+    if (editingRec) {
+      const { video_url, ...updatePayload } = payload;
+      ({ error } = await supabase.from("recordings").update(updatePayload).eq("id", editingRec.id));
+    } else {
+      ({ error } = await supabase.from("recordings").insert(payload));
+    }
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: editingRec ? "Updated!" : "Created!" });
+      setRecOpen(false);
+      setEditingRec(null);
+      resetRecForm();
+      fetchRecordings(teacher.id);
+    }
+  };
+
+  const openEditRecording = (r: any) => {
+    setEditingRec(r);
+    setRecForm({
+      title: r.title, description: r.description || "", thumbnail_url: r.thumbnail_url || "",
+      price: r.price?.toString() || "", access_duration_days: r.access_duration_days?.toString() || "365",
+      free_preview_url: r.free_preview_url || "", recording_type: r.recording_type || "",
+    });
+    setRecOpen(true);
+  };
+
+  // Video CRUD
+  const handleSaveVideo = async () => {
+    if (!selectedRecording) return;
+    const payload: any = {
+      title: vidForm.title, video_url: vidForm.video_url,
+      episode_number: parseInt(vidForm.episode_number) || null,
+      duration_minutes: parseInt(vidForm.duration_minutes) || null,
+      recording_id: selectedRecording.id,
+    };
+    let error;
+    if (editingVid) {
+      const { recording_id, ...upd } = payload;
+      ({ error } = await supabase.from("recording_videos" as any).update(upd).eq("id", editingVid.id));
+    } else {
+      ({ error } = await supabase.from("recording_videos" as any).insert(payload));
+    }
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: editingVid ? "Updated!" : "Added!" });
+      setVidOpen(false); setEditingVid(null);
+      setVidForm({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+      fetchVideos(selectedRecording.id);
+    }
+  };
+
+  const deleteVideo = async (id: string) => {
+    await supabase.from("recording_videos" as any).delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetchVideos(selectedRecording.id);
+  };
+
+  const toggleVideoActive = async (v: any) => {
+    await supabase.from("recording_videos" as any).update({ is_active: !v.is_active }).eq("id", v.id);
+    fetchVideos(selectedRecording.id);
+  };
+
+  // Notes CRUD
+  const handleAddNote = async () => {
+    if (!selectedRecording || !noteForm.title || !noteForm.file_url) {
+      toast({ title: "Title and file are required", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("recording_notes" as any).insert({
+      recording_id: selectedRecording.id, title: noteForm.title, file_url: noteForm.file_url, file_type: noteForm.file_type,
+    } as any);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Note added!" });
+      setNoteOpen(false);
+      setNoteForm({ title: "", file_url: "", file_type: "pdf" });
+      fetchNotes(selectedRecording.id);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    await supabase.from("recording_notes" as any).delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetchNotes(selectedRecording.id);
+  };
+
+  if (!teacher) return <div className="py-20 text-center text-muted-foreground">Loading...</div>;
+
+  // Detail view
+  if (selectedRecording) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setSelectedRecording(null)}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">{selectedRecording.title}</h1>
+            <p className="text-sm text-muted-foreground">LKR {selectedRecording.price} · {videos.length} lessons · {notes.length} notes</p>
+          </div>
+        </div>
+
+        {/* Lessons */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground">Lessons</h2>
+          <Dialog open={vidOpen} onOpenChange={(v) => { setVidOpen(v); if (!v) setEditingVid(null); }}>
+            <DialogTrigger asChild><Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Lesson</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{editingVid ? "Edit" : "Add"} Lesson</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2"><Label>Title</Label><Input value={vidForm.title} onChange={(e) => setVidForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Lesson 1 - Introduction" /></div>
+                <FileOrLinkInput value={vidForm.video_url || null} onChange={(url) => setVidForm(f => ({ ...f, video_url: url || "" }))} bucket="videos" folder="recordings" accept="video/*" label="Video" linkPlaceholder="https://youtube.com/watch?v=..." previewType="video" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Lesson #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
+                  <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
+                </div>
+                <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Lesson</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left p-3 font-medium text-muted-foreground w-12">#</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Title</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground hidden sm:table-cell">Duration</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Active</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {videos.map((v: any) => (
+                    <tr key={v.id} className="border-b border-border last:border-0">
+                      <td className="p-3 text-muted-foreground">{v.episode_number || "—"}</td>
+                      <td className="p-3 font-medium text-foreground">{v.title}</td>
+                      <td className="p-3 text-muted-foreground hidden sm:table-cell">{v.duration_minutes ? `${v.duration_minutes} min` : "—"}</td>
+                      <td className="p-3"><Switch checked={v.is_active} onCheckedChange={() => toggleVideoActive(v)} /></td>
+                      <td className="p-3 flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingVid(v); setVidForm({ title: v.title, video_url: v.video_url, episode_number: v.episode_number?.toString() || "", duration_minutes: v.duration_minutes?.toString() || "" }); setVidOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => deleteVideo(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {videos.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No lessons yet.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notes */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2"><FileText className="w-4 h-4" /> Notes & Materials</h2>
+          <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
+            <DialogTrigger asChild><Button size="sm" className="gap-1"><Plus className="w-3 h-3" /> Add Note</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add Note / Material</DialogTitle></DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2"><Label>Title</Label><Input value={noteForm.title} onChange={(e) => setNoteForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Lecture Notes Week 1" /></div>
+                <FileOrLinkInput value={noteForm.file_url || null} onChange={(url) => setNoteForm(f => ({ ...f, file_url: url || "" }))} bucket="videos" folder="notes" accept=".pdf,.doc,.docx,.ppt,.pptx" label="File" linkPlaceholder="https://drive.google.com/..." />
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Input value={noteForm.file_type} onChange={(e) => setNoteForm(f => ({ ...f, file_type: e.target.value }))} placeholder="pdf, doc, link" />
+                </div>
+                <Button onClick={handleAddNote} className="w-full">Add Note</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {notes.map((n: any) => (
+                <div key={n.id} className="flex items-center justify-between p-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{n.title}</p>
+                    <p className="text-xs text-muted-foreground">{n.file_type}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" asChild><a href={n.file_url} target="_blank" rel="noreferrer">View</a></Button>
+                    <Button variant="ghost" size="sm" onClick={() => deleteNote(n.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                  </div>
+                </div>
+              ))}
+              {notes.length === 0 && <p className="p-6 text-center text-sm text-muted-foreground">No notes yet.</p>}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // List view
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-2xl font-bold text-foreground">My Recordings</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold text-foreground">My Recordings</h1>
+        <Dialog open={recOpen} onOpenChange={(v) => { setRecOpen(v); if (!v) { setEditingRec(null); resetRecForm(); } }}>
+          <DialogTrigger asChild><Button className="gap-1"><Plus className="w-4 h-4" /> Create Recording</Button></DialogTrigger>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>{editingRec ? "Edit" : "Create"} Recording</DialogTitle></DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2"><Label>Title</Label><Input value={recForm.title} onChange={(e) => setRecForm(f => ({ ...f, title: e.target.value }))} /></div>
+              <div className="space-y-2"><Label>Description</Label><Input value={recForm.description} onChange={(e) => setRecForm(f => ({ ...f, description: e.target.value }))} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={recForm.price} onChange={(e) => setRecForm(f => ({ ...f, price: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>Access Days</Label><Input type="number" value={recForm.access_duration_days} onChange={(e) => setRecForm(f => ({ ...f, access_duration_days: e.target.value }))} /></div>
+              </div>
+              <div className="space-y-2">
+                <Label>Type Label (optional)</Label>
+                <Input value={recForm.recording_type} onChange={(e) => setRecForm(f => ({ ...f, recording_type: e.target.value }))} placeholder="e.g. Workshop, Course, Masterclass" />
+                <p className="text-xs text-muted-foreground">Leave blank for default "Recording"</p>
+              </div>
+              <FileOrLinkInput value={recForm.free_preview_url || null} onChange={(url) => setRecForm(f => ({ ...f, free_preview_url: url || "" }))} bucket="videos" folder="previews" accept="video/*" label="Free Preview Video" linkPlaceholder="https://youtube.com/watch?v=..." previewType="video" />
+              <ThumbnailUpload value={recForm.thumbnail_url || null} onChange={(url) => setRecForm(f => ({ ...f, thumbnail_url: url || "" }))} title={recForm.title} />
+              <Button onClick={handleSaveRecording} className="w-full">{editingRec ? "Update" : "Create"} Recording</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       {recordings.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">
-            No recordings assigned to you yet.
+            No recordings yet. Create your first recording!
           </CardContent>
         </Card>
       ) : (
@@ -44,23 +331,22 @@ const TeacherRecordings = () => {
                 <thead><tr className="border-b border-border">
                   <th className="text-left p-4 font-medium text-muted-foreground">Title</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                   <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
                 </tr></thead>
                 <tbody>
                   {recordings.map(r => (
-                    <tr key={r.id} className="border-b border-border last:border-0">
+                    <tr key={r.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-muted/50" onClick={() => setSelectedRecording(r)}>
                       <td className="p-4 font-medium text-foreground">{r.title}</td>
                       <td className="p-4 text-muted-foreground">LKR {r.price}</td>
+                      <td className="p-4">{r.recording_type ? <Badge variant="outline">{r.recording_type}</Badge> : <span className="text-muted-foreground">Recording</span>}</td>
                       <td className="p-4"><Badge variant={r.is_active ? "default" : "secondary"}>{r.is_active ? "Active" : "Inactive"}</Badge></td>
-                      <td className="p-4">
+                      <td className="p-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: r.id, title: r.title })} title="View Students">
-                            <Users className="w-4 h-4 mr-1" /> Students
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setEnrollDialog({ open: true, id: r.id, title: r.title })} title="Add Student">
-                            <UserPlus className="w-4 h-4 mr-1" /> Add
-                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => setStudentsDialog({ open: true, id: r.id, title: r.title })} title="View Students"><Users className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={() => setEnrollDialog({ open: true, id: r.id, title: r.title })} title="Add Student"><UserPlus className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={() => openEditRecording(r)}><Pencil className="w-4 h-4" /></Button>
                         </div>
                       </td>
                     </tr>
