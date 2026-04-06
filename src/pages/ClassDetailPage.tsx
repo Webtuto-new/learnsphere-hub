@@ -40,7 +40,12 @@ const ClassDetailPage = () => {
           setTeacher(data.teachers);
           supabase.from("class_sessions").select("*").eq("class_id", id).order("session_date")
             .then(({ data: s }) => setSessions(s || []));
-        }
+          if (data.delivery_mode === "recorded" || data.delivery_mode === "hybrid") {
+            supabase.from("class_lessons").select("*").eq("class_id", id).eq("is_active", true).order("lesson_number")
+              .then(({ data: l }) => setLessons(l || []));
+            supabase.from("class_materials").select("*").eq("class_id", id).order("created_at")
+              .then(({ data: m }) => setMaterials(m || []));
+          }
         setLoading(false);
       });
     if (user) {
