@@ -74,6 +74,9 @@ const ClassDetailPage = () => {
     );
   }
 
+  const hasRecordedContent = dbClass.delivery_mode === "recorded" || dbClass.delivery_mode === "hybrid";
+  const tabs = hasRecordedContent ? ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"] : baseTabs;
+
   const isHourly = dbClass.class_type === "hourly";
   const basePrice = Number(dbClass.price);
   const totalHours = hoursPerWeek * classesPerWeek;
