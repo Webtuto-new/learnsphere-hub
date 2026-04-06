@@ -19,6 +19,7 @@ const emptyForm = {
   price: "", schedule_day: "", schedule_time: "", duration_minutes: "60",
   is_live: true, thumbnail_url: null as string | null,
   teacher_id: "", curriculum_id: "", grade_id: "", subject_id: "",
+  delivery_mode: "live", access_duration_days: "365",
 };
 
 const AdminClasses = () => {
