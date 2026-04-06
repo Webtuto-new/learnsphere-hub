@@ -46,6 +46,7 @@ const ClassDetailPage = () => {
             supabase.from("class_materials").select("*").eq("class_id", id).order("created_at")
               .then(({ data: m }) => setMaterials(m || []));
           }
+        }
         setLoading(false);
       });
     if (user) {
