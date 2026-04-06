@@ -224,6 +224,8 @@ const AdminClasses = () => {
       curriculum_id: form.curriculum_id || null,
       grade_id: form.grade_id || null,
       subject_id: form.subject_id || null,
+      delivery_mode: form.delivery_mode,
+      access_duration_days: form.delivery_mode !== "live" ? (parseInt(form.access_duration_days) || 365) : null,
     };
 
     let error;
