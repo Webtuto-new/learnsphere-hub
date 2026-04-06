@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,17 @@ interface Props {
 const EnrolledStudentsDialog = ({ open, onOpenChange, title, resourceType, resourceId }: Props) => {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (open && resourceId) {
+      loadStudents();
+    }
+    if (!open) {
+      setStudents([]);
+    }
+  }, [open, resourceId]);
 
   const loadStudents = async () => {
-    if (loaded) return;
     setLoading(true);
     const filter = resourceType === "class" ? { class_id: resourceId } : { recording_id: resourceId };
     const { data: enrollments } = await supabase
@@ -28,7 +35,7 @@ const EnrolledStudentsDialog = ({ open, onOpenChange, title, resourceType, resou
       .match(filter)
       .eq("status", "active");
 
-    if (!enrollments?.length) { setStudents([]); setLoading(false); setLoaded(true); return; }
+    if (!enrollments?.length) { setStudents([]); setLoading(false); return; }
     const userIds = enrollments.map(e => e.user_id);
     const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, admission_number").in("id", userIds);
     const merged = (profiles || []).map(p => {
@@ -37,17 +44,10 @@ const EnrolledStudentsDialog = ({ open, onOpenChange, title, resourceType, resou
     });
     setStudents(merged);
     setLoading(false);
-    setLoaded(true);
-  };
-
-  const handleOpenChange = (v: boolean) => {
-    if (v) loadStudents();
-    else setLoaded(false);
-    onOpenChange(v);
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
