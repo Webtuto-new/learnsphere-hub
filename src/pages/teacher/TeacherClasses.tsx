@@ -189,6 +189,23 @@ const TeacherClasses = () => {
                 <div className="space-y-2"><Label>Schedule Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="e.g. Monday" /></div>
                 <div className="space-y-2"><Label>Schedule Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
               </div>
+              <div className="space-y-2">
+                <Label>Delivery Mode</Label>
+                <Select value={form.delivery_mode} onValueChange={(v) => setForm(f => ({ ...f, delivery_mode: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="live">Live Online (Zoom)</SelectItem>
+                    <SelectItem value="recorded">Pre-recorded (Lessons)</SelectItem>
+                    <SelectItem value="hybrid">Hybrid (Live + Recorded)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {form.delivery_mode !== "live" && (
+                <div className="space-y-2">
+                  <Label>Access Duration (days)</Label>
+                  <Input type="number" value={form.access_duration_days} onChange={(e) => setForm(f => ({ ...f, access_duration_days: e.target.value }))} placeholder="365" />
+                </div>
+              )}
               <ThumbnailUpload value={form.thumbnail_url || null} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url || "" }))} title={form.title} />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
             </div>
