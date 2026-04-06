@@ -14,7 +14,7 @@ import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
 
-const tabs = ["Overview", "Schedule", "Teacher", "Reviews"];
+const baseTabs = ["Overview", "Schedule", "Teacher", "Reviews"];
 
 const ClassDetailPage = () => {
   const { id } = useParams();
