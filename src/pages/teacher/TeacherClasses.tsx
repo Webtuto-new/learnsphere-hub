@@ -31,7 +31,7 @@ const TeacherClasses = () => {
     title: "", description: "", short_description: "", price: "0", original_price: "",
     class_type: "monthly", schedule_day: "", schedule_time: "", duration_minutes: "60",
     curriculum_id: "", grade_id: "", subject_id: "", thumbnail_url: "",
-    max_students: "", has_free_trial: false,
+    max_students: "", has_free_trial: false, delivery_mode: "live", access_duration_days: "365",
   });
 
   useEffect(() => {
@@ -87,6 +87,8 @@ const TeacherClasses = () => {
       max_students: form.max_students ? parseInt(form.max_students) : null,
       has_free_trial: form.has_free_trial,
       teacher_id: teacher.id,
+      delivery_mode: form.delivery_mode,
+      access_duration_days: form.delivery_mode !== "live" ? (parseInt(form.access_duration_days) || 365) : null,
       ...(editing ? {} : { approval_status: 'pending' }),
     };
 
@@ -111,7 +113,7 @@ const TeacherClasses = () => {
     title: "", description: "", short_description: "", price: "0", original_price: "",
     class_type: "monthly", schedule_day: "", schedule_time: "", duration_minutes: "60",
     curriculum_id: "", grade_id: "", subject_id: "", thumbnail_url: "",
-    max_students: "", has_free_trial: false,
+    max_students: "", has_free_trial: false, delivery_mode: "live", access_duration_days: "365",
   });
 
   const handleEdit = async (c: any) => {
@@ -124,6 +126,8 @@ const TeacherClasses = () => {
       curriculum_id: c.curriculum_id || "", grade_id: c.grade_id || "", subject_id: c.subject_id || "",
       thumbnail_url: c.thumbnail_url || "", max_students: c.max_students ? String(c.max_students) : "",
       has_free_trial: c.has_free_trial || false,
+      delivery_mode: c.delivery_mode || "live",
+      access_duration_days: c.access_duration_days ? String(c.access_duration_days) : "365",
     });
     if (c.curriculum_id) {
       const { data: g } = await supabase.from("grades").select("*").eq("curriculum_id", c.curriculum_id).eq("is_active", true).order("sort_order");
@@ -185,6 +189,23 @@ const TeacherClasses = () => {
                 <div className="space-y-2"><Label>Schedule Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="e.g. Monday" /></div>
                 <div className="space-y-2"><Label>Schedule Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
               </div>
+              <div className="space-y-2">
+                <Label>Delivery Mode</Label>
+                <Select value={form.delivery_mode} onValueChange={(v) => setForm(f => ({ ...f, delivery_mode: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="live">Live Online (Zoom)</SelectItem>
+                    <SelectItem value="recorded">Pre-recorded (Lessons)</SelectItem>
+                    <SelectItem value="hybrid">Hybrid (Live + Recorded)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {form.delivery_mode !== "live" && (
+                <div className="space-y-2">
+                  <Label>Access Duration (days)</Label>
+                  <Input type="number" value={form.access_duration_days} onChange={(e) => setForm(f => ({ ...f, access_duration_days: e.target.value }))} placeholder="365" />
+                </div>
+              )}
               <ThumbnailUpload value={form.thumbnail_url || null} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url || "" }))} title={form.title} />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
             </div>

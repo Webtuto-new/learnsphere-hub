@@ -7,14 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, Users, ExternalLink, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, Video, Users, ExternalLink, ArrowLeft, Play, FileText, Download } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 import WishlistButton from "@/components/WishlistButton";
 import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
 
-const tabs = ["Overview", "Schedule", "Teacher", "Reviews"];
+const baseTabs = ["Overview", "Schedule", "Teacher", "Reviews"];
 
 const ClassDetailPage = () => {
   const { id } = useParams();
@@ -22,6 +22,8 @@ const ClassDetailPage = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
   const [enrollment, setEnrollment] = useState<any>(null);
   const [reviewKey, setReviewKey] = useState(0);
@@ -38,6 +40,12 @@ const ClassDetailPage = () => {
           setTeacher(data.teachers);
           supabase.from("class_sessions").select("*").eq("class_id", id).order("session_date")
             .then(({ data: s }) => setSessions(s || []));
+          if (data.delivery_mode === "recorded" || data.delivery_mode === "hybrid") {
+            supabase.from("class_lessons").select("*").eq("class_id", id).eq("is_active", true).order("lesson_number")
+              .then(({ data: l }) => setLessons(l || []));
+            supabase.from("class_materials").select("*").eq("class_id", id).order("created_at")
+              .then(({ data: m }) => setMaterials(m || []));
+          }
         }
         setLoading(false);
       });
@@ -65,6 +73,9 @@ const ClassDetailPage = () => {
       </Layout>
     );
   }
+
+  const hasRecordedContent = dbClass.delivery_mode === "recorded" || dbClass.delivery_mode === "hybrid";
+  const tabs = hasRecordedContent ? ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"] : baseTabs;
 
   const isHourly = dbClass.class_type === "hourly";
   const basePrice = Number(dbClass.price);
@@ -192,6 +203,56 @@ const ClassDetailPage = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {activeTab === "Lessons" && hasRecordedContent && (
+              <div className="space-y-6">
+                <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
+                {lessons.length > 0 ? (
+                  <div className="space-y-3">
+                    {lessons.map((lesson, idx) => (
+                      <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <Play className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
+                          {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
+                        </div>
+                        {enrollment && lesson.video_url && (
+                          <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
+                          </a>
+                        )}
+                        {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No lessons added yet.</p>
+                )}
+
+                {materials.length > 0 && (
+                  <div>
+                    <h3 className="font-display text-lg font-semibold text-foreground mb-3">Materials & Notes</h3>
+                    <div className="space-y-2">
+                      {materials.map(m => (
+                        <div key={m.id} className="flex items-center gap-3 bg-muted/40 rounded-lg p-3">
+                          <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span className="flex-1 text-sm font-medium text-foreground">{m.title}</span>
+                          {enrollment ? (
+                            <a href={m.file_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="ghost" className="gap-1"><Download className="w-3.5 h-3.5" /> Download</Button>
+                            </a>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">Enroll to access</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -19,6 +19,7 @@ const emptyForm = {
   price: "", schedule_day: "", schedule_time: "", duration_minutes: "60",
   is_live: true, thumbnail_url: null as string | null,
   teacher_id: "", curriculum_id: "", grade_id: "", subject_id: "",
+  delivery_mode: "live", access_duration_days: "365",
 };
 
 const AdminClasses = () => {
@@ -223,6 +224,8 @@ const AdminClasses = () => {
       curriculum_id: form.curriculum_id || null,
       grade_id: form.grade_id || null,
       subject_id: form.subject_id || null,
+      delivery_mode: form.delivery_mode,
+      access_duration_days: form.delivery_mode !== "live" ? (parseInt(form.access_duration_days) || 365) : null,
     };
 
     let error;
@@ -261,6 +264,8 @@ const AdminClasses = () => {
       curriculum_id: cls.curriculum_id || "",
       grade_id: cls.grade_id || "",
       subject_id: cls.subject_id || "",
+      delivery_mode: cls.delivery_mode || "live",
+      access_duration_days: cls.access_duration_days ? String(cls.access_duration_days) : "365",
     });
     if (cls.curriculum_id) {
       supabase.from("grades").select("id, name").eq("curriculum_id", cls.curriculum_id).eq("is_active", true)
@@ -547,11 +552,27 @@ const AdminClasses = () => {
                   </div>
                   <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} /></div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2"><Label>Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="Thursday" /></div>
-                  <div className="space-y-2"><Label>Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
-                  <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
+                <div className="space-y-2">
+                  <Label>Delivery Mode</Label>
+                  <select className={sel} value={form.delivery_mode} onChange={(e) => setForm(f => ({ ...f, delivery_mode: e.target.value }))}>
+                    <option value="live">Live Online (Zoom)</option>
+                    <option value="recorded">Pre-recorded (Lessons)</option>
+                    <option value="hybrid">Hybrid (Live + Recorded)</option>
+                  </select>
                 </div>
+                {form.delivery_mode !== "live" && (
+                  <div className="space-y-2">
+                    <Label>Access Duration (days)</Label>
+                    <Input type="number" value={form.access_duration_days} onChange={(e) => setForm(f => ({ ...f, access_duration_days: e.target.value }))} placeholder="365" />
+                  </div>
+                )}
+                {form.delivery_mode !== "recorded" && (
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2"><Label>Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="Thursday" /></div>
+                    <div className="space-y-2"><Label>Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
+                    <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
+                  </div>
+                )}
                 <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
               </div>
             </DialogContent>
