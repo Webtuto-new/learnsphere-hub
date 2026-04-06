@@ -206,7 +206,56 @@ const ClassDetailPage = () => {
               </div>
             )}
 
-            {activeTab === "Schedule" && (
+            {activeTab === "Lessons" && hasRecordedContent && (
+              <div className="space-y-6">
+                <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
+                {lessons.length > 0 ? (
+                  <div className="space-y-3">
+                    {lessons.map((lesson, idx) => (
+                      <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <Play className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
+                          {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
+                        </div>
+                        {enrollment && lesson.video_url && (
+                          <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
+                          </a>
+                        )}
+                        {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No lessons added yet.</p>
+                )}
+
+                {materials.length > 0 && (
+                  <div>
+                    <h3 className="font-display text-lg font-semibold text-foreground mb-3">Materials & Notes</h3>
+                    <div className="space-y-2">
+                      {materials.map(m => (
+                        <div key={m.id} className="flex items-center gap-3 bg-muted/40 rounded-lg p-3">
+                          <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span className="flex-1 text-sm font-medium text-foreground">{m.title}</span>
+                          {enrollment ? (
+                            <a href={m.file_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="ghost" className="gap-1"><Download className="w-3.5 h-3.5" /> Download</Button>
+                            </a>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">Enroll to access</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
               <div className="space-y-4">
                 <h2 className="font-display text-xl font-semibold text-foreground">Session Schedule</h2>
                 {sessions.length > 0 ? sessions.map((session) => {
