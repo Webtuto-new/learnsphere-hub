@@ -22,6 +22,8 @@ const ClassDetailPage = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [dbClass, setDbClass] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any>(null);
   const [enrollment, setEnrollment] = useState<any>(null);
   const [reviewKey, setReviewKey] = useState(0);
