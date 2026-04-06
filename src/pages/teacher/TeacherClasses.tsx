@@ -113,7 +113,7 @@ const TeacherClasses = () => {
     title: "", description: "", short_description: "", price: "0", original_price: "",
     class_type: "monthly", schedule_day: "", schedule_time: "", duration_minutes: "60",
     curriculum_id: "", grade_id: "", subject_id: "", thumbnail_url: "",
-    max_students: "", has_free_trial: false,
+    max_students: "", has_free_trial: false, delivery_mode: "live", access_duration_days: "365",
   });
 
   const handleEdit = async (c: any) => {
