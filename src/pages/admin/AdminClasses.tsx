@@ -552,11 +552,27 @@ const AdminClasses = () => {
                   </div>
                   <div className="space-y-2"><Label>Price (LKR)</Label><Input type="number" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} /></div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2"><Label>Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="Thursday" /></div>
-                  <div className="space-y-2"><Label>Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
-                  <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
+                <div className="space-y-2">
+                  <Label>Delivery Mode</Label>
+                  <select className={sel} value={form.delivery_mode} onChange={(e) => setForm(f => ({ ...f, delivery_mode: e.target.value }))}>
+                    <option value="live">Live Online (Zoom)</option>
+                    <option value="recorded">Pre-recorded (Lessons)</option>
+                    <option value="hybrid">Hybrid (Live + Recorded)</option>
+                  </select>
                 </div>
+                {form.delivery_mode !== "live" && (
+                  <div className="space-y-2">
+                    <Label>Access Duration (days)</Label>
+                    <Input type="number" value={form.access_duration_days} onChange={(e) => setForm(f => ({ ...f, access_duration_days: e.target.value }))} placeholder="365" />
+                  </div>
+                )}
+                {form.delivery_mode !== "recorded" && (
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2"><Label>Day</Label><Input value={form.schedule_day} onChange={(e) => setForm(f => ({ ...f, schedule_day: e.target.value }))} placeholder="Thursday" /></div>
+                    <div className="space-y-2"><Label>Time</Label><Input type="time" value={form.schedule_time} onChange={(e) => setForm(f => ({ ...f, schedule_time: e.target.value }))} /></div>
+                    <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
+                  </div>
+                )}
                 <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
               </div>
             </DialogContent>
