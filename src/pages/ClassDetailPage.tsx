@@ -256,6 +256,7 @@ const ClassDetailPage = () => {
               </div>
             )}
 
+            {activeTab === "Schedule" && (
               <div className="space-y-4">
                 <h2 className="font-display text-xl font-semibold text-foreground">Session Schedule</h2>
                 {sessions.length > 0 ? sessions.map((session) => {
