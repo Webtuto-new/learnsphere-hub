@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Video, Users, ExternalLink, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, Video, Users, ExternalLink, ArrowLeft, Play, FileText, Download } from "lucide-react";
 import PurchaseButton from "@/components/PurchaseButton";
 import WishlistButton from "@/components/WishlistButton";
 import ReviewForm from "@/components/ReviewForm";
