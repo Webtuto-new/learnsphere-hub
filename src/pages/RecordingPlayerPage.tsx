@@ -17,6 +17,8 @@ interface Lesson {
   duration_minutes: number | null;
   episode_number: number | null;
   is_active: boolean;
+  chapter_name: string | null;
+  session_date: string | null;
 }
 
 const normalizeVideoUrl = (url?: string | null) => {
