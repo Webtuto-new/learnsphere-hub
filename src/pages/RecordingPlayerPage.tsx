@@ -88,7 +88,11 @@ const RecordingPlayerPage = () => {
 
   useEffect(() => {
     setPlayerError(null);
-  }, [activeLesson?.id]);
+    // Save last watched lesson for resume
+    if (activeLesson?.id && id) {
+      localStorage.setItem(`webtuto_last_lesson_${id}`, activeLesson.id);
+    }
+  }, [activeLesson?.id, id]);
 
   useEffect(() => {
     if (!id) return;
