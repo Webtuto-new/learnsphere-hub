@@ -777,32 +777,38 @@ export type Database = {
       }
       recording_videos: {
         Row: {
+          chapter_name: string | null
           created_at: string
           duration_minutes: number | null
           episode_number: number | null
           id: string
           is_active: boolean
           recording_id: string
+          session_date: string | null
           title: string
           video_url: string
         }
         Insert: {
+          chapter_name?: string | null
           created_at?: string
           duration_minutes?: number | null
           episode_number?: number | null
           id?: string
           is_active?: boolean
           recording_id: string
+          session_date?: string | null
           title: string
           video_url: string
         }
         Update: {
+          chapter_name?: string | null
           created_at?: string
           duration_minutes?: number | null
           episode_number?: number | null
           id?: string
           is_active?: boolean
           recording_id?: string
+          session_date?: string | null
           title?: string
           video_url?: string
         }
