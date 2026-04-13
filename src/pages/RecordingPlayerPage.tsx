@@ -127,7 +127,10 @@ const RecordingPlayerPage = () => {
       .then(({ data }) => {
         const lessonsData = (data || []) as Lesson[];
         setLessons(lessonsData);
-        setActiveLesson(lessonsData.find(isPlayableLesson) ?? lessonsData[0] ?? null);
+        // Resume from last watched lesson
+        const lastLessonId = localStorage.getItem(`webtuto_last_lesson_${id}`);
+        const resumeLesson = lastLessonId ? lessonsData.find(l => l.id === lastLessonId) : null;
+        setActiveLesson(resumeLesson ?? lessonsData.find(isPlayableLesson) ?? lessonsData[0] ?? null);
       });
 
     if (user) {
