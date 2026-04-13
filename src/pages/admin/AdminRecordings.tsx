@@ -29,7 +29,7 @@ const AdminRecordings = () => {
   const [notes, setNotes] = useState<any[]>([]);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteForm, setNoteForm] = useState({ title: "", file_url: "", file_type: "pdf" });
-  const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+  const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "", chapter_name: "", session_date: "" });
   const { toast } = useToast();
 
   // Manual enrollment state
