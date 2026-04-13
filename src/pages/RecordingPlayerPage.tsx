@@ -368,13 +368,9 @@ const RecordingPlayerPage = () => {
                       <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform sm:hidden ${showLessons ? "rotate-90" : ""}`} />
                     </button>
                     <div className={`${showLessons ? "block" : "hidden"} sm:block max-h-[50vh] overflow-y-auto border-t border-border/60`}>
-                      {chapters.map((chapter, ci) => (
-                        <div key={ci}>
-                          {hasChapters && chapter.name && (
-                            <div className="px-3 py-2 bg-muted/40 border-b border-border/40">
-                              <p className="text-xs font-semibold text-primary uppercase tracking-wide">{chapter.name}</p>
-                            </div>
-                          )}
+                      {chapters.map((chapter, ci) => {
+                        const chapterHasActive = chapter.lessons.some(l => l.id === activeLesson?.id);
+                        const lessonItems = (
                           <div className="divide-y divide-border/40">
                             {chapter.lessons.map((lesson, i) => {
                               const isActive = activeLesson?.id === lesson.id;
@@ -411,8 +407,25 @@ const RecordingPlayerPage = () => {
                               );
                             })}
                           </div>
-                        </div>
-                      ))}
+                        );
+
+                        if (hasChapters && chapter.name) {
+                          return (
+                            <Collapsible key={ci} defaultOpen={chapterHasActive || ci === 0}>
+                              <CollapsibleTrigger className="w-full px-3 py-2.5 bg-muted/40 border-b border-border/40 flex items-center justify-between hover:bg-muted/60 transition-colors">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs font-semibold text-primary uppercase tracking-wide">{chapter.name}</p>
+                                  <span className="text-[10px] text-muted-foreground">({chapter.lessons.length})</span>
+                                </div>
+                                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 [&[data-state=open]]:rotate-0 [[data-state=closed]_&]:rotate-0" />
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>{lessonItems}</CollapsibleContent>
+                            </Collapsible>
+                          );
+                        }
+
+                        return <div key={ci}>{lessonItems}</div>;
+                      })}
                     </div>
                   </div>
                   );
