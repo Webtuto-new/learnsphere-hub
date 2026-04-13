@@ -35,7 +35,7 @@ const TeacherRecordings = () => {
 
   // Forms
   const [recForm, setRecForm] = useState({ title: "", description: "", thumbnail_url: "", price: "", access_duration_days: "365", free_preview_url: "", recording_type: "" });
-  const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+  const [vidForm, setVidForm] = useState({ title: "", video_url: "", episode_number: "", duration_minutes: "", chapter_name: "", session_date: "" });
   const [noteForm, setNoteForm] = useState({ title: "", file_url: "", file_type: "pdf" });
 
   useEffect(() => {
@@ -126,6 +126,8 @@ const TeacherRecordings = () => {
       episode_number: parseInt(vidForm.episode_number) || null,
       duration_minutes: parseInt(vidForm.duration_minutes) || null,
       recording_id: selectedRecording.id,
+      chapter_name: vidForm.chapter_name || null,
+      session_date: vidForm.session_date || null,
     };
     let error;
     if (editingVid) {
@@ -138,7 +140,7 @@ const TeacherRecordings = () => {
     else {
       toast({ title: editingVid ? "Updated!" : "Added!" });
       setVidOpen(false); setEditingVid(null);
-      setVidForm({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+      setVidForm({ title: "", video_url: "", episode_number: "", duration_minutes: "", chapter_name: "", session_date: "" });
       fetchVideos(selectedRecording.id);
     }
   };
@@ -208,6 +210,10 @@ const TeacherRecordings = () => {
                   <div className="space-y-2"><Label>Lesson #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
                   <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Chapter (optional)</Label><Input value={vidForm.chapter_name} onChange={(e) => setVidForm(f => ({ ...f, chapter_name: e.target.value }))} placeholder="e.g. Algebra Basics" /></div>
+                  <div className="space-y-2"><Label>Session Date (optional)</Label><Input type="date" value={vidForm.session_date} onChange={(e) => setVidForm(f => ({ ...f, session_date: e.target.value }))} /></div>
+                </div>
                 <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Lesson</Button>
               </div>
             </DialogContent>
@@ -233,7 +239,7 @@ const TeacherRecordings = () => {
                       <td className="p-3 text-muted-foreground hidden sm:table-cell">{v.duration_minutes ? `${v.duration_minutes} min` : "—"}</td>
                       <td className="p-3"><Switch checked={v.is_active} onCheckedChange={() => toggleVideoActive(v)} /></td>
                       <td className="p-3 flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => { setEditingVid(v); setVidForm({ title: v.title, video_url: v.video_url, episode_number: v.episode_number?.toString() || "", duration_minutes: v.duration_minutes?.toString() || "" }); setVidOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingVid(v); setVidForm({ title: v.title, video_url: v.video_url, episode_number: v.episode_number?.toString() || "", duration_minutes: v.duration_minutes?.toString() || "", chapter_name: v.chapter_name || "", session_date: v.session_date || "" }); setVidOpen(true); }}><Pencil className="w-3 h-3" /></Button>
                         <Button variant="ghost" size="sm" onClick={() => deleteVideo(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                       </td>
                     </tr>

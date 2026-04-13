@@ -17,6 +17,8 @@ interface Lesson {
   duration_minutes: number | null;
   episode_number: number | null;
   is_active: boolean;
+  chapter_name: string | null;
+  session_date: string | null;
 }
 
 const normalizeVideoUrl = (url?: string | null) => {
@@ -86,7 +88,11 @@ const RecordingPlayerPage = () => {
 
   useEffect(() => {
     setPlayerError(null);
-  }, [activeLesson?.id]);
+    // Save last watched lesson for resume
+    if (activeLesson?.id && id) {
+      localStorage.setItem(`webtuto_last_lesson_${id}`, activeLesson.id);
+    }
+  }, [activeLesson?.id, id]);
 
   useEffect(() => {
     if (!id) return;
@@ -125,7 +131,10 @@ const RecordingPlayerPage = () => {
       .then(({ data }) => {
         const lessonsData = (data || []) as Lesson[];
         setLessons(lessonsData);
-        setActiveLesson(lessonsData.find(isPlayableLesson) ?? lessonsData[0] ?? null);
+        // Resume from last watched lesson
+        const lastLessonId = localStorage.getItem(`webtuto_last_lesson_${id}`);
+        const resumeLesson = lastLessonId ? lessonsData.find(l => l.id === lastLessonId) : null;
+        setActiveLesson(resumeLesson ?? lessonsData.find(isPlayableLesson) ?? lessonsData[0] ?? null);
       });
 
     if (user) {
@@ -333,7 +342,18 @@ const RecordingPlayerPage = () => {
                 <ShareButtons url={shareLink} title={recording.title} />
 
                 {/* Lessons list - collapsible on mobile */}
-                {lessons.length > 0 && (
+                {lessons.length > 0 && (() => {
+                  // Group lessons by chapter
+                  const chapters: { name: string | null; lessons: Lesson[] }[] = [];
+                  lessons.forEach(lesson => {
+                    const chName = lesson.chapter_name || null;
+                    const existing = chapters.find(c => c.name === chName);
+                    if (existing) existing.lessons.push(lesson);
+                    else chapters.push({ name: chName, lessons: [lesson] });
+                  });
+                  const hasChapters = chapters.some(c => c.name);
+
+                  return (
                   <div className="bg-card border border-border/60 rounded-lg sm:rounded-xl overflow-hidden shadow-sm">
                     <button
                       onClick={() => setShowLessons(!showLessons)}
@@ -346,41 +366,56 @@ const RecordingPlayerPage = () => {
                       </h3>
                       <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform sm:hidden ${showLessons ? "rotate-90" : ""}`} />
                     </button>
-                    <div className={`${showLessons ? "block" : "hidden"} sm:block max-h-[50vh] overflow-y-auto divide-y divide-border/40 border-t border-border/60`}>
-                      {lessons.map((lesson, i) => {
-                        const isActive = activeLesson?.id === lesson.id;
-                        return (
-                          <button
-                            key={lesson.id}
-                            onClick={() => {
-                              setPlayerError(null);
-                              setActiveLesson(lesson);
-                              setShowLessons(false);
-                            }}
-                            className={`w-full flex items-center gap-2 p-2.5 sm:p-3 text-left transition-colors hover:bg-muted/60 ${
-                              isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
-                            }`}
-                            type="button"
-                          >
-                            <div
-                              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
-                                isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {isActive ? <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : lesson.episode_number || i + 1}
+                    <div className={`${showLessons ? "block" : "hidden"} sm:block max-h-[50vh] overflow-y-auto border-t border-border/60`}>
+                      {chapters.map((chapter, ci) => (
+                        <div key={ci}>
+                          {hasChapters && chapter.name && (
+                            <div className="px-3 py-2 bg-muted/40 border-b border-border/40">
+                              <p className="text-xs font-semibold text-primary uppercase tracking-wide">{chapter.name}</p>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className={`text-xs sm:text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
-                                {lesson.title}
-                              </p>
-                              {lesson.duration_minutes && <p className="text-[10px] sm:text-xs text-muted-foreground">{lesson.duration_minutes} min</p>}
-                            </div>
-                          </button>
-                        );
-                      })}
+                          )}
+                          <div className="divide-y divide-border/40">
+                            {chapter.lessons.map((lesson, i) => {
+                              const isActive = activeLesson?.id === lesson.id;
+                              return (
+                                <button
+                                  key={lesson.id}
+                                  onClick={() => {
+                                    setPlayerError(null);
+                                    setActiveLesson(lesson);
+                                    setShowLessons(false);
+                                  }}
+                                  className={`w-full flex items-center gap-2 p-2.5 sm:p-3 text-left transition-colors hover:bg-muted/60 ${
+                                    isActive ? "bg-primary/5 border-l-2 border-primary" : "border-l-2 border-transparent"
+                                  }`}
+                                  type="button"
+                                >
+                                  <div
+                                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
+                                      isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                    }`}
+                                  >
+                                    {isActive ? <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : lesson.episode_number || i + 1}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-xs sm:text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>
+                                      {lesson.title}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      {lesson.duration_minutes && <span className="text-[10px] sm:text-xs text-muted-foreground">{lesson.duration_minutes} min</span>}
+                                      {lesson.session_date && <span className="text-[10px] text-muted-foreground/70">{lesson.session_date}</span>}
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </>
           ) : (
