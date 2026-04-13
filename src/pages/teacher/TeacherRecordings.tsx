@@ -126,6 +126,8 @@ const TeacherRecordings = () => {
       episode_number: parseInt(vidForm.episode_number) || null,
       duration_minutes: parseInt(vidForm.duration_minutes) || null,
       recording_id: selectedRecording.id,
+      chapter_name: vidForm.chapter_name || null,
+      session_date: vidForm.session_date || null,
     };
     let error;
     if (editingVid) {
@@ -138,7 +140,7 @@ const TeacherRecordings = () => {
     else {
       toast({ title: editingVid ? "Updated!" : "Added!" });
       setVidOpen(false); setEditingVid(null);
-      setVidForm({ title: "", video_url: "", episode_number: "", duration_minutes: "" });
+      setVidForm({ title: "", video_url: "", episode_number: "", duration_minutes: "", chapter_name: "", session_date: "" });
       fetchVideos(selectedRecording.id);
     }
   };
