@@ -281,6 +281,10 @@ const AdminRecordings = () => {
                   <div className="space-y-2"><Label>Lesson #</Label><Input type="number" value={vidForm.episode_number} onChange={(e) => setVidForm(f => ({ ...f, episode_number: e.target.value }))} /></div>
                   <div className="space-y-2"><Label>Duration (min)</Label><Input type="number" value={vidForm.duration_minutes} onChange={(e) => setVidForm(f => ({ ...f, duration_minutes: e.target.value }))} /></div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Chapter (optional)</Label><Input value={vidForm.chapter_name} onChange={(e) => setVidForm(f => ({ ...f, chapter_name: e.target.value }))} placeholder="e.g. Algebra Basics" /></div>
+                  <div className="space-y-2"><Label>Session Date (optional)</Label><Input type="date" value={vidForm.session_date} onChange={(e) => setVidForm(f => ({ ...f, session_date: e.target.value }))} /></div>
+                </div>
                 <Button onClick={handleSaveVideo} className="w-full">{editingVid ? "Update" : "Add"} Lesson</Button>
               </div>
             </DialogContent>
