@@ -235,7 +235,7 @@ const TeacherRecordings = () => {
                       <td className="p-3 text-muted-foreground hidden sm:table-cell">{v.duration_minutes ? `${v.duration_minutes} min` : "—"}</td>
                       <td className="p-3"><Switch checked={v.is_active} onCheckedChange={() => toggleVideoActive(v)} /></td>
                       <td className="p-3 flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => { setEditingVid(v); setVidForm({ title: v.title, video_url: v.video_url, episode_number: v.episode_number?.toString() || "", duration_minutes: v.duration_minutes?.toString() || "" }); setVidOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingVid(v); setVidForm({ title: v.title, video_url: v.video_url, episode_number: v.episode_number?.toString() || "", duration_minutes: v.duration_minutes?.toString() || "", chapter_name: v.chapter_name || "", session_date: v.session_date || "" }); setVidOpen(true); }}><Pencil className="w-3 h-3" /></Button>
                         <Button variant="ghost" size="sm" onClick={() => deleteVideo(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                       </td>
                     </tr>
