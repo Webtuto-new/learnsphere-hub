@@ -621,6 +621,121 @@ export type Database = {
           },
         ]
       }
+      lesson_documents: {
+        Row: {
+          created_at: string
+          file_type: string | null
+          file_url: string
+          id: string
+          module_id: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          module_id: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          module_id?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_documents_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_modules: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          recording_id: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          recording_id?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          recording_id?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_videos: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          module_id: string
+          sort_order: number
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          module_id: string
+          sort_order?: number
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          module_id?: string
+          sort_order?: number
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_videos_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string

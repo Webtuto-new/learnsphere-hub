@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Clock, Download, ExternalLink, Eye, FileText, ListVideo, Lock, Play, User } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
+import LessonModuleViewer from "@/components/lessons/LessonModuleViewer";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
@@ -431,10 +432,17 @@ const RecordingPlayerPage = () => {
                   );
                 })()}
               </div>
+
+              {/* Upgraded multi-video lesson modules */}
+              <div className="mt-6">
+                <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={hasAccess} />
+              </div>
             </>
           ) : (
             /* Non-purchased view */
             <div className="space-y-4 sm:space-y-6">
+              {/* Show modules so prospects can see structure (locked) */}
+              <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={false} />
               {/* Free Preview Video */}
               {freePreviewUrl ? (
                 <div className="space-y-2">

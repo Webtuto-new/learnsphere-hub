@@ -14,7 +14,9 @@ import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
 
-const baseTabs = ["Overview", "Schedule", "Teacher", "Reviews"];
+import LessonModuleViewer from "@/components/lessons/LessonModuleViewer";
+
+const baseTabs = ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"];
 
 const ClassDetailPage = () => {
   const { id } = useParams();
@@ -75,7 +77,7 @@ const ClassDetailPage = () => {
   }
 
   const hasRecordedContent = dbClass.delivery_mode === "recorded" || dbClass.delivery_mode === "hybrid";
-  const tabs = hasRecordedContent ? ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"] : baseTabs;
+  const tabs = baseTabs;
 
   const isHourly = dbClass.class_type === "hourly";
   const basePrice = Number(dbClass.price);
@@ -206,31 +208,31 @@ const ClassDetailPage = () => {
               </div>
             )}
 
-            {activeTab === "Lessons" && hasRecordedContent && (
+            {activeTab === "Lessons" && (
               <div className="space-y-6">
-                <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
-                {lessons.length > 0 ? (
-                  <div className="space-y-3">
-                    {lessons.map((lesson, idx) => (
-                      <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <Play className="w-4 h-4 text-primary" />
+                {lessons.length > 0 && (
+                  <>
+                    <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
+                    <div className="space-y-3">
+                      {lessons.map((lesson) => (
+                        <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Play className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
+                            {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
+                          </div>
+                          {enrollment && lesson.video_url && (
+                            <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
+                            </a>
+                          )}
+                          {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
-                          {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
-                        </div>
-                        {enrollment && lesson.video_url && (
-                          <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
-                          </a>
-                        )}
-                        {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No lessons added yet.</p>
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 {materials.length > 0 && (
@@ -253,6 +255,9 @@ const ClassDetailPage = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Upgraded multi-video lesson modules */}
+                <LessonModuleViewer parent={{ kind: "class", id: dbClass.id }} hasAccess={!!enrollment} />
               </div>
             )}
 

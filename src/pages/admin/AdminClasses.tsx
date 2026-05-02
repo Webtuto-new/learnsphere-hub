@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Zap, Eye, EyeOff, UserPlus, Search, Users } from "lucide-react";
 import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import LessonModuleManager from "@/components/lessons/LessonModuleManager";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -574,6 +575,12 @@ const AdminClasses = () => {
                   </div>
                 )}
                 <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
+
+                {editing && (
+                  <div className="pt-4 border-t border-border">
+                    <LessonModuleManager parent={{ kind: "class", id: editing.id }} />
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
