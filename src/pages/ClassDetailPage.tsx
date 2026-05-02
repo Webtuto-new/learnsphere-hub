@@ -210,29 +210,29 @@ const ClassDetailPage = () => {
 
             {activeTab === "Lessons" && (
               <div className="space-y-6">
-                <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
-                {lessons.length > 0 ? (
-                  <div className="space-y-3">
-                    {lessons.map((lesson, idx) => (
-                      <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <Play className="w-4 h-4 text-primary" />
+                {lessons.length > 0 && (
+                  <>
+                    <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
+                    <div className="space-y-3">
+                      {lessons.map((lesson) => (
+                        <div key={lesson.id} className="bg-card rounded-xl p-4 card-elevated flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Play className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
+                            {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
+                          </div>
+                          {enrollment && lesson.video_url && (
+                            <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
+                            </a>
+                          )}
+                          {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground">{lesson.lesson_number ? `${lesson.lesson_number}. ` : ""}{lesson.title}</p>
-                          {lesson.duration_minutes && <p className="text-sm text-muted-foreground">{lesson.duration_minutes} min</p>}
-                        </div>
-                        {enrollment && lesson.video_url && (
-                          <a href={lesson.video_url} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" variant="outline" className="gap-1.5"><Play className="w-3.5 h-3.5" /> Watch</Button>
-                          </a>
-                        )}
-                        {!enrollment && <Badge variant="outline">Enroll to access</Badge>}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No lessons added yet.</p>
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 {materials.length > 0 && (
