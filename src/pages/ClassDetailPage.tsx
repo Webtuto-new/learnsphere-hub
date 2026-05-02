@@ -255,6 +255,9 @@ const ClassDetailPage = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Upgraded multi-video lesson modules */}
+                <LessonModuleViewer parent={{ kind: "class", id: dbClass.id }} hasAccess={!!enrollment} />
               </div>
             )}
 
