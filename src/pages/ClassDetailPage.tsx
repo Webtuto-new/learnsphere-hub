@@ -14,7 +14,9 @@ import ReviewForm from "@/components/ReviewForm";
 import ReviewsList from "@/components/ReviewsList";
 import CountdownTimer from "@/components/CountdownTimer";
 
-const baseTabs = ["Overview", "Schedule", "Teacher", "Reviews"];
+import LessonModuleViewer from "@/components/lessons/LessonModuleViewer";
+
+const baseTabs = ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"];
 
 const ClassDetailPage = () => {
   const { id } = useParams();
@@ -75,7 +77,7 @@ const ClassDetailPage = () => {
   }
 
   const hasRecordedContent = dbClass.delivery_mode === "recorded" || dbClass.delivery_mode === "hybrid";
-  const tabs = hasRecordedContent ? ["Overview", "Lessons", "Schedule", "Teacher", "Reviews"] : baseTabs;
+  const tabs = baseTabs;
 
   const isHourly = dbClass.class_type === "hourly";
   const basePrice = Number(dbClass.price);
@@ -206,7 +208,7 @@ const ClassDetailPage = () => {
               </div>
             )}
 
-            {activeTab === "Lessons" && hasRecordedContent && (
+            {activeTab === "Lessons" && (
               <div className="space-y-6">
                 <h2 className="font-display text-xl font-semibold text-foreground">Lessons</h2>
                 {lessons.length > 0 ? (
