@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Users, UserPlus, Plus, Pencil, ArrowLeft, Trash2, FileText, Video } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
+import LessonModuleManager from "@/components/lessons/LessonModuleManager";
 import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import CreateStudentDialog from "@/components/CreateStudentDialog";
 
@@ -290,6 +291,11 @@ const TeacherRecordings = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Upgraded Lesson / Module system */}
+        <div className="pt-2">
+          <LessonModuleManager parent={{ kind: "recording", id: selectedRecording.id }} />
+        </div>
       </div>
     );
   }

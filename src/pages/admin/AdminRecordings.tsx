@@ -13,6 +13,7 @@ import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import { Badge } from "@/components/ui/badge";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
 import FileOrLinkInput from "@/components/FileOrLinkInput";
+import LessonModuleManager from "@/components/lessons/LessonModuleManager";
 import { addDays } from "date-fns";
 
 const AdminRecordings = () => {
@@ -394,6 +395,11 @@ const AdminRecordings = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Upgraded Lesson / Module system */}
+        <div className="pt-2">
+          <LessonModuleManager parent={{ kind: "recording", id: selectedRecording.id }} />
+        </div>
       </div>
     );
   }
