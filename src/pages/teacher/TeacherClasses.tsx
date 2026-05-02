@@ -208,6 +208,12 @@ const TeacherClasses = () => {
               )}
               <ThumbnailUpload value={form.thumbnail_url || null} onChange={(url) => setForm(f => ({ ...f, thumbnail_url: url || "" }))} title={form.title} />
               <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"} Class</Button>
+
+              {editing && (
+                <div className="pt-4 border-t border-border">
+                  <LessonModuleManager parent={{ kind: "class", id: editing.id }} />
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
