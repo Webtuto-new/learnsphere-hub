@@ -431,10 +431,17 @@ const RecordingPlayerPage = () => {
                   );
                 })()}
               </div>
+
+              {/* Upgraded multi-video lesson modules */}
+              <div className="mt-6">
+                <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={hasAccess} />
+              </div>
             </>
           ) : (
             /* Non-purchased view */
             <div className="space-y-4 sm:space-y-6">
+              {/* Show modules so prospects can see structure (locked) */}
+              <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={false} />
               {/* Free Preview Video */}
               {freePreviewUrl ? (
                 <div className="space-y-2">
