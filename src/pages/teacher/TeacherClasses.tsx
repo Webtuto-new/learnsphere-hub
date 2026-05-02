@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Eye, EyeOff, Users, UserPlus } from "lucide-react";
 import ThumbnailUpload from "@/components/ThumbnailUpload";
+import LessonModuleManager from "@/components/lessons/LessonModuleManager";
 import EnrolledStudentsDialog from "@/components/EnrolledStudentsDialog";
 import CreateStudentDialog from "@/components/CreateStudentDialog";
 
