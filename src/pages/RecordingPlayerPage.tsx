@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Clock, Download, ExternalLink, Eye, FileText, ListVideo, Lock, Play, User } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
+import LessonModuleViewer from "@/components/lessons/LessonModuleViewer";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
