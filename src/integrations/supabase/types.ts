@@ -283,6 +283,90 @@ export type Database = {
           },
         ]
       }
+      class_requests: {
+        Row: {
+          admin_notes: string | null
+          admin_reply: string | null
+          assigned_teacher_id: string | null
+          budget: number | null
+          class_type: string
+          created_at: string
+          currency: string
+          curriculum_id: string | null
+          email: string
+          grade_id: string | null
+          grade_text: string | null
+          id: string
+          message: string | null
+          phone: string | null
+          preferred_date: string | null
+          preferred_language: string | null
+          preferred_time: string | null
+          proposed_price: number | null
+          replied_at: string | null
+          status: string
+          student_name: string
+          subject_id: string | null
+          subject_text: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_reply?: string | null
+          assigned_teacher_id?: string | null
+          budget?: number | null
+          class_type?: string
+          created_at?: string
+          currency?: string
+          curriculum_id?: string | null
+          email: string
+          grade_id?: string | null
+          grade_text?: string | null
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_language?: string | null
+          preferred_time?: string | null
+          proposed_price?: number | null
+          replied_at?: string | null
+          status?: string
+          student_name: string
+          subject_id?: string | null
+          subject_text?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_reply?: string | null
+          assigned_teacher_id?: string | null
+          budget?: number | null
+          class_type?: string
+          created_at?: string
+          currency?: string
+          curriculum_id?: string | null
+          email?: string
+          grade_id?: string | null
+          grade_text?: string | null
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_language?: string | null
+          preferred_time?: string | null
+          proposed_price?: number | null
+          replied_at?: string | null
+          status?: string
+          student_name?: string
+          subject_id?: string | null
+          subject_text?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       class_sessions: {
         Row: {
           class_id: string
