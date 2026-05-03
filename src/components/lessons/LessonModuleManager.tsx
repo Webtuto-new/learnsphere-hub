@@ -20,7 +20,7 @@ interface Props {
   parent: Parent;
 }
 
-const MAX_VIDEOS_PER_MODULE = 10;
+// Unlimited videos per lesson/module
 
 const LessonModuleManager = ({ parent }: Props) => {
   const { toast } = useToast();
