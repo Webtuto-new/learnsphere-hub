@@ -215,6 +215,14 @@ const App = () => (
                     </DashboardWrapper>
                   }
                 />
+                <Route
+                  path="/dashboard/requests"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardRequests />
+                    </DashboardWrapper>
+                  }
+                />
 
                 {/* Admin Dashboard */}
                 <Route
