@@ -14,6 +14,12 @@ type Parent =
 interface Props {
   parent: Parent;
   hasAccess: boolean;
+  /** When provided, clicking Watch will call this instead of opening a modal. */
+  onPlay?: (video: { id: string; url: string; title: string }) => void;
+  /** Currently playing video id (for highlighting). */
+  activeVideoId?: string | null;
+  /** Reports loaded videos to parent (for auto-loading first into main player). */
+  onVideosLoaded?: (videos: { id: string; url: string; title: string }[]) => void;
 }
 
 const isYouTube = (url: string) => /(?:youtube\.com|youtu\.be)/i.test(url);
@@ -22,7 +28,7 @@ const ytEmbed = (url: string) => {
   return m ? `https://www.youtube.com/embed/${m[1]}` : url;
 };
 
-const LessonModuleViewer = ({ parent, hasAccess }: Props) => {
+const LessonModuleViewer = ({ parent, hasAccess, onPlay, activeVideoId, onVideosLoaded }: Props) => {
   const [modules, setModules] = useState<any[]>([]);
   const [videosByModule, setVideosByModule] = useState<Record<string, any[]>>({});
   const [docsByModule, setDocsByModule] = useState<Record<string, any[]>>({});
@@ -40,7 +46,10 @@ const LessonModuleViewer = ({ parent, hasAccess }: Props) => {
       .then(async ({ data }) => {
         const ms = (data as any[]) || [];
         setModules(ms);
-        if (ms.length === 0) return;
+        if (ms.length === 0) {
+          onVideosLoaded?.([]);
+          return;
+        }
         const ids = ms.map((m) => m.id);
         const [{ data: vids }, { data: docs }] = await Promise.all([
           supabase.from("lesson_videos" as any).select("*").in("module_id", ids).order("sort_order"),
@@ -52,12 +61,31 @@ const LessonModuleViewer = ({ parent, hasAccess }: Props) => {
         ((docs as any[]) || []).forEach((d) => (dMap[d.module_id] ||= []).push(d));
         setVideosByModule(vMap);
         setDocsByModule(dMap);
-        // Open the first lesson by default
         setOpenIds({ [ms[0].id]: true });
+
+        // Report videos in module/sort order to parent
+        const ordered: { id: string; url: string; title: string }[] = [];
+        ms.forEach((m) => {
+          (vMap[m.id] || []).forEach((v) =>
+            ordered.push({ id: v.id, url: v.video_url, title: v.title })
+          );
+        });
+        onVideosLoaded?.(ordered);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parent.kind, parent.id]);
 
   if (modules.length === 0) return null;
+
+  const handleWatch = (v: any) => {
+    if (onPlay) {
+      onPlay({ id: v.id, url: v.video_url, title: v.title });
+      // smooth scroll to top so user sees the main player
+      if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setPlaying({ url: v.video_url, title: v.title });
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -92,32 +120,45 @@ const LessonModuleViewer = ({ parent, hasAccess }: Props) => {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <CardContent className="p-4 space-y-4">
-                    {/* Videos */}
                     {vids.length > 0 && (
                       <div className="space-y-1.5">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Videos</p>
-                        {vids.map((v) => (
-                          <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background">
-                            <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                              <Play className="w-3.5 h-3.5 text-primary" />
+                        {vids.map((v) => {
+                          const isActive = activeVideoId === v.id;
+                          return (
+                            <div
+                              key={v.id}
+                              className={`flex items-center gap-3 p-3 rounded-lg border bg-background transition-colors ${
+                                isActive ? "border-primary bg-primary/5" : "border-border"
+                              }`}
+                            >
+                              <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
+                                isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                              }`}>
+                                <Play className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm font-medium truncate ${isActive ? "text-primary" : "text-foreground"}`}>{v.title}</p>
+                                {v.duration_minutes && <p className="text-[11px] text-muted-foreground">{v.duration_minutes} min</p>}
+                              </div>
+                              {hasAccess ? (
+                                <Button
+                                  size="sm"
+                                  variant={isActive ? "default" : "outline"}
+                                  className="gap-1.5"
+                                  onClick={() => handleWatch(v)}
+                                >
+                                  <Play className="w-3.5 h-3.5" /> {isActive ? "Playing" : "Watch"}
+                                </Button>
+                              ) : (
+                                <Badge variant="outline" className="gap-1 text-[10px]"><Lock className="w-3 h-3" /> Locked</Badge>
+                              )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">{v.title}</p>
-                              {v.duration_minutes && <p className="text-[11px] text-muted-foreground">{v.duration_minutes} min</p>}
-                            </div>
-                            {hasAccess ? (
-                              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setPlaying({ url: v.video_url, title: v.title })}>
-                                <Play className="w-3.5 h-3.5" /> Watch
-                              </Button>
-                            ) : (
-                              <Badge variant="outline" className="gap-1 text-[10px]"><Lock className="w-3 h-3" /> Locked</Badge>
-                            )}
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
-                    {/* Documents */}
                     {docs.length > 0 && (
                       <div className="space-y-1.5">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
@@ -155,7 +196,7 @@ const LessonModuleViewer = ({ parent, hasAccess }: Props) => {
         })}
       </div>
 
-      {/* Player dialog */}
+      {/* Fallback player dialog (only used when onPlay not provided) */}
       <Dialog open={!!playing} onOpenChange={(o) => !o && setPlaying(null)}>
         <DialogContent className="max-w-3xl">
           <DialogHeader><DialogTitle>{playing?.title}</DialogTitle></DialogHeader>
