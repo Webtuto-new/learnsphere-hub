@@ -42,6 +42,7 @@ import DashboardHistory from "./pages/dashboard/DashboardHistory";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardNotes from "./pages/dashboard/DashboardNotes";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import DashboardRequests from "./pages/dashboard/DashboardRequests";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
