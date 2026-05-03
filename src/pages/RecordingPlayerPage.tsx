@@ -159,7 +159,10 @@ const RecordingPlayerPage = () => {
     [lessons]
   );
 
-  const activeUrl = normalizeVideoUrl(activeLesson?.video_url);
+  // Main player source: prefer legacy lesson if set, else active module video
+  const mainTitle = activeLesson?.title ?? activeModuleVideo?.title ?? null;
+  const activeUrl = normalizeVideoUrl(activeLesson?.video_url) ?? (activeModuleVideo?.url ?? null);
+  const hasAnyVideo = !!activeLesson || lessons.length > 0 || moduleVideos.length > 0;
 
   const handleVideoEnded = () => {
     if (!activeLesson) return;
