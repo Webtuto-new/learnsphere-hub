@@ -124,6 +124,7 @@ const App = () => (
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="/request-class" element={<RequestClassPage />} />
 
                 {/* Student Dashboard */}
                 <Route
