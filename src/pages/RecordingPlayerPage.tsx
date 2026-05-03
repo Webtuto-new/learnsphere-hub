@@ -87,6 +87,8 @@ const RecordingPlayerPage = () => {
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [showLessons, setShowLessons] = useState(false);
   const [recordingNotes, setRecordingNotes] = useState<any[]>([]);
+  const [moduleVideos, setModuleVideos] = useState<{ id: string; url: string; title: string }[]>([]);
+  const [activeModuleVideo, setActiveModuleVideo] = useState<{ id: string; url: string; title: string } | null>(null);
 
   useEffect(() => {
     setPlayerError(null);
@@ -157,7 +159,10 @@ const RecordingPlayerPage = () => {
     [lessons]
   );
 
-  const activeUrl = normalizeVideoUrl(activeLesson?.video_url);
+  // Main player source: prefer legacy lesson if set, else active module video
+  const mainTitle = activeLesson?.title ?? activeModuleVideo?.title ?? null;
+  const activeUrl = normalizeVideoUrl(activeLesson?.video_url) ?? (activeModuleVideo?.url ?? null);
+  const hasAnyVideo = !!activeLesson || lessons.length > 0 || moduleVideos.length > 0;
 
   const handleVideoEnded = () => {
     if (!activeLesson) return;
@@ -231,7 +236,7 @@ const RecordingPlayerPage = () => {
               {/* Video player - full width on mobile */}
               <div className="space-y-3 sm:space-y-4">
                 <div className="aspect-video bg-card rounded-lg sm:rounded-xl overflow-hidden relative shadow-lg border border-border/60">
-                  {!activeLesson ? (
+                  {!hasAnyVideo ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
                       <Play className="w-10 h-10 sm:w-14 sm:h-14 mb-2" />
                       <p className="text-xs sm:text-sm">No lessons available yet</p>
@@ -239,7 +244,7 @@ const RecordingPlayerPage = () => {
                   ) : !activeUrl ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-4 text-center">
                       <Play className="w-8 h-8 sm:w-10 sm:h-10 mb-2 opacity-60" />
-                      <p className="text-xs sm:text-sm font-medium text-foreground">No playable video link yet.</p>
+                      <p className="text-xs sm:text-sm font-medium text-foreground">Select a lesson to start watching.</p>
                     </div>
                   ) : playerError ? (
                     <div className="flex flex-col items-center justify-center h-full px-4 text-center bg-muted/30">
@@ -256,9 +261,9 @@ const RecordingPlayerPage = () => {
                     </div>
                   ) : (
                     <VideoPlayer
-                      key={activeLesson.id}
+                      key={activeLesson?.id ?? activeModuleVideo?.id ?? activeUrl}
                       url={activeUrl}
-                      title={activeLesson.title}
+                      title={mainTitle ?? recording.title}
                       onEnded={handleVideoEnded}
                       onError={() =>
                         setPlayerError("The video URL is invalid, blocked, or the storage bucket is not public.")
@@ -297,8 +302,8 @@ const RecordingPlayerPage = () => {
                 {/* Title & meta */}
                 <div className="space-y-1.5">
                   <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground leading-tight">{recording.title}</h1>
-                  {activeLesson && (
-                    <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {activeLesson.title}</p>
+                  {mainTitle && (
+                    <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {mainTitle}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {recording.teachers?.name && (
@@ -380,6 +385,7 @@ const RecordingPlayerPage = () => {
                                   key={lesson.id}
                                   onClick={() => {
                                     setPlayerError(null);
+                                    setActiveModuleVideo(null);
                                     setActiveLesson(lesson);
                                     setShowLessons(false);
                                   }}
@@ -435,7 +441,23 @@ const RecordingPlayerPage = () => {
 
               {/* Upgraded multi-video lesson modules */}
               <div className="mt-6">
-                <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={hasAccess} />
+                <LessonModuleViewer
+                  parent={{ kind: "recording", id: id! }}
+                  hasAccess={hasAccess}
+                  activeVideoId={activeModuleVideo?.id ?? null}
+                  onVideosLoaded={(vs) => {
+                    setModuleVideos(vs);
+                    // Auto-load first module video if no legacy lesson is playable
+                    if (!activeLesson && vs.length > 0 && !activeModuleVideo) {
+                      setActiveModuleVideo(vs[0]);
+                    }
+                  }}
+                  onPlay={(v) => {
+                    setPlayerError(null);
+                    setActiveLesson(null);
+                    setActiveModuleVideo(v);
+                  }}
+                />
               </div>
             </>
           ) : (

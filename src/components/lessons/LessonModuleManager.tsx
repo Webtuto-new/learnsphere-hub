@@ -20,7 +20,7 @@ interface Props {
   parent: Parent;
 }
 
-const MAX_VIDEOS_PER_MODULE = 10;
+// Unlimited videos per lesson/module
 
 const LessonModuleManager = ({ parent }: Props) => {
   const { toast } = useToast();
@@ -138,11 +138,6 @@ const LessonModuleManager = ({ parent }: Props) => {
 
   // ---- Video CRUD
   const openNewVideo = (moduleId: string) => {
-    const count = (videosByModule[moduleId] || []).length;
-    if (count >= MAX_VIDEOS_PER_MODULE) {
-      toast({ title: `Max ${MAX_VIDEOS_PER_MODULE} videos per lesson`, variant: "destructive" });
-      return;
-    }
     setVidModuleId(moduleId);
     setEditingVid(null);
     setVidForm({ title: "", video_url: "", description: "", duration_minutes: "" });
@@ -300,8 +295,8 @@ const LessonModuleManager = ({ parent }: Props) => {
                       {/* Videos */}
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-xs font-semibold text-foreground">Videos ({vids.length}/{MAX_VIDEOS_PER_MODULE})</p>
-                          <Button size="sm" variant="outline" className="h-7 gap-1 text-xs" onClick={() => openNewVideo(m.id)} disabled={vids.length >= MAX_VIDEOS_PER_MODULE}>
+                          <p className="text-xs font-semibold text-foreground">Videos ({vids.length})</p>
+                          <Button size="sm" variant="outline" className="h-7 gap-1 text-xs" onClick={() => openNewVideo(m.id)}>
                             <Plus className="w-3 h-3" /> Add Video
                           </Button>
                         </div>
