@@ -440,7 +440,23 @@ const RecordingPlayerPage = () => {
 
               {/* Upgraded multi-video lesson modules */}
               <div className="mt-6">
-                <LessonModuleViewer parent={{ kind: "recording", id: id! }} hasAccess={hasAccess} />
+                <LessonModuleViewer
+                  parent={{ kind: "recording", id: id! }}
+                  hasAccess={hasAccess}
+                  activeVideoId={activeModuleVideo?.id ?? null}
+                  onVideosLoaded={(vs) => {
+                    setModuleVideos(vs);
+                    // Auto-load first module video if no legacy lesson is playable
+                    if (!activeLesson && vs.length > 0 && !activeModuleVideo) {
+                      setActiveModuleVideo(vs[0]);
+                    }
+                  }}
+                  onPlay={(v) => {
+                    setPlayerError(null);
+                    setActiveLesson(null);
+                    setActiveModuleVideo(v);
+                  }}
+                />
               </div>
             </>
           ) : (
