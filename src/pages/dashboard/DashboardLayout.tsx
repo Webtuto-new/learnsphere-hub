@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Calendar, BookOpen, Play, FileText, CreditCard,
   User, Award, Users, Gift, Wrench, LogOut, Menu, X, Sun, Moon,
-  ChevronRight, Bell, Heart, Clock, GraduationCap
+  ChevronRight, Bell, Heart, Clock, GraduationCap, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -17,6 +17,7 @@ const studentMenu = [
   { label: "Class History", path: "/dashboard/history", icon: Clock },
   { label: "Wishlist", path: "/dashboard/wishlist", icon: Heart },
   { label: "Notes", path: "/dashboard/notes", icon: FileText },
+  { label: "Class Requests", path: "/dashboard/requests", icon: MessageSquare },
   { label: "Payments", path: "/dashboard/payments", icon: CreditCard },
 ];
 

@@ -27,6 +27,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import ContactPage from "./pages/ContactPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import NotFound from "./pages/NotFound";
+import RequestClassPage from "./pages/RequestClassPage";
 
 // Dashboard pages
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
@@ -41,6 +42,7 @@ import DashboardHistory from "./pages/dashboard/DashboardHistory";
 import DashboardCertificates from "./pages/dashboard/DashboardCertificates";
 import DashboardNotes from "./pages/dashboard/DashboardNotes";
 import DashboardPlaceholder from "./pages/dashboard/DashboardPlaceholder";
+import DashboardRequests from "./pages/dashboard/DashboardRequests";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -62,6 +64,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBundles from "./pages/admin/AdminBundles";
 import AdminAdmins from "./pages/admin/AdminAdmins";
 import AdminTeacherProfile from "./pages/admin/AdminTeacherProfile";
+import AdminClassRequests from "./pages/admin/AdminClassRequests";
 
 // Teacher pages
 import TeacherLayout from "./pages/teacher/TeacherLayout";
@@ -121,6 +124,7 @@ const App = () => (
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="/request-class" element={<RequestClassPage />} />
 
                 {/* Student Dashboard */}
                 <Route
@@ -208,6 +212,14 @@ const App = () => (
                   element={
                     <DashboardWrapper>
                       <DashboardPlaceholder title="Referrals" />
+                    </DashboardWrapper>
+                  }
+                />
+                <Route
+                  path="/dashboard/requests"
+                  element={
+                    <DashboardWrapper>
+                      <DashboardRequests />
                     </DashboardWrapper>
                   }
                 />
@@ -355,6 +367,14 @@ const App = () => (
                   element={
                     <AdminWrapper>
                       <AdminAdmins />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/class-requests"
+                  element={
+                    <AdminWrapper>
+                      <AdminClassRequests />
                     </AdminWrapper>
                   }
                 />

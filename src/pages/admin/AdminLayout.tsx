@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, BookOpen, Users, GraduationCap, Play, CreditCard,
-  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package, Building2, Shield
+  FileText, BarChart3, Tag, Bell, Settings, LogOut, Menu, Sun, Moon, Megaphone, Award, DollarSign, Package, Building2, Shield, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -15,6 +15,7 @@ const adminMenu = [
   { label: "Students", path: "/admin/students", icon: Users },
   { label: "Teachers", path: "/admin/teachers", icon: GraduationCap },
   { label: "Tutor Applications", path: "/admin/applications", icon: FileText },
+  { label: "Class Requests", path: "/admin/class-requests", icon: MessageSquare },
   { label: "Recordings", path: "/admin/recordings", icon: Play },
   { label: "Curriculum", path: "/admin/curriculum", icon: BookOpen },
   { label: "Bundles", path: "/admin/bundles", icon: Package },
