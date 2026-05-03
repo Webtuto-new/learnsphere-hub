@@ -302,8 +302,8 @@ const RecordingPlayerPage = () => {
                 {/* Title & meta */}
                 <div className="space-y-1.5">
                   <h1 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground leading-tight">{recording.title}</h1>
-                  {activeLesson && (
-                    <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {activeLesson.title}</p>
+                  {mainTitle && (
+                    <p className="text-primary font-medium text-xs sm:text-sm">Now Playing: {mainTitle}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {recording.teachers?.name && (
