@@ -138,11 +138,6 @@ const LessonModuleManager = ({ parent }: Props) => {
 
   // ---- Video CRUD
   const openNewVideo = (moduleId: string) => {
-    const count = (videosByModule[moduleId] || []).length;
-    if (count >= MAX_VIDEOS_PER_MODULE) {
-      toast({ title: `Max ${MAX_VIDEOS_PER_MODULE} videos per lesson`, variant: "destructive" });
-      return;
-    }
     setVidModuleId(moduleId);
     setEditingVid(null);
     setVidForm({ title: "", video_url: "", description: "", duration_minutes: "" });
