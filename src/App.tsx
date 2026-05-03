@@ -27,6 +27,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import ContactPage from "./pages/ContactPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import NotFound from "./pages/NotFound";
+import RequestClassPage from "./pages/RequestClassPage";
 
 // Dashboard pages
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
