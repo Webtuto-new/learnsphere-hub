@@ -87,6 +87,8 @@ const RecordingPlayerPage = () => {
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [showLessons, setShowLessons] = useState(false);
   const [recordingNotes, setRecordingNotes] = useState<any[]>([]);
+  const [moduleVideos, setModuleVideos] = useState<{ id: string; url: string; title: string }[]>([]);
+  const [activeModuleVideo, setActiveModuleVideo] = useState<{ id: string; url: string; title: string } | null>(null);
 
   useEffect(() => {
     setPlayerError(null);
