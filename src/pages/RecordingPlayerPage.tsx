@@ -385,6 +385,7 @@ const RecordingPlayerPage = () => {
                                   key={lesson.id}
                                   onClick={() => {
                                     setPlayerError(null);
+                                    setActiveModuleVideo(null);
                                     setActiveLesson(lesson);
                                     setShowLessons(false);
                                   }}
