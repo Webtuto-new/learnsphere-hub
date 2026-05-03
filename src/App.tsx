@@ -64,6 +64,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBundles from "./pages/admin/AdminBundles";
 import AdminAdmins from "./pages/admin/AdminAdmins";
 import AdminTeacherProfile from "./pages/admin/AdminTeacherProfile";
+import AdminClassRequests from "./pages/admin/AdminClassRequests";
 
 // Teacher pages
 import TeacherLayout from "./pages/teacher/TeacherLayout";
