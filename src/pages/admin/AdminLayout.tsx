@@ -15,6 +15,7 @@ const adminMenu = [
   { label: "Students", path: "/admin/students", icon: Users },
   { label: "Teachers", path: "/admin/teachers", icon: GraduationCap },
   { label: "Tutor Applications", path: "/admin/applications", icon: FileText },
+  { label: "Class Requests", path: "/admin/class-requests", icon: MessageSquare },
   { label: "Recordings", path: "/admin/recordings", icon: Play },
   { label: "Curriculum", path: "/admin/curriculum", icon: BookOpen },
   { label: "Bundles", path: "/admin/bundles", icon: Package },
