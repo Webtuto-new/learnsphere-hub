@@ -370,6 +370,14 @@ const App = () => (
                     </AdminWrapper>
                   }
                 />
+                <Route
+                  path="/admin/class-requests"
+                  element={
+                    <AdminWrapper>
+                      <AdminClassRequests />
+                    </AdminWrapper>
+                  }
+                />
 
                 {/* Teacher Dashboard */}
                 <Route path="/teacher" element={<TeacherWrapper><TeacherDashboard /></TeacherWrapper>} />
