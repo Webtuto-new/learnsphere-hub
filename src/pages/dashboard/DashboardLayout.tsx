@@ -17,6 +17,7 @@ const studentMenu = [
   { label: "Class History", path: "/dashboard/history", icon: Clock },
   { label: "Wishlist", path: "/dashboard/wishlist", icon: Heart },
   { label: "Notes", path: "/dashboard/notes", icon: FileText },
+  { label: "Class Requests", path: "/dashboard/requests", icon: MessageSquare },
   { label: "Payments", path: "/dashboard/payments", icon: CreditCard },
 ];
 
