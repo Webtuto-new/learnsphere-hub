@@ -236,7 +236,7 @@ const RecordingPlayerPage = () => {
               {/* Video player - full width on mobile */}
               <div className="space-y-3 sm:space-y-4">
                 <div className="aspect-video bg-card rounded-lg sm:rounded-xl overflow-hidden relative shadow-lg border border-border/60">
-                  {!activeLesson ? (
+                  {!hasAnyVideo ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 bg-muted/50">
                       <Play className="w-10 h-10 sm:w-14 sm:h-14 mb-2" />
                       <p className="text-xs sm:text-sm">No lessons available yet</p>
@@ -244,7 +244,7 @@ const RecordingPlayerPage = () => {
                   ) : !activeUrl ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 px-4 text-center">
                       <Play className="w-8 h-8 sm:w-10 sm:h-10 mb-2 opacity-60" />
-                      <p className="text-xs sm:text-sm font-medium text-foreground">No playable video link yet.</p>
+                      <p className="text-xs sm:text-sm font-medium text-foreground">Select a lesson to start watching.</p>
                     </div>
                   ) : playerError ? (
                     <div className="flex flex-col items-center justify-center h-full px-4 text-center bg-muted/30">
@@ -261,9 +261,9 @@ const RecordingPlayerPage = () => {
                     </div>
                   ) : (
                     <VideoPlayer
-                      key={activeLesson.id}
+                      key={activeLesson?.id ?? activeModuleVideo?.id ?? activeUrl}
                       url={activeUrl}
-                      title={activeLesson.title}
+                      title={mainTitle ?? recording.title}
                       onEnded={handleVideoEnded}
                       onError={() =>
                         setPlayerError("The video URL is invalid, blocked, or the storage bucket is not public.")
