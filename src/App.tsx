@@ -65,6 +65,7 @@ import AdminBundles from "./pages/admin/AdminBundles";
 import AdminAdmins from "./pages/admin/AdminAdmins";
 import AdminTeacherProfile from "./pages/admin/AdminTeacherProfile";
 import AdminClassRequests from "./pages/admin/AdminClassRequests";
+import AdminWhatsApp from "./pages/admin/AdminWhatsApp";
 
 // Teacher pages
 import TeacherLayout from "./pages/teacher/TeacherLayout";
@@ -375,6 +376,14 @@ const App = () => (
                   element={
                     <AdminWrapper>
                       <AdminClassRequests />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/whatsapp"
+                  element={
+                    <AdminWrapper>
+                      <AdminWhatsApp />
                     </AdminWrapper>
                   }
                 />

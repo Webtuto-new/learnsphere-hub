@@ -1445,6 +1445,140 @@ export type Database = {
           },
         ]
       }
+      whatsapp_messages: {
+        Row: {
+          body: string
+          context: Json | null
+          created_at: string
+          created_by: string | null
+          error: string | null
+          id: string
+          phone: string
+          sent_at: string | null
+          status: string
+          template_id: string | null
+          type: string
+          updated_at: string
+          user_id: string | null
+          wa_link: string | null
+        }
+        Insert: {
+          body: string
+          context?: Json | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          phone: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          type: string
+          updated_at?: string
+          user_id?: string | null
+          wa_link?: string | null
+        }
+        Update: {
+          body?: string
+          context?: Json | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          phone?: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+          wa_link?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_settings: {
+        Row: {
+          admin_phone: string | null
+          created_at: string
+          enabled_types: Json
+          id: string
+          login_link: string | null
+          payment_instructions: string | null
+          provider: string
+          provider_config: Json | null
+          reminder_days_before: number
+          support_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_phone?: string | null
+          created_at?: string
+          enabled_types?: Json
+          id?: string
+          login_link?: string | null
+          payment_instructions?: string | null
+          provider?: string
+          provider_config?: Json | null
+          reminder_days_before?: number
+          support_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_phone?: string | null
+          created_at?: string
+          enabled_types?: Json
+          id?: string
+          login_link?: string | null
+          payment_instructions?: string | null
+          provider?: string
+          provider_config?: Json | null
+          reminder_days_before?: number
+          support_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      whatsapp_templates: {
+        Row: {
+          body: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           class_id: string
