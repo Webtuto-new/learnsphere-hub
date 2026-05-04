@@ -93,19 +93,20 @@ export async function sendWhatsAppMessage(args: SendArgs): Promise<{
 }> {
   const link = buildWaLink(args.phone, args.body);
   const { data: userRes } = await supabase.auth.getUser();
+  const insertRow: Record<string, unknown> = {
+    phone: args.phone,
+    type: args.type,
+    body: args.body,
+    status: "pending",
+    wa_link: link,
+  };
+  if (args.userId) insertRow.user_id = args.userId;
+  if (args.templateId) insertRow.template_id = args.templateId;
+  if (args.context) insertRow.context = args.context as never;
+  if (userRes.user?.id) insertRow.created_by = userRes.user.id;
   const { data, error } = await supabase
     .from("whatsapp_messages")
-    .insert({
-      user_id: args.userId ?? null,
-      phone: args.phone,
-      template_id: args.templateId ?? null,
-      type: args.type,
-      body: args.body,
-      status: "pending",
-      context: args.context ?? null,
-      wa_link: link,
-      created_by: userRes.user?.id ?? null,
-    })
+    .insert(insertRow as never)
     .select("id")
     .single();
   if (error) throw error;
