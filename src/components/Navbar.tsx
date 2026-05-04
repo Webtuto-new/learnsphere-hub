@@ -12,6 +12,7 @@ const navItems = [
   { label: "Curriculum", path: "/curriculum" },
   { label: "Classes", path: "/classes" },
   { label: "Recordings", path: "/recordings" },
+  { label: "Request a Class", path: "/request-class" },
 ];
 
 const Navbar = () => {
