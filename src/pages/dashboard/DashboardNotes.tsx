@@ -109,6 +109,49 @@ const DashboardNotes = () => {
           });
         }
 
+        // 4. Lesson module documents (from new lesson/module system) for both classes & recordings
+        if (classIds.length || recordingIds.length) {
+          let modQuery = supabase.from("lesson_modules" as any).select("id, title, class_id, recording_id");
+          if (classIds.length && recordingIds.length) {
+            modQuery = modQuery.or(
+              `class_id.in.(${classIds.join(",")}),recording_id.in.(${recordingIds.join(",")})`
+            );
+          } else if (classIds.length) {
+            modQuery = modQuery.in("class_id", classIds);
+          } else {
+            modQuery = modQuery.in("recording_id", recordingIds);
+          }
+          const { data: mods } = await modQuery;
+          const modules = (mods as any[]) || [];
+          if (modules.length) {
+            const modIds = modules.map(m => m.id);
+            const [{ data: lessonDocs }, classesData, recordingsData] = await Promise.all([
+              supabase.from("lesson_documents" as any).select("*").in("module_id", modIds),
+              classIds.length
+                ? supabase.from("classes").select("id, title").in("id", classIds)
+                : Promise.resolve({ data: [] as any[] }),
+              recordingIds.length
+                ? supabase.from("recordings").select("id, title").in("id", recordingIds)
+                : Promise.resolve({ data: [] as any[] }),
+            ]);
+            ((lessonDocs as any[]) || []).forEach((d: any) => {
+              const mod = modules.find(m => m.id === d.module_id);
+              const isClass = !!mod?.class_id;
+              const parentTitle = isClass
+                ? (classesData.data as any[])?.find((c: any) => c.id === mod.class_id)?.title
+                : (recordingsData.data as any[])?.find((r: any) => r.id === mod.recording_id)?.title;
+              collected.push({
+                id: `ld-${d.id}`,
+                title: d.title,
+                file_url: d.file_url,
+                file_type: d.file_type,
+                source_title: `${parentTitle || (isClass ? "Class" : "Recording")} · ${mod?.title || "Lesson"}`,
+                source_type: isClass ? "Class" : "Recording",
+              });
+            });
+          }
+        }
+
         setItems(collected);
       } catch (error) {
         console.error("Unexpected error fetching notes:", error);
