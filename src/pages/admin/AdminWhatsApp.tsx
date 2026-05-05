@@ -17,6 +17,7 @@ import { Plus, Pencil, Trash2, Send, ExternalLink, Copy, MessageSquare } from "l
 import MessagePreviewDialog from "@/components/whatsapp/MessagePreviewDialog";
 import {
   TEMPLATE_VARIABLES, TYPE_LABELS, renderTemplate, buildWaLink, normalizePhone,
+  sendWhatsAppMessage, sendViaProvider, sendTestMessage,
   type WhatsAppType,
 } from "@/lib/whatsapp";
 
