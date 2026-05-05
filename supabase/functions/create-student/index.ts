@@ -47,6 +47,18 @@ serve(async (req) => {
       .eq("id", newUser.user!.id)
       .single();
 
+    // Fire-and-forget: send WhatsApp login alert via automation function
+    try {
+      await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-automation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({ job: "login_alert", studentId: newUser.user!.id, reason: "created", tempPassword: password }),
+      });
+    } catch (_e) { /* don't block account creation */ }
+
     return new Response(
       JSON.stringify({
         success: true,
