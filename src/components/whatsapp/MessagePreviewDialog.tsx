@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, ExternalLink, Check, Send } from "lucide-react";
+import { Copy, ExternalLink, Check, Send, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { buildWaLink, sendWhatsAppMessage, markStatus, type WhatsAppType } from "@/lib/whatsapp";
+import { buildWaLink, sendWhatsAppMessage, markStatus, sendViaProvider, type WhatsAppType } from "@/lib/whatsapp";
 
 interface Props {
   open: boolean;
