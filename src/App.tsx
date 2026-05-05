@@ -66,6 +66,7 @@ import AdminAdmins from "./pages/admin/AdminAdmins";
 import AdminTeacherProfile from "./pages/admin/AdminTeacherProfile";
 import AdminClassRequests from "./pages/admin/AdminClassRequests";
 import AdminWhatsApp from "./pages/admin/AdminWhatsApp";
+import AdminWhatsAppAutomation from "./pages/admin/AdminWhatsAppAutomation";
 
 // Teacher pages
 import TeacherLayout from "./pages/teacher/TeacherLayout";
@@ -384,6 +385,14 @@ const App = () => (
                   element={
                     <AdminWrapper>
                       <AdminWhatsApp />
+                    </AdminWrapper>
+                  }
+                />
+                <Route
+                  path="/admin/whatsapp-automation"
+                  element={
+                    <AdminWrapper>
+                      <AdminWhatsAppAutomation />
                     </AdminWrapper>
                   }
                 />
