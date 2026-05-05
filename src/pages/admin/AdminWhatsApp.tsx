@@ -320,7 +320,10 @@ const BulkTab = () => {
 
       {queue.length > 0 && tmpl && (
         <Card>
-          <CardHeader><CardTitle>Queue ({queue.length})</CardTitle></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Queue ({queue.length})</CardTitle>
+            <BulkSendButton queue={queue} tmpl={tmpl} />
+          </CardHeader>
           <CardContent className="space-y-2 max-h-96 overflow-y-auto">
             {queue.map((q) => (
               <div key={q.student.id} className="flex items-center gap-2 p-2 border border-border rounded-lg">
