@@ -12,10 +12,12 @@ const corsHeaders = {
 
 function normalizePhone(phone: string | null | undefined): string {
   if (!phone) return "";
-  const digits = phone.replace(/\D/g, "");
+  const digits = String(phone).replace(/\D/g, "");
   if (!digits) return "";
-  if (digits.startsWith("0") && digits.length === 10) return "94" + digits.slice(1);
-  return digits;
+  let local = digits;
+  if (local.startsWith("0") && local.length === 10) local = "94" + local.slice(1);
+  if (!local.startsWith("94") && local.length === 9) local = "94" + local;
+  return "+" + local;
 }
 
 function render(body: string, vars: Record<string, unknown>): string {
